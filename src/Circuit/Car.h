@@ -16,6 +16,11 @@ public:
         m_shape.setFillColor(sf::Color{ 200, 100, 100 });
     }
 
+    unsigned int getGaz() const
+    {
+        return m_gaz;
+    }
+
     void draw(sf::RenderWindow& a_window) const
     {
         a_window.draw(m_shape);

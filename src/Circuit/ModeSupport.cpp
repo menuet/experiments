@@ -177,6 +177,7 @@ void ModeSupportPlaying::onEnterMode()
 
 void ModeSupportPlaying::onLeaveMode()
 {
+    playEngine(false);
 }
 
 void ModeSupportPlaying::onUpdate(const sf::RenderWindow& a_window)
@@ -201,6 +202,7 @@ void ModeSupportPlaying::onUpdate(const sf::RenderWindow& a_window)
                 ++m_currentFaultsCount;
                 m_currentFaultsCountText.setString(std::string("Faults Count: ") + std::to_string(m_currentFaultsCount));
                 m_isCurrentlyFaulty = true;
+                m_faultSound.get().play();
             }
         }
         m_afterLastPauseDuration = std::chrono::steady_clock::now() - m_lastPauseTimepoint;
@@ -226,11 +228,13 @@ void ModeSupportPlaying::onKeyPressed(const sf::RenderWindow& a_window, const sf
         {
             m_currentAction = Action::IsPausing;
             m_beforeLastPauseDuration += m_afterLastPauseDuration;
+            playEngine(false);
         }
         else
         {
             m_currentAction = Action::IsRunning;
             m_lastPauseTimepoint = std::chrono::steady_clock::now();
+            playEngine(true);
         }
         break;
     }
@@ -240,13 +244,18 @@ void ModeSupportPlaying::onMouseButtonPressed(const sf::RenderWindow& a_window, 
 {
     if (m_currentAction != Action::IsRunning)
         return;
+    auto& l_car = m_game.getCar();
     switch (a_event.button)
     {
     case sf::Mouse::Button::Left:
-        m_game.getCar().incGaz();
+        playEngine(false);
+        l_car.incGaz();
+        playEngine(true);
         break;
     case sf::Mouse::Button::Right:
-        m_game.getCar().decGaz();
+        playEngine(false);
+        l_car.decGaz();
+        playEngine(true);
         break;
     }
 }
@@ -257,4 +266,15 @@ void ModeSupportPlaying::onMouseButtonReleased(const sf::RenderWindow& a_window,
 
 void ModeSupportPlaying::onMouseMoved(const sf::RenderWindow& a_window, const sf::Event::MouseMoveEvent& a_event)
 {
+}
+
+void ModeSupportPlaying::playEngine(bool a_play)
+{
+    const auto& l_car = m_game.getCar();
+    const auto l_gaz = m_game.getCar().getGaz();
+    auto& l_engineSound = (l_gaz < m_engineSounds.size()) ? m_engineSounds[l_gaz] : m_engineSounds.back();
+    if (a_play)
+        l_engineSound.get().play();
+    else
+        l_engineSound.get().stop();
 }

@@ -60,7 +60,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)\Resources\*.ttf $(TargetDir)</Command>
+      <Command>copy $(ProjectDir)\Resources\*.ttf $(TargetDir)
+copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,7 +81,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)\Resources\*.ttf $(TargetDir)</Command>
+      <Command>copy $(ProjectDir)\Resources\*.ttf $(TargetDir)
+copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -96,7 +98,20 @@
     <ClInclude Include="EventDispatcher.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ModeSupport.h" />
+    <ClInclude Include="Resources.h" />
     <ClInclude Include="Track.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Engine0.wav" />
+    <Media Include="Resources\Engine1.wav" />
+    <Media Include="Resources\Engine2.wav" />
+    <Media Include="Resources\Engine3.wav" />
+    <Media Include="Resources\Fault.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\leadcoat.ttf" />
+    <Font Include="Resources\MICKEY.TTF" />
+    <Font Include="Resources\Minnie.TTF" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

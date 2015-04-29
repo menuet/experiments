@@ -40,5 +40,36 @@
     <ClInclude Include="Car.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Resources.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Fault.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Engine0.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Engine1.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Engine2.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Engine3.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\leadcoat.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+    <Font Include="Resources\MICKEY.TTF">
+      <Filter>Resource Files</Filter>
+    </Font>
+    <Font Include="Resources\Minnie.TTF">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
 </Project>

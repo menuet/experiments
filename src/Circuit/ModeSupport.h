@@ -3,8 +3,14 @@
 
 
 #include "Track.h"
+#include "Resources.h"
 #include <sfml/graphics.hpp>
+#include <sfml/audio.hpp>
 #include <chrono>
+#include <algorithm>
+#include <filesystem>
+#include <regex>
+#include <vector>
 
 
 class ModeSupport
@@ -110,7 +116,30 @@ public:
 
     ModeSupportPlaying(Game& a_game)
         : m_game(a_game)
+        , m_faultSound("Fault.wav")
     {
+        static const std::regex l_engineSoundsPattern{ R"(Engine(\d).wav)" };
+        const auto l_resourcesDirectory = getRunningModuleDirectory();
+        std::for_each(std::tr2::sys::directory_iterator(l_resourcesDirectory), std::tr2::sys::directory_iterator(), [this](const std::tr2::sys::path& a_resourceFilePathName)
+        {
+            const auto& l_resourceFileName = a_resourceFilePathName.filename();
+            std::smatch l_matchResults;
+            if (std::regex_match(l_resourceFileName, l_matchResults, l_engineSoundsPattern))
+            {
+                if (l_matchResults.size() == 2 && l_matchResults[1].length() == 1)
+                {
+                    const auto l_digit = *l_matchResults[1].first;
+                    if (l_digit >= '0' && l_digit <= '9')
+                    {
+                        const auto l_index = static_cast<size_t>(l_digit - '0');
+                        m_engineSounds.resize(l_index + 1);
+                        auto& l_engineSound = m_engineSounds[l_index];
+                        l_engineSound.load(a_resourceFilePathName);
+                        l_engineSound.get().setLoop(true);
+                    }
+                }
+            }
+        });
     }
 
     virtual void onEnterMode() override;
@@ -146,6 +175,8 @@ private:
         m_currenDurationText.setString(std::string("Elapsed Time: ") + std::to_string(l_totalDuration.count()));
     }
 
+    void playEngine(bool a_play);
+
     Game& m_game;
     Action m_currentAction = Action::IsIdle;
     bool m_isCurrentlyFaulty = false;
@@ -157,4 +188,6 @@ private:
     std::chrono::steady_clock::duration m_afterLastPauseDuration;
     std::chrono::steady_clock::time_point m_lastPauseTimepoint;
     sf::Text m_currenDurationText;
+    std::vector<Sound> m_engineSounds;
+    Sound m_faultSound;
 };

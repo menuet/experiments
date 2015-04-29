@@ -5,38 +5,8 @@
 #include "Track.h"
 #include "Car.h"
 #include "ModeSupport.h"
+#include "Resources.h"
 #include <sfml/graphics.hpp>
-#include <filesystem>
-#include <windows.h>
-
-
-static std::tr2::sys::path getRunningModuleDirectory()
-{
-    std::tr2::sys::path l_runningModuleDirectory;
-
-    static const char l_dummyChar = 0;
-    HMODULE l_hModule{};
-    if (::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, &l_dummyChar, &l_hModule) && l_hModule)
-    {
-        char l_runningModuleDirectoryString[_MAX_PATH]{};
-        if (::GetModuleFileNameA(l_hModule, l_runningModuleDirectoryString, _countof(l_runningModuleDirectoryString)))
-        {
-            l_runningModuleDirectory = l_runningModuleDirectoryString;
-            l_runningModuleDirectory.remove_filename();
-        }
-    }
-
-    return l_runningModuleDirectory;
-}
-
-static std::tr2::sys::path getResourceFileAbsolutePathName(const std::tr2::sys::path& a_resourceFileName)
-{
-    if (a_resourceFileName.has_root_path())
-        return a_resourceFileName;
-    auto l_resourceFileAbsolutePathName = getRunningModuleDirectory();
-    l_resourceFileAbsolutePathName /= a_resourceFileName;
-    return l_resourceFileAbsolutePathName;
-}
 
 
 class Game
