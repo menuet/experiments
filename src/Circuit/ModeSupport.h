@@ -41,15 +41,6 @@ public:
     ModeSupportEditing(Game& a_game)
         : m_game(a_game)
     {
-        m_font.loadFromFile(R"(C:\DEV\GAME\GamesForStella\Debug\leadcoat.ttf)");
-        m_currentCheckpointsCountText.setFont(m_font);
-        m_currentCheckpointsCountText.setColor(sf::Color::Blue);
-        m_currentCheckpointsCountText.setCharacterSize(14);
-        m_currentCheckpointsCountText.setPosition(20, 20);
-        m_currentToolText.setFont(m_font);
-        m_currentToolText.setColor(sf::Color::Blue);
-        m_currentToolText.setCharacterSize(14);
-        m_currentToolText.setPosition(20, 40);
     }
 
     virtual void onEnterMode() override;
@@ -108,7 +99,6 @@ private:
     Action m_currentAction = Action::IsIdle;
     Tool m_currentTool = Tool::Road;
     unsigned int m_currentActionRadius = 2;
-    sf::Font m_font;
     sf::Text m_currentCheckpointsCountText;
     sf::Text m_currentToolText;
 };
@@ -121,19 +111,6 @@ public:
     ModeSupportPlaying(Game& a_game)
         : m_game(a_game)
     {
-        m_font.loadFromFile(R"(C:\DEV\GAME\GamesForStella\Debug\leadcoat.ttf)");
-        m_currentCheckpointLevelText.setFont(m_font);
-        m_currentCheckpointLevelText.setColor(sf::Color::Blue);
-        m_currentCheckpointLevelText.setCharacterSize(14);
-        m_currentCheckpointLevelText.setPosition(20, 20);
-        m_currentFaultsCountText.setFont(m_font);
-        m_currentFaultsCountText.setColor(sf::Color::Red);
-        m_currentFaultsCountText.setCharacterSize(14);
-        m_currentFaultsCountText.setPosition(20, 40);
-        m_currenDurationText.setFont(m_font);
-        m_currenDurationText.setColor(sf::Color::Black);
-        m_currenDurationText.setCharacterSize(14);
-        m_currenDurationText.setPosition(20, 60);
     }
 
     virtual void onEnterMode() override;
@@ -172,7 +149,6 @@ private:
     Game& m_game;
     Action m_currentAction = Action::IsIdle;
     bool m_isCurrentlyFaulty = false;
-    sf::Font m_font;
     unsigned int m_currentCheckpointLevel = 0;
     sf::Text m_currentCheckpointLevelText;
     unsigned int m_currentFaultsCount = 0;

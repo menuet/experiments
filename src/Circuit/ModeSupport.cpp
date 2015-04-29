@@ -5,7 +5,16 @@
 
 void ModeSupportEditing::onEnterMode()
 {
+    m_currentCheckpointsCountText.setFont(m_game.getFont());
+    m_currentCheckpointsCountText.setColor(sf::Color::Blue);
+    m_currentCheckpointsCountText.setCharacterSize(14);
+    m_currentCheckpointsCountText.setPosition(20, 20);
     setCurrentCheckpointsCountText();
+
+    m_currentToolText.setFont(m_game.getFont());
+    m_currentToolText.setColor(sf::Color::Blue);
+    m_currentToolText.setCharacterSize(14);
+    m_currentToolText.setPosition(20, 40);
     setCurrentToolText();
 }
 
@@ -139,6 +148,21 @@ void ModeSupportEditing::setCurrentCheckpointsCountText()
 
 void ModeSupportPlaying::onEnterMode()
 {
+    m_currentCheckpointLevelText.setFont(m_game.getFont());
+    m_currentCheckpointLevelText.setColor(sf::Color::Blue);
+    m_currentCheckpointLevelText.setCharacterSize(14);
+    m_currentCheckpointLevelText.setPosition(20, 20);
+
+    m_currentFaultsCountText.setFont(m_game.getFont());
+    m_currentFaultsCountText.setColor(sf::Color::Red);
+    m_currentFaultsCountText.setCharacterSize(14);
+    m_currentFaultsCountText.setPosition(20, 40);
+
+    m_currenDurationText.setFont(m_game.getFont());
+    m_currenDurationText.setColor(sf::Color::Black);
+    m_currenDurationText.setCharacterSize(14);
+    m_currenDurationText.setPosition(20, 60);
+
     m_currentAction = Action::IsIdle;
     m_game.getCar().moveToStartPoint(m_game.getTrack());
     m_isCurrentlyFaulty = false;

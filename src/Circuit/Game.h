@@ -6,6 +6,37 @@
 #include "Car.h"
 #include "ModeSupport.h"
 #include <sfml/graphics.hpp>
+#include <filesystem>
+#include <windows.h>
+
+
+static std::tr2::sys::path getRunningModuleDirectory()
+{
+    std::tr2::sys::path l_runningModuleDirectory;
+
+    static const char l_dummyChar = 0;
+    HMODULE l_hModule{};
+    if (::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, &l_dummyChar, &l_hModule) && l_hModule)
+    {
+        char l_runningModuleDirectoryString[_MAX_PATH]{};
+        if (::GetModuleFileNameA(l_hModule, l_runningModuleDirectoryString, _countof(l_runningModuleDirectoryString)))
+        {
+            l_runningModuleDirectory = l_runningModuleDirectoryString;
+            l_runningModuleDirectory.remove_filename();
+        }
+    }
+
+    return l_runningModuleDirectory;
+}
+
+static std::tr2::sys::path getResourceFileAbsolutePathName(const std::tr2::sys::path& a_resourceFileName)
+{
+    if (a_resourceFileName.has_root_path())
+        return a_resourceFileName;
+    auto l_resourceFileAbsolutePathName = getRunningModuleDirectory();
+    l_resourceFileAbsolutePathName /= a_resourceFileName;
+    return l_resourceFileAbsolutePathName;
+}
 
 
 class Game
@@ -19,6 +50,8 @@ public:
         , m_modeSupportPlaying(*this)
         , m_pCurrentModeSupport(&m_modeSupportEditing)
     {
+        const auto l_fontFilePathName = getResourceFileAbsolutePathName("mickey.ttf");
+        m_font.loadFromFile(l_fontFilePathName);
         m_pCurrentModeSupport->onEnterMode();
     }
 
@@ -40,6 +73,11 @@ public:
     Car& getCar()
     {
         return m_car;
+    }
+
+    sf::Font& getFont()
+    {
+        return m_font;
     }
 
     void save() const
@@ -85,6 +123,7 @@ private:
 
     Track m_track;
     Car m_car;
+    sf::Font m_font;
     ModeSupportEditing m_modeSupportEditing;
     ModeSupportPlaying m_modeSupportPlaying;
     ModeSupport* m_pCurrentModeSupport = &m_modeSupportEditing;
