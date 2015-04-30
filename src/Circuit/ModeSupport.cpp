@@ -182,6 +182,7 @@ void ModeSupportPlaying::onLeaveMode()
 
 void ModeSupportPlaying::onUpdate(const sf::RenderWindow& a_window)
 {
+    const auto l_currentTime = std::chrono::steady_clock::now();
     if (m_currentAction == Action::IsRunning)
     {
         const auto l_previousCheckpointLevel = m_currentCheckpointLevel;
@@ -205,8 +206,23 @@ void ModeSupportPlaying::onUpdate(const sf::RenderWindow& a_window)
                 m_faultSound.get().play();
             }
         }
-        m_afterLastPauseDuration = std::chrono::steady_clock::now() - m_lastPauseTimepoint;
+        m_afterLastPauseDuration = l_currentTime - m_lastPauseTimepoint;
         setCurrentDurationText();
+    }
+    else if (m_currentAction == Action::IsCountingDown)
+    {
+        if (m_countDown > 0)
+        {
+            const auto l_countDownDuration = l_currentTime - m_previousCountTimepoint;
+            if (l_countDownDuration >= std::chrono::seconds(1))
+            {
+                --m_countDown;
+                m_countdownSounds[m_countDown].get().play();
+                if (m_countDown == 0)
+                    m_currentAction = Action::IsRunning;
+                m_previousCountTimepoint = l_currentTime;
+            }
+        }
     }
 }
 
@@ -217,6 +233,18 @@ void ModeSupportPlaying::onDraw(sf::RenderWindow& a_window)
     a_window.draw(m_currentCheckpointLevelText);
     a_window.draw(m_currentFaultsCountText);
     a_window.draw(m_currenDurationText);
+    if (m_currentAction == Action::IsCountingDown)
+    {
+        sf::Text l_countDownText;
+        l_countDownText.setFont(m_game.getFont());
+        l_countDownText.setColor(sf::Color::Red);
+        l_countDownText.setCharacterSize(100);
+        l_countDownText.setPosition((float) m_game.getTrack().getWindowSize().x / 2, (float) m_game.getTrack().getWindowSize().y / 2);
+        l_countDownText.setString(std::to_string(m_countDown));
+        sf::FloatRect l_textRect = l_countDownText.getLocalBounds();
+        l_countDownText.setOrigin(l_textRect.width / 2, l_textRect.height / 2);
+        a_window.draw(l_countDownText);
+    }
 }
 
 void ModeSupportPlaying::onKeyPressed(const sf::RenderWindow& a_window, const sf::Event::KeyEvent& a_event)
@@ -232,8 +260,16 @@ void ModeSupportPlaying::onKeyPressed(const sf::RenderWindow& a_window, const sf
         }
         else
         {
-            m_currentAction = Action::IsRunning;
             m_lastPauseTimepoint = std::chrono::steady_clock::now();
+            if (m_currentAction == Action::IsIdle)
+            {
+                m_currentAction = Action::IsCountingDown;
+                m_previousCountTimepoint = m_lastPauseTimepoint;
+                m_countDown = 3;
+                m_countdownSounds[m_countDown].get().play();
+            }
+            else
+                m_currentAction = Action::IsRunning;
             playEngine(true);
         }
         break;

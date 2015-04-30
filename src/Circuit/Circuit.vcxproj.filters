@@ -60,6 +60,21 @@
     <Media Include="Resources\Engine3.wav">
       <Filter>Resource Files</Filter>
     </Media>
+    <Media Include="Resources\Circuit.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Countdown0.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Countdown1.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Countdown2.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Countdown3.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\leadcoat.ttf">

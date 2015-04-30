@@ -2,10 +2,12 @@
 #pragma once
 
 
+#include <sfml/audio.hpp>
 #include <filesystem>
 #include <memory>
 #include <utility>
-#include <sfml/audio.hpp>
+#include <vector>
+#include <regex>
 #include <windows.h>
 
 
@@ -88,3 +90,31 @@ private:
 
     std::unique_ptr<std::pair<sf::SoundBuffer, sf::Sound>> m_spSound;
 };
+
+static std::vector<Sound> loadSoundsSeries(std::string l_soundFilePrefix)
+{
+    std::vector<Sound> l_sounds;
+    l_soundFilePrefix += R"((\d).wav)";
+    const std::regex l_soundsPattern{ l_soundFilePrefix };
+    const auto l_resourcesDirectory = getRunningModuleDirectory();
+    std::for_each(std::tr2::sys::directory_iterator(l_resourcesDirectory), std::tr2::sys::directory_iterator(), [&](const std::tr2::sys::path& a_resourceFilePathName)
+    {
+        const auto& l_resourceFileName = a_resourceFilePathName.filename();
+        std::smatch l_matchResults;
+        if (std::regex_match(l_resourceFileName, l_matchResults, l_soundsPattern))
+        {
+            if (l_matchResults.size() == 2 && l_matchResults[1].length() == 1)
+            {
+                const auto l_digit = *l_matchResults[1].first;
+                if (l_digit >= '0' && l_digit <= '9')
+                {
+                    const auto l_index = static_cast<size_t>(l_digit - '0');
+                    l_sounds.resize(l_index + 1);
+                    auto& l_sound = l_sounds[l_index];
+                    l_sound.load(a_resourceFilePathName);
+                }
+            }
+        }
+    });
+    return l_sounds;
+}

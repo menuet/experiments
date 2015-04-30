@@ -102,6 +102,11 @@ copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
     <ClInclude Include="Track.h" />
   </ItemGroup>
   <ItemGroup>
+    <Media Include="Resources\Circuit.wav" />
+    <Media Include="Resources\Countdown0.wav" />
+    <Media Include="Resources\Countdown1.wav" />
+    <Media Include="Resources\Countdown2.wav" />
+    <Media Include="Resources\Countdown3.wav" />
     <Media Include="Resources\Engine0.wav" />
     <Media Include="Resources\Engine1.wav" />
     <Media Include="Resources\Engine2.wav" />
