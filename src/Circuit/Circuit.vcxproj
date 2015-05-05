@@ -61,7 +61,9 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(ProjectDir)\Resources\*.ttf $(TargetDir)
-copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
+copy $(ProjectDir)\Resources\*.wav $(TargetDir)
+copy $(ProjectDir)\Resources\*.jpg $(TargetDir)
+copy $(ProjectDir)\Resources\*.png $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +84,9 @@ copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
     </Link>
     <PostBuildEvent>
       <Command>copy $(ProjectDir)\Resources\*.ttf $(TargetDir)
-copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
+copy $(ProjectDir)\Resources\*.wav $(TargetDir)
+copy $(ProjectDir)\Resources\*.jpg $(TargetDir)
+copy $(ProjectDir)\Resources\*.png $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -117,6 +121,9 @@ copy $(ProjectDir)\Resources\*.wav $(TargetDir)</Command>
     <Font Include="Resources\leadcoat.ttf" />
     <Font Include="Resources\MICKEY.TTF" />
     <Font Include="Resources\Minnie.TTF" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\car.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

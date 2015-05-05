@@ -249,6 +249,7 @@ void ModeSupportPlaying::onDraw(sf::RenderWindow& a_window)
 
 void ModeSupportPlaying::onKeyPressed(const sf::RenderWindow& a_window, const sf::Event::KeyEvent& a_event)
 {
+    auto& l_car = m_game.getCar();
     switch (a_event.code)
     {
     case sf::Keyboard::Space:
@@ -272,6 +273,30 @@ void ModeSupportPlaying::onKeyPressed(const sf::RenderWindow& a_window, const sf
                 m_currentAction = Action::IsRunning;
             playEngine(true);
         }
+        break;
+    case sf::Keyboard::Up:
+        if (m_currentAction != Action::IsRunning)
+            return;
+        playEngine(false);
+        l_car.incGaz();
+        playEngine(true);
+        break;
+    case sf::Keyboard::Down:
+        if (m_currentAction != Action::IsRunning)
+            return;
+        playEngine(false);
+        l_car.decGaz();
+        playEngine(true);
+        break;
+    case sf::Keyboard::Left:
+        if (m_currentAction != Action::IsRunning)
+            return;
+        l_car.rotate(true);
+        break;
+    case sf::Keyboard::Right:
+        if (m_currentAction != Action::IsRunning)
+            return;
+        l_car.rotate(false);
         break;
     }
 }

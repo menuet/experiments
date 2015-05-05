@@ -3,6 +3,7 @@
 
 
 #include "Track.h"
+#include "Resources.h"
 #include <sfml/graphics.hpp>
 
 
@@ -12,8 +13,12 @@ public:
 
     Car(const sf::Vector2f& a_size)
     {
-        m_shape.setSize(a_size);
-        m_shape.setFillColor(sf::Color{ 200, 100, 100 });
+        m_texture.loadFromFile(getResourceFileAbsolutePathName("Car.png"));
+        m_sprite.setTexture(m_texture);
+        const auto& l_size = m_texture.getSize();
+        m_sprite.setOrigin({ (float) l_size.x / 2.f, (float) l_size.y / 2.f });
+        m_sprite.scale({ 0.1f, 0.1f });
+        m_sprite.setRotation(180.f);
     }
 
     unsigned int getGaz() const
@@ -23,35 +28,36 @@ public:
 
     void draw(sf::RenderWindow& a_window) const
     {
-        a_window.draw(m_shape);
+        a_window.draw(m_sprite);
     }
 
     void moveToStartPoint(const Track& a_track)
     {
-        m_shape.setPosition(a_track.getStartPoint());
+        m_sprite.setPosition(a_track.getStartPoint());
         m_gaz = 0;
     }
 
     bool move(const sf::RenderWindow& a_window, const Track& a_track, unsigned int& a_checkpointLevel)
     {
-        auto l_position = m_shape.getPosition();
+        static const auto RadianFactor = 3.141592f / 180.f;
 
-        const auto l_mousePosition = sf::Mouse::getPosition(a_window);
-        sf::Vector2f l_velocity;
-        l_velocity.x = l_mousePosition.x - l_position.x;
-        l_velocity.y = l_mousePosition.y - l_position.y;
-        const auto l_length = sqrt(l_velocity.x*l_velocity.x + l_velocity.y*l_velocity.y);
-        l_velocity.x /= l_length;
-        l_velocity.y /= l_length;
-        l_velocity.x *= m_gaz;
-        l_velocity.y *= m_gaz;
+        const auto l_orientation = m_sprite.getRotation() * RadianFactor;
 
-        l_position += l_velocity;
+        auto l_position = m_sprite.getPosition();
+
+        l_position.x += (float) m_gaz * std::cos(l_orientation);
+        l_position.y += (float) m_gaz * std::sin(l_orientation);
+
         if (!a_track.isInRoad(l_position, a_checkpointLevel))
             return false;
 
-        m_shape.move(l_velocity);
+        m_sprite.setPosition(l_position);
         return true;
+    }
+
+    void rotate(bool a_left)
+    {
+        m_sprite.rotate(a_left ? -10.f : 10.f);
     }
 
     void incGaz()
@@ -68,6 +74,7 @@ public:
 
 private:
 
-    sf::RectangleShape m_shape;
     unsigned int m_gaz = 0;
+    sf::Texture m_texture;
+    sf::Sprite m_sprite;
 };
