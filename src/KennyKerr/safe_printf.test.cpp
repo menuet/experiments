@@ -199,6 +199,7 @@ namespace ut {
 #define WHEN_SAFE_SPRINTF_IS_CALLED(buffer, format, args, result) call_safe_sprintf(buffer, format, result, args)
 #define WITH_ZERO_ARG() make_args_strings_holder()
 #define WITH_ONE_ARG(arg) make_args_strings_holder(std::array<const char*, 1>{#arg}), arg
+#define WITH_TWO_ARGS(arg0, arg1) make_args_strings_holder(std::array<const char*, 2>{#arg0, #arg1}), arg0, arg1
 #define THEN_RESULT_IS_ERROR() make_result_holder()
 #define THEN_RESULT_IS(expectedBuffer) make_result_holder(expectedBuffer)
 
@@ -280,6 +281,56 @@ namespace ut {
 #endif
 
             WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "p:%p", WITH_ONE_ARG((void*) 0x12345678), THEN_RESULT_IS("p:12345678"));
+        }
+
+    }
+
+    SCENARIO("safe_sprintf can be called with 2 parameters", "[printf]")
+    {
+
+        GIVEN("a buffer of 30 characters")
+        {
+            Buffer<30> buffer;
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12345", WITH_TWO_ARGS(42, "ABC"), THEN_RESULT_IS_ERROR());
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12%s34", WITH_TWO_ARGS(42, "ABC"), THEN_RESULT_IS_ERROR());
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%li%s%s", WITH_TWO_ARGS(42, "ABC"), THEN_RESULT_IS_ERROR());
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12%s34%d", WITH_TWO_ARGS(42, "ABC"), THEN_RESULT_IS_ERROR());
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%%%c$%lld", WITH_TWO_ARGS('A', 123LL), THEN_RESULT_IS("%A$123"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "he%f-%s++", WITH_TWO_ARGS(12345.5, "BOO"), THEN_RESULT_IS("he12345.500000-BOO++"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%+010d!!!%i", WITH_TWO_ARGS(42, 42), THEN_RESULT_IS("+000000042!!!42"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, " %i!!!0x%08X", WITH_TWO_ARGS(42, 0x123), THEN_RESULT_IS(" 42!!!0x00000123"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "Oct%cl:%o", WITH_TWO_ARGS('a', 42), THEN_RESULT_IS("Octal:52"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "0x%x%X0x", WITH_TWO_ARGS(255, 15), THEN_RESULT_IS("0xffF0x"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "0X%X0X%s", WITH_TWO_ARGS(15, "QWERTY"), THEN_RESULT_IS("0XF0XQWERTY"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%e.%u.", WITH_TWO_ARGS(1234., 1234), THEN_RESULT_IS("1.234000e+003.1234."));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%f**%.1f**", WITH_TWO_ARGS(23.45, 23.45), THEN_RESULT_IS("23.450000**23.4**"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%e**%llu**", WITH_TWO_ARGS(23.45, 123LLU), THEN_RESULT_IS("2.345000e+001**123**"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%E**%.3f**", WITH_TWO_ARGS(23.45, 987.12), THEN_RESULT_IS("2.345000E+001**987.120**"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%a/he%010.10sx", WITH_TWO_ARGS(23.45, "MIAM"), THEN_RESULT_IS("0x1.773333p+4/he000000MIAMx"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%A/hex%xAsterix%%", WITH_TWO_ARGS(23.45, 0x987), THEN_RESULT_IS("0X1.773333P+4/hex987Asterix%"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "???%g|%g???", WITH_TWO_ARGS(23.45, 98.6543), THEN_RESULT_IS("???23.45|98.6543???"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%s=%G", WITH_TWO_ARGS("result", 23.45), THEN_RESULT_IS("result=23.45"));
+
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "p:%p-%08x", WITH_TWO_ARGS((void*) 0x12345678, 0xABCDEF), THEN_RESULT_IS("p:12345678-00abcdef"));
         }
 
     }
