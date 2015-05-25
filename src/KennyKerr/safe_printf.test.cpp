@@ -2,6 +2,7 @@
 #include "catch.hpp"
 #include "safe_printf.h"
 #include <iostream>
+#include <array>
 
 
 namespace ut {
@@ -79,57 +80,128 @@ namespace ut {
             return os;
         }
 
-        template< size_t ArraySizeV, typename ArgT >
-        struct SafeSPrintfCaller
+        template< size_t ArgsStringsArraySizeV >
+        struct ArgsStringsHolder
         {
-            SafeSPrintfCaller(Buffer<ArraySizeV>& buffer, const char* format, const char* argAsString, const ArgT& arg)
-                : m_buffer(buffer)
-                , m_format(format)
-                , m_argAsString(argAsString)
-                , m_arg(arg)
+            ArgsStringsHolder() = default;
+
+            ArgsStringsHolder(const std::array<const char*, ArgsStringsArraySizeV>& argsStrings)
+                : m_pArgsStrings(&argsStrings)
             {
             }
 
-            template< size_t ExpectedBufferSizeV >
-            void then(const char(&expectedBuffer)[ExpectedBufferSizeV]) const
+            std::string buildWhenTitle(const char* format) const
             {
                 std::string whenTitle = "    When: safe_sprintf is called with the format ";
-                whenTitle += m_format;
-                whenTitle += " and the arg ";
-                whenTitle += m_argAsString;
-
-                SECTION(whenTitle)
+                whenTitle += format;
+                if (m_pArgsStrings)
                 {
-                    static const auto expectedBufferLength = ExpectedBufferSizeV - 1;
-                    const auto result = pasc::safe_sprintf(m_buffer.getArray(), m_format, m_arg);
-                    std::string thenTitle = "    Then: the result is ";
-                    thenTitle += std::to_string((int)expectedBufferLength);
-                    thenTitle += " and the buffer contains ";
-                    thenTitle += expectedBuffer;
-                    SECTION(thenTitle)
+                    whenTitle += " and the arg ";
+                    whenTitle += (*m_pArgsStrings)[0];
+                    for (auto argIndex = 1U; argIndex < ArgsStringsArraySizeV; ++argIndex)
                     {
-                        REQUIRE(result == expectedBufferLength);
-                        REQUIRE(m_buffer == expectedBuffer);
+                        whenTitle += " and the arg ";
+                        whenTitle += (*m_pArgsStrings)[argIndex];
                     }
+                }
+                return whenTitle;
+            }
+
+            const std::array<const char*, ArgsStringsArraySizeV>* m_pArgsStrings = nullptr;
+        };
+
+        ArgsStringsHolder<1> make_args_strings_holder()
+        {
+            return ArgsStringsHolder<1>();
+        }
+
+        template< size_t ArgsStringsArraySizeV >
+        ArgsStringsHolder<ArgsStringsArraySizeV> make_args_strings_holder(const std::array<const char*, ArgsStringsArraySizeV>& argsStrings)
+        {
+            return ArgsStringsHolder<ArgsStringsArraySizeV>(argsStrings);
+        }
+
+        template< size_t ExpectedBufferSizeV >
+        struct ResultHolder
+        {
+            using ArrayType = const char [ExpectedBufferSizeV];
+
+            ResultHolder() = default;
+
+            ResultHolder(ArrayType& expectedBuffer)
+                : m_pExpectedBuffer(&expectedBuffer)
+            {
+            }
+
+            std::string buildThenTitle() const
+            {
+                std::string thenTitle = "    Then: the result is ";
+                if (m_pExpectedBuffer)
+                {
+                    thenTitle += std::to_string((int) (ExpectedBufferSizeV - 1));
+                    thenTitle += " and the buffer contains ";
+                    thenTitle += *m_pExpectedBuffer;
+                }
+                else
+                {
+                    thenTitle += std::to_string(-1);
+                    thenTitle += " and the buffer is not modified";
+                }
+                return thenTitle;
+            }
+
+            template< typename BufferT >
+            void assertExpectations(int result, BufferT& buffer) const
+            {
+                if (m_pExpectedBuffer)
+                {
+                    REQUIRE(result == ExpectedBufferSizeV - 1);
+                    REQUIRE(buffer == *m_pExpectedBuffer);
+                }
+                else
+                {
+                    REQUIRE(result == -1);
+                    REQUIRE(!buffer.isModified());
                 }
             }
 
-            Buffer<ArraySizeV>& m_buffer;
-            const char* m_format;
-            const char* m_argAsString;
-            const ArgT& m_arg;
+            ArrayType* m_pExpectedBuffer = nullptr;
         };
 
-        template< size_t ArraySizeV, typename ArgT >
-        SafeSPrintfCaller<ArraySizeV, ArgT> createSafeSPrintfCaller(Buffer<ArraySizeV>& buffer, const char* format, const char* argAsString, const ArgT& arg)
+        ResultHolder<1> make_result_holder()
         {
-            return SafeSPrintfCaller<ArraySizeV, ArgT>(buffer, format, argAsString, arg);
+            return ResultHolder<1>();
+        }
+
+        template< size_t ExpectedBufferSizeV >
+        ResultHolder<ExpectedBufferSizeV> make_result_holder(const char(&expectedBuffer)[ExpectedBufferSizeV])
+        {
+            return ResultHolder<ExpectedBufferSizeV>(expectedBuffer);
+        }
+
+        template< typename BufferT, typename ResultHolderT, typename ArgsStringsHolderT, typename... ArgTs >
+        void call_safe_sprintf(BufferT& buffer, const char* format, const ResultHolderT& resultHolder, const ArgsStringsHolderT& argsStringsHolder, const ArgTs&... args)
+        {
+            SECTION(argsStringsHolder.buildWhenTitle(format))
+            {
+                const auto result = pasc::safe_sprintf(buffer.getArray(), format, args...);
+
+                SECTION(resultHolder.buildThenTitle())
+                {
+                    resultHolder.assertExpectations(result, buffer);
+                }
+            }
         }
 
     } // anonymous namespace
 
-#define WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, format, arg) createSafeSPrintfCaller(buffer, format, #arg, arg)
-#define THEN_RESULT_IS(expectedBuffer) then(expectedBuffer)
+
+#define WHEN_SAFE_SPRINTF_IS_CALLED(buffer, format, args, result) call_safe_sprintf(buffer, format, result, args)
+#define WITH_ZERO_ARG() make_args_strings_holder()
+#define WITH_ONE_ARG(arg) make_args_strings_holder(std::array<const char*, 1>{#arg}), arg
+#define THEN_RESULT_IS_ERROR() make_result_holder()
+#define THEN_RESULT_IS(expectedBuffer) make_result_holder(expectedBuffer)
+
 
     SCENARIO("safe_sprintf can be called with 0 parameter", "[printf]")
     {
@@ -138,55 +210,15 @@ namespace ut {
         {
             Buffer<10> buffer;
 
-            WHEN("safe_sprintf is called with the format 12345")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "12345");
-                THEN("the result is 5 and the buffer contains 12345")
-                {
-                    REQUIRE(result == 5);
-                    REQUIRE(buffer.isEqualTo("12345"));
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12345", WITH_ZERO_ARG(), THEN_RESULT_IS("12345"));
 
-            WHEN("safe_sprintf is called with the format 123456789")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "123456789");
-                THEN("the result is 9 and the buffer contains 123456789")
-                {
-                    REQUIRE(result == 9);
-                    REQUIRE(buffer.isEqualTo("123456789"));
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "123456789", WITH_ZERO_ARG(), THEN_RESULT_IS("123456789"));
 
-            WHEN("safe_sprintf is called with the format 1234567890 (too much characters)")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "1234567890");
-                THEN("the result is -1 and the buffer is not modified")
-                {
-                    REQUIRE(result == -1);
-                    REQUIRE(!buffer.isModified());
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "1234567890", WITH_ZERO_ARG(), THEN_RESULT_IS_ERROR());
 
-            WHEN("safe_sprintf is called with the format 12345678901234 (really too much characters)")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "12345678901234");
-                THEN("the result is -1 and the buffer is not modified")
-                {
-                    REQUIRE(result == -1);
-                    REQUIRE(!buffer.isModified());
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12345678901234", WITH_ZERO_ARG(), THEN_RESULT_IS_ERROR());
 
-            WHEN("safe_sprintf is called with the format 0123%d456 (too much specifiers)")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "0123%d456");
-                THEN("the result is -1 and the buffer is not modified")
-                {
-                    REQUIRE(result == -1);
-                    REQUIRE(!buffer.isModified());
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "0123%d456", WITH_ZERO_ARG(), THEN_RESULT_IS_ERROR());
         }
 
     }
@@ -198,66 +230,56 @@ namespace ut {
         {
             Buffer<30> buffer;
 
-            WHEN("safe_sprintf is called with the format 12345 (not enough specifiers)")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "12345", 1);
-                THEN("the result is -1 and the buffer is not modified")
-                {
-                    REQUIRE(result == -1);
-                    REQUIRE(!buffer.isModified());
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12345", WITH_ONE_ARG(42), THEN_RESULT_IS_ERROR());
 
-            WHEN("safe_sprintf is called with the format 12%s34%d (too much specifiers)")
-            {
-                const auto result = pasc::safe_sprintf(buffer.getArray(), "12%s34%d", 1);
-                THEN("the result is -1 and the buffer is not modified")
-                {
-                    REQUIRE(result == -1);
-                    REQUIRE(!buffer.isModified());
-                }
-            }
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "12%s34%d", WITH_ONE_ARG(42), THEN_RESULT_IS_ERROR());
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%%%c$", 'A').THEN_RESULT_IS("%A$");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%%%c$", WITH_ONE_ARG('A'), THEN_RESULT_IS("%A$"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "he-%s++", "BOO").THEN_RESULT_IS("he-BOO++");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "he-%s++", WITH_ONE_ARG("BOO"), THEN_RESULT_IS("he-BOO++"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%d!!!", 42).THEN_RESULT_IS("42!!!");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%d!!!", WITH_ONE_ARG(42), THEN_RESULT_IS("42!!!"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, " %i!!!", 42).THEN_RESULT_IS(" 42!!!");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, " %i!!!", WITH_ONE_ARG(42), THEN_RESULT_IS(" 42!!!"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "Octal:%o", 42).THEN_RESULT_IS("Octal:52");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "Octal:%o", WITH_ONE_ARG(42), THEN_RESULT_IS("Octal:52"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "0x%x0x", 15).THEN_RESULT_IS("0xf0x");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "0x%x0x", WITH_ONE_ARG(15), THEN_RESULT_IS("0xf0x"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "0X%X0X", 15).THEN_RESULT_IS("0XF0X");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "0X%X0X", WITH_ONE_ARG(15), THEN_RESULT_IS("0XF0X"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, ".%u.", 1234).THEN_RESULT_IS(".1234.");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, ".%u.", WITH_ONE_ARG(1234), THEN_RESULT_IS(".1234."));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%f****", 23.45).THEN_RESULT_IS("23.450000****");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%f****", WITH_ONE_ARG(23.45), THEN_RESULT_IS("23.450000****"));
 
 #if TODO_INVESTIGATE_WHY_PERCENT_F_DOES_NOT_WORK
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%F****", 23.45).THEN_RESULT_IS("23.450000****");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%F****", WITH_ONE_ARG(23.45), THEN_RESULT_IS("23.450000****"));
 #endif
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%e****", 23.45).THEN_RESULT_IS("2.345000e+001****");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%e****", WITH_ONE_ARG(23.45), THEN_RESULT_IS("2.345000e+001****"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%E****", 23.45).THEN_RESULT_IS("2.345000E+001****");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%E****", WITH_ONE_ARG(23.45), THEN_RESULT_IS("2.345000E+001****"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%a/hex", 23.45).THEN_RESULT_IS("0x1.773333p+4/hex");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%a/hex", WITH_ONE_ARG(23.45), THEN_RESULT_IS("0x1.773333p+4/hex"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "%A/hex", 23.45).THEN_RESULT_IS("0X1.773333P+4/hex");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "%A/hex", WITH_ONE_ARG(23.45), THEN_RESULT_IS("0X1.773333P+4/hex"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "???%g???", 23.45).THEN_RESULT_IS("???23.45???");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "???%g???", WITH_ONE_ARG(23.45), THEN_RESULT_IS("???23.45???"));
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "???%G???", 23.45).THEN_RESULT_IS("???23.45???");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "???%G???", WITH_ONE_ARG(23.45), THEN_RESULT_IS("???23.45???"));
 
-#if TODO_IMPLEMENT_PERCENT_N
-            int n = 0;
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "evil%n!", n).THEN_RESULT_IS("evil");
+#if TODO_DEBUG_PERCENT_N
+            SECTION("SPECIAL %n")
+            {
+                _set_printf_count_output(1);
+                int n = 0;
+                WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "evil%n!", WITH_ONE_ARG(&n), THEN_RESULT_IS("evil!"));
+                REQUIRE(n == 3);
+                _set_printf_count_output(0);
+            }
 #endif
 
-            WHEN_SAFE_SPRINTF_IS_CALLED_WITH(buffer, "p:%p", (void*)0x12345678).THEN_RESULT_IS("p:12345678");
+            WHEN_SAFE_SPRINTF_IS_CALLED(buffer, "p:%p", WITH_ONE_ARG((void*) 0x12345678), THEN_RESULT_IS("p:12345678"));
         }
 
     }

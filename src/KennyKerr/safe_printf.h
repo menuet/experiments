@@ -150,11 +150,10 @@ namespace pasc { namespace detail {
         case 'e': case 'E':
         case 'a': case 'A':
         case 'g': case 'G':
+        case 'n':
         case 'p':
             specifier.m_typeSpecifier = formatView.m_begin++;
             return true;
-        case 'n':
-            return false; // not yet supported
         }
         return false;
     }
@@ -211,6 +210,39 @@ namespace pasc { namespace detail {
     }
 
     template< typename ArgT >
+    inline bool isCompatible(const Specifier& specifier, const ArgT& )
+    {
+        switch (*specifier.m_typeSpecifier)
+        {
+        case 'c':
+            return std::is_integral<ArgT>::value;
+        case 's':
+            return std::is_pointer<std::decay_t<ArgT>>::value && std::is_convertible<std::remove_pointer_t<std::decay_t<ArgT>>, char>::value;
+        case 'd': case 'i':
+            return std::is_integral<ArgT>::value;
+        case 'o':
+            return std::is_integral<ArgT>::value;
+        case 'x': case 'X':
+            return std::is_integral<ArgT>::value;
+        case 'u':
+            return std::is_integral<ArgT>::value;
+        case 'f': case 'F':
+            return std::is_floating_point<ArgT>::value;
+        case 'e': case 'E':
+            return std::is_floating_point<ArgT>::value;
+        case 'a': case 'A':
+            return std::is_floating_point<ArgT>::value;
+        case 'g': case 'G':
+            return std::is_floating_point<ArgT>::value;
+        case 'n':
+            return std::is_pointer<std::decay_t<ArgT>>::value && std::is_same<std::remove_pointer_t<std::decay_t<ArgT>>, int>::value;
+        case 'p':
+            return std::is_pointer<std::decay_t<ArgT>>::value;
+        }
+        return false;
+    }
+
+    template< typename ArgT >
     inline bool is_integer()
     {
         return std::is_integral<ArgT>::value;
@@ -227,7 +259,11 @@ namespace pasc { namespace detail {
         const auto& specifier = parseSpecifier(formatView);
         if (!isValid(specifier))
             return false;
-        return getStarsCount(specifier) == 0;
+        if (getStarsCount(specifier) != 0)
+            return false;
+        if (!isCompatible(specifier, arg0))
+            return false;
+        return true;
     }
 
     template< typename ArgT0, typename ArgT1 >
@@ -239,9 +275,15 @@ namespace pasc { namespace detail {
         switch (getStarsCount(specifier))
         {
         case 0:
-            return true;
+            if (!isCompatible(specifier, arg0))
+                return false;
+            return check_printf_args(formatView, arg1);
         case 1:
-            return is_integer<ArgT0>();
+            if (!is_integer<ArgT0>())
+                return false;
+            if (!isCompatible(specifier, arg1))
+                return false;
+            return true;
         }
         return false;
     }
@@ -255,15 +297,21 @@ namespace pasc { namespace detail {
         switch (getStarsCount(specifier))
         {
         case 0:
+            if (!isCompatible(specifier, arg0))
+                return false;
             return check_printf_args(formatView, arg1, arg2, args...);
         case 1:
             if (!is_integer<ArgT0>())
+                return false;
+            if (!isCompatible(specifier, arg1))
                 return false;
             return check_printf_args(formatView, arg2, args...);
         }
         if (!is_integer<ArgT0>())
             return false;
         if (!is_integer<ArgT1>())
+            return false;
+        if (!isCompatible(specifier, arg2))
             return false;
         return check_printf_args(formatView, args...);
     }
