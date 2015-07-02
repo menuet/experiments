@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Public">
+      <UniqueIdentifier>{3e2f28af-1694-4e1f-bf2f-8ca1aeb1b5c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Private">
+      <UniqueIdentifier>{2d42e842-2903-4fbe-8f26-f0dbd960e5f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Private\stdafx.h">
+      <Filter>Source Files\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\targetver.h">
+      <Filter>Source Files\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\TestApi_c.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\TestApi_cpp_Item.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\TestApi_cpp_ItemIterator.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\TestApi_cpp_ItemCollection.h">
+      <Filter>Source Files\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\TestApi_imp_ItemCollection.h">
+      <Filter>Source Files\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\TestApi_imp_Item.h">
+      <Filter>Source Files\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\TestApi_imp_ItemEnumerator.h">
+      <Filter>Source Files\Private</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Private\dllmain.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\stdafx.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\TestApi_c.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\TestApi_imp_ItemCollection.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\TestApi_imp_ItemEnumerator.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\TestApi_imp_Item.cpp">
+      <Filter>Source Files\Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
