@@ -7,6 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Circuit", "Circuit\Circuit.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KennyKerr", "KennyKerr\KennyKerr.vcxproj", "{A121A48C-0E63-4AD4-9A93-BAEE9BE0927A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoolExprParser", "BoolExprParser\BoolExprParser.vcxproj", "{0179D9B4-2999-4430-AF66-E544B9597A93}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestIterators", "TestIterators\TestIterable.vcxproj", "{55E72C38-D5E4-4319-AAC3-1E81E4AF9D7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +25,14 @@ Global
 		{A121A48C-0E63-4AD4-9A93-BAEE9BE0927A}.Debug|Win32.Build.0 = Debug|Win32
 		{A121A48C-0E63-4AD4-9A93-BAEE9BE0927A}.Release|Win32.ActiveCfg = Release|Win32
 		{A121A48C-0E63-4AD4-9A93-BAEE9BE0927A}.Release|Win32.Build.0 = Release|Win32
+		{0179D9B4-2999-4430-AF66-E544B9597A93}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0179D9B4-2999-4430-AF66-E544B9597A93}.Debug|Win32.Build.0 = Debug|Win32
+		{0179D9B4-2999-4430-AF66-E544B9597A93}.Release|Win32.ActiveCfg = Release|Win32
+		{0179D9B4-2999-4430-AF66-E544B9597A93}.Release|Win32.Build.0 = Release|Win32
+		{55E72C38-D5E4-4319-AAC3-1E81E4AF9D7F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{55E72C38-D5E4-4319-AAC3-1E81E4AF9D7F}.Debug|Win32.Build.0 = Debug|Win32
+		{55E72C38-D5E4-4319-AAC3-1E81E4AF9D7F}.Release|Win32.ActiveCfg = Release|Win32
+		{55E72C38-D5E4-4319-AAC3-1E81E4AF9D7F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
