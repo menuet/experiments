@@ -8,11 +8,11 @@
 
 
 
-enum class FieldType
+enum FieldType
 {
-    Channel = 0,
-    Uuid,
-    Guid,
+    FieldType_Channel = 0,
+    FieldType_Uuid,
+    FieldType_Guid,
 };
 
 class ParseContext
@@ -92,6 +92,32 @@ inline bool parse_expectString(ParseContext& a_context, const char* a_expectedBe
     return true;
 }
 
+template< size_t ArraySizeV >
+inline bool parse_expectString(ParseContext& a_context, const char(&a_expected)[ArraySizeV])
+{
+    return parse_expectString(a_context, a_expected, a_expected + ArraySizeV - 1);
+}
+
+inline bool parse_expectFieldName(ParseContext& a_context, FieldType& a_fieldType)
+{
+    if (parse_expectString(a_context, "CHANNEL"))
+    {
+        a_fieldType = FieldType_Channel;
+        return true;
+    }
+    if (parse_expectString(a_context, "UUID"))
+    {
+        a_fieldType = FieldType_Uuid;
+        return true;
+    }
+    if (parse_expectString(a_context, "GUID"))
+    {
+        a_fieldType = FieldType_Guid;
+        return true;
+    }
+    return false;
+}
+
 inline bool parse_expectFieldValue(ParseContext& a_context, std::string& a_fieldValue)
 {
     parse_ignoreSpaces(a_context);
@@ -118,88 +144,49 @@ inline bool parse_expectFieldValue(ParseContext& a_context, std::string& a_field
     return false;
 }
 
-template< size_t ArraySizeV >
-inline bool parse_expectString(ParseContext& a_context, const char(&a_expected)[ArraySizeV])
-{
-    return parse_expectString(a_context, a_expected, a_expected + ArraySizeV - 1);
-}
-
-class FieldValue
-{
-public:
-
-    const std::string& getValue() const
-    {
-        return m_value;
-    }
-
-    bool parse(ParseContext& a_context)
-    {
-        return parse_expectFieldValue(a_context, m_value);
-    }
-
-private:
-
-    std::string m_value;
-};
-
-class FieldName
-{
-public:
-
-    FieldType getType() const
-    {
-        return m_type;
-    }
-
-    bool parse(ParseContext& a_context)
-    {
-        if (parse_expectString(a_context, "CHANNEL"))
-        {
-            m_type = FieldType::Channel;
-            return true;
-        }
-        if (parse_expectString(a_context, "UUID"))
-        {
-            m_type = FieldType::Uuid;
-            return true;
-        }
-        if (parse_expectString(a_context, "GUID"))
-        {
-            m_type = FieldType::Guid;
-            return true;
-        }
-        return false;
-    }
-
-private:
-
-    FieldType m_type = FieldType::Channel;
-};
-
 class Comparison
 {
 public:
 
+    Comparison()
+        : m_opType(OpType_Equal)
+        , m_fieldType(FieldType_Channel)
+    {
+    }
+
     // Comparison ::= FieldName "=" FieldValue | FieldName "!=" FieldValue | FieldName "like" FieldValueRegex | FieldName "in" "(" FieldValueList ")"
     bool parse(ParseContext& a_context)
     {
-        if (!m_fieldName.parse(a_context))
+        if (!parse_expectFieldName(a_context, m_fieldType))
             return false;
 
         if (parse_expectString(a_context, "==") || parse_expectString(a_context, "="))
         {
-            m_opType = OpType::Equal;
-            return m_fieldValue.parse(a_context);
+            if (!parse_expectFieldValue(a_context, m_fieldValue))
+                return false;
+            m_opType = OpType_Equal;
+            return true;
         }
 
         if (parse_expectString(a_context, "!="))
         {
-            m_opType = OpType::NotEqual;
-            return m_fieldValue.parse(a_context);
+            if (!parse_expectFieldValue(a_context, m_fieldValue))
+                return false;
+            m_opType = OpType_NotEqual;
+            return true;
         }
 
-        // TODO like, in
+        if (parse_expectString(a_context, "like"))
+        {
+            // TODO
+            return false;
+        }
+
+        if (parse_expectString(a_context, "in"))
+        {
+            // TODO
+            return false;
+        }
 
         return false;
     }
@@ -209,39 +196,40 @@ public:
     {
         switch (m_opType)
         {
-        case OpType::Equal:
+        case OpType_Equal:
         {
-            const auto& l_fieldValue = a_context.getFieldValue(m_fieldName.getType());
-            return m_fieldValue.getValue() == l_fieldValue;
+            const auto& l_fieldValue = a_context.getFieldValue(m_fieldType);
+            return m_fieldValue == l_fieldValue;
         }
-        case OpType::NotEqual:
+        case OpType_NotEqual:
         {
-            const auto& l_fieldValue = a_context.getFieldValue(m_fieldName.getType());
-            return m_fieldValue.getValue() != l_fieldValue;
+            const auto& l_fieldValue = a_context.getFieldValue(m_fieldType);
+            return m_fieldValue != l_fieldValue;
         }
-        case OpType::Like:
+        case OpType_Like:
             // TODO
             return false;
-        case OpType::In:
+        case OpType_In:
             // TODO
             return false;
         }
+        assert(!"m_opType does not have a valid value!!!");
         return false;
     }
 
 private:
 
-    enum class OpType
+    enum OpType
     {
-        Equal = 0,
-        NotEqual,
-        Like,
-        In,
+        OpType_Equal = 0,
+        OpType_NotEqual,
+        OpType_Like,
+        OpType_In,
     };
 
-    OpType m_opType = OpType::Equal;
-    FieldName m_fieldName;
-    FieldValue m_fieldValue;
+    OpType m_opType;
+    FieldType m_fieldType;
+    std::string m_fieldValue;
 };
 
 class Expression;
@@ -249,6 +237,11 @@ class Expression;
 class Term
 {
 public:
+
+    Term()
+        : m_opType(OpType_Unknown)
+    {
+    }
 
     // Term ::= Comparison | "(" Expression ")" | "not" "(" Expression ")"
     bool parse(ParseContext& a_context);
@@ -258,14 +251,15 @@ public:
 
 private:
 
-    enum class OpType
+    enum OpType
     {
-        Comparison = 0,
-        Expression,
-        NotExpression,
+        OpType_Unknown = 0,
+        OpType_Comparison,
+        OpType_Expression,
+        OpType_NotExpression,
     };
 
-    OpType m_opType = OpType::Comparison;
+    OpType m_opType;
     Comparison m_comparison;
     std::unique_ptr<Expression> m_expression;
 };
@@ -273,6 +267,11 @@ private:
 class Expression
 {
 public:
+
+    Expression()
+        : m_opType(OpType_Unknown)
+    {
+    }
 
     // Expression ::= Term | Term "and" Expression | Term "or" Expression
     bool parse(ParseContext& a_context)
@@ -282,50 +281,66 @@ public:
 
         if (parse_expectString(a_context, "and"))
         {
-            m_opType = OpType::And;
             m_right = std::make_unique<Expression>();
-            return m_right->parse(a_context);
+            if (!m_right->parse(a_context))
+                return false;
+            m_opType = OpType_And;
+            return true;
         }
 
         if (parse_expectString(a_context, "or"))
         {
-            m_opType = OpType::Or;
             m_right = std::make_unique<Expression>();
-            return m_right->parse(a_context);
+            if (!m_right->parse(a_context))
+                return false;
+            m_opType = OpType_Or;
+            return true;
         }
 
+        m_opType = OpType_None;
         return true;
     }
 
     template< typename EvalContextT >
     bool eval(const EvalContextT& a_context) const
     {
-        if (!m_left.eval(a_context))
-            return false;
-
         switch (m_opType)
         {
-        case OpType::And:
-            assert(m_right);
-            return m_right->eval(a_context);
-        case OpType::Or:
+        case OpType_None:
+            if (!m_left.eval(a_context))
+                return false;
             return true;
+        case OpType_And:
+            if (!m_left.eval(a_context))
+                return false;
+            assert(m_right);
+            if (!m_right->eval(a_context))
+                return false;
+            return true;
+        case OpType_Or:
+            if (m_left.eval(a_context))
+                return true;
+            assert(m_right);
+            if (m_right->eval(a_context))
+                return true;
+            return false;
         }
-
-        return true;
+        assert(!"m_opType does not have a valid value!!!");
+        return false;
     }
 
 private:
 
-    enum class OpType
+    enum OpType
     {
-        None = 0,
-        And,
-        Or,
+        OpType_Unknown = 0,
+        OpType_None,
+        OpType_And,
+        OpType_Or,
     };
 
     Term m_left;
-    OpType m_opType = OpType::None;
+    OpType m_opType;
     std::unique_ptr<Expression> m_right;
 };
 
@@ -333,28 +348,32 @@ inline bool Term::parse(ParseContext& a_context)
 {
     if (m_comparison.parse(a_context))
     {
-        m_opType = OpType::Comparison;
+        m_opType = OpType_Comparison;
         return true;
     }
 
     if (parse_expectString(a_context, "("))
     {
-        m_opType = OpType::Expression;
         m_expression = std::make_unique<Expression>();
         if (!m_expression->parse(a_context))
             return false;
-        return parse_expectString(a_context, ")");
+        if (!parse_expectString(a_context, ")"))
+            return false;
+        m_opType = OpType_Expression;
+        return true;
     }
 
     if (parse_expectString(a_context, "not"))
     {
-        m_opType = OpType::NotExpression;
         if (!parse_expectString(a_context, "("))
             return false;
         m_expression = std::make_unique<Expression>();
         if (!m_expression->parse(a_context))
             return false;
-        return parse_expectString(a_context, ")");
+        if (!parse_expectString(a_context, ")"))
+            return false;
+        m_opType = OpType_NotExpression;
+        return true;
     }
 
     return false;
@@ -365,14 +384,23 @@ inline bool Term::eval(const EvalContextT& a_context) const
 {
     switch (m_opType)
     {
-    case OpType::Expression:
+    case OpType_Comparison:
+        if (!m_comparison.eval(a_context))
+            return false;
+        return true;
+    case OpType_Expression:
         assert(m_expression);
-        return m_expression->eval(a_context);
-    case OpType::NotExpression:
+        if (!m_expression->eval(a_context))
+            return false;
+        return true;
+    case OpType_NotExpression:
         assert(m_expression);
-        return !m_expression->eval(a_context);
+        if (m_expression->eval(a_context))
+            return false;
+        return true;
     }
-    return m_comparison.eval(a_context);
+    assert(!"m_opType does not have a valid value!!!");
+    return false;
 }
 
 class Parser
@@ -382,7 +410,11 @@ public:
     bool parse(const char* a_expr, size_t a_length)
     {
         ParseContext l_context(a_expr, a_length);
-        return m_expression.parse(l_context);
+        m_expression = std::make_unique<Expression>();
+        if (m_expression->parse(l_context))
+            return true;
+        m_expression.reset();
+        return false;
     }
 
     template< size_t ArraySizeV >
@@ -394,10 +426,11 @@ public:
     template< typename EvalContextT >
     bool eval(const EvalContextT& a_context) const
     {
-        return m_expression.eval(a_context);
+        assert(m_expression);
+        return m_expression->eval(a_context);
     }
 
 private:
 
-    Expression m_expression;
+    std::unique_ptr<Expression> m_expression;
 };
