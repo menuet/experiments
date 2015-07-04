@@ -2,10 +2,9 @@
 #pragma once
 
 
-#include <memory>
+#include "unique_ptr98.h"
 #include <cassert>
 #include <cctype>
-
 
 
 enum FieldType
@@ -70,7 +69,7 @@ inline bool parse_expectString(ParseContext& a_context, const char* a_expectedBe
 {
     parse_ignoreSpaces(a_context);
 
-    const auto l_savedPointer = a_context.getCurrentPointer();
+    const char* const l_savedPointer = a_context.getCurrentPointer();
 
     while (!a_context.isAtEnd() && a_expectedBegin != a_expectedEnd)
     {
@@ -122,11 +121,11 @@ inline bool parse_expectFieldValue(ParseContext& a_context, std::string& a_field
 {
     parse_ignoreSpaces(a_context);
 
-    const auto l_savedPointer = a_context.getCurrentPointer();
+    const char* const l_savedPointer = a_context.getCurrentPointer();
 
     while (!a_context.isAtEnd())
     {
-        const auto l_currentChar = a_context.getCurrentChar();
+        const char l_currentChar = a_context.getCurrentChar();
         if (std::isspace(l_currentChar) || l_currentChar == ')' || l_currentChar == ',')
         {
             if (!a_fieldValue.empty())
@@ -198,12 +197,12 @@ public:
         {
         case OpType_Equal:
         {
-            const auto& l_fieldValue = a_context.getFieldValue(m_fieldType);
+            const std::string& l_fieldValue = a_context.getFieldValue(m_fieldType);
             return m_fieldValue == l_fieldValue;
         }
         case OpType_NotEqual:
         {
-            const auto& l_fieldValue = a_context.getFieldValue(m_fieldType);
+            const std::string& l_fieldValue = a_context.getFieldValue(m_fieldType);
             return m_fieldValue != l_fieldValue;
         }
         case OpType_Like:
@@ -261,7 +260,7 @@ private:
 
     OpType m_opType;
     Comparison m_comparison;
-    std::unique_ptr<Expression> m_expression;
+    std_ex::unique_ptr98<Expression> m_expression;
 };
 
 class Expression
@@ -281,7 +280,7 @@ public:
 
         if (parse_expectString(a_context, "and"))
         {
-            m_right = std::make_unique<Expression>();
+            m_right = std_ex::make_unique98<Expression>();
             if (!m_right->parse(a_context))
                 return false;
             m_opType = OpType_And;
@@ -290,7 +289,7 @@ public:
 
         if (parse_expectString(a_context, "or"))
         {
-            m_right = std::make_unique<Expression>();
+            m_right = std_ex::make_unique98<Expression>();
             if (!m_right->parse(a_context))
                 return false;
             m_opType = OpType_Or;
@@ -341,7 +340,7 @@ private:
 
     Term m_left;
     OpType m_opType;
-    std::unique_ptr<Expression> m_right;
+    std_ex::unique_ptr98<Expression> m_right;
 };
 
 inline bool Term::parse(ParseContext& a_context)
@@ -354,7 +353,7 @@ inline bool Term::parse(ParseContext& a_context)
 
     if (parse_expectString(a_context, "("))
     {
-        m_expression = std::make_unique<Expression>();
+        m_expression = std_ex::make_unique98<Expression>();
         if (!m_expression->parse(a_context))
             return false;
         if (!parse_expectString(a_context, ")"))
@@ -367,7 +366,7 @@ inline bool Term::parse(ParseContext& a_context)
     {
         if (!parse_expectString(a_context, "("))
             return false;
-        m_expression = std::make_unique<Expression>();
+        m_expression = std_ex::make_unique98<Expression>();
         if (!m_expression->parse(a_context))
             return false;
         if (!parse_expectString(a_context, ")"))
@@ -410,11 +409,20 @@ public:
     bool parse(const char* a_expr, size_t a_length)
     {
         ParseContext l_context(a_expr, a_length);
-        m_expression = std::make_unique<Expression>();
+        m_expression = std_ex::make_unique98<Expression>();
         if (m_expression->parse(l_context))
-            return true;
+        {
+            parse_ignoreSpaces(l_context);
+            if (l_context.isAtEnd())
+                return true;
+        }
         m_expression.reset();
         return false;
+    }
+
+    bool parse(const std::string& a_expr)
+    {
+        return parse(a_expr.c_str(), a_expr.length());
     }
 
     template< size_t ArraySizeV >
@@ -432,5 +440,5 @@ public:
 
 private:
 
-    std::unique_ptr<Expression> m_expression;
+    std_ex::unique_ptr98<Expression> m_expression;
 };

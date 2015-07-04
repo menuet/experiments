@@ -79,6 +79,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="unique_ptr98.test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser.test.cpp">
@@ -87,6 +88,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="parser.manual.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="unique_ptr98.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

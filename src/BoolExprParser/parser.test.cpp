@@ -6,6 +6,34 @@
 
 namespace ut {
 
+    namespace {
+
+        class EvalContext
+        {
+        public:
+
+            const std::string& getFieldValue(FieldType a_fieldType) const
+            {
+                static std::string l_empty;
+                const auto l_iterField = m_fields.find(a_fieldType);
+                if (l_iterField == m_fields.end())
+                    return l_empty;
+                return l_iterField->second;
+            }
+
+            EvalContext& operator()(FieldType a_fieldType, const std::string& a_fieldValue)
+            {
+                m_fields[a_fieldType] = a_fieldValue;
+                return *this;
+            }
+
+        private:
+
+            std::map<FieldType, std::string> m_fields;
+        };
+
+    }
+
     SCENARIO("the parser can parse valid simple comparisons", "[parser]")
     {
 
@@ -95,30 +123,6 @@ namespace ut {
         }
 
     }
-
-    class EvalContext
-    {
-    public:
-
-        const std::string& getFieldValue(FieldType a_fieldType) const
-        {
-            static std::string l_empty;
-            const auto l_iterField= m_fields.find(a_fieldType);
-            if (l_iterField == m_fields.end())
-                return l_empty;
-            return l_iterField->second;
-        }
-
-        EvalContext& operator()(FieldType a_fieldType, const std::string& a_fieldValue)
-        {
-            m_fields[a_fieldType] = a_fieldValue;
-            return *this;
-        }
-
-    private:
-
-        std::map<FieldType, std::string> m_fields;
-    };
 
     SCENARIO("the parser can evaluate valid simple comparisons", "[parser]")
     {
@@ -377,7 +381,7 @@ namespace ut {
                 }
             }
 
-            WHEN("We parse 'UUID = ,")
+            WHEN("We parse 'UUID = ,'")
             {
                 const auto l_parseResult = l_parser.parse("UUID = ,");
 
@@ -387,7 +391,7 @@ namespace ut {
                 }
             }
 
-            WHEN("We parse 'UUID !=)")
+            WHEN("We parse 'UUID !=)'")
             {
                 const auto l_parseResult = l_parser.parse("UUID !=)");
 
@@ -397,9 +401,19 @@ namespace ut {
                 }
             }
 
-            WHEN("We parse 'UUID !=")
+            WHEN("We parse 'UUID !='")
             {
                 const auto l_parseResult = l_parser.parse("UUID !=");
+
+                THEN("It fails")
+                {
+                    REQUIRE(!l_parseResult);
+                }
+            }
+
+            WHEN("We parse 'CHANNEL == 12 or UUID = 12 +'")
+            {
+                const auto l_parseResult = l_parser.parse(std::string("CHANNEL == 12 or UUID = 12 +"));
 
                 THEN("It fails")
                 {
