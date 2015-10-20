@@ -5,14 +5,14 @@
 
 int main(int argc, char* argv[])
 {
-    if (argc != 4)
+    if (argc < 3)
         return 1;
 
-    const auto* const sourceFilePath = argv[1];
-    const auto* const targetFilePath = argv[2];
-    const auto delay = std::stoi(argv[3]);
+    const auto delay = std::stoi(argv[1]);
+    const auto* const sourcePath = argv[2];
+    const auto* const targetPath = (argc >= 4) ? argv[3] : "";
 
-    delaysubtitles::delaySubTitles(sourceFilePath, targetFilePath, std::chrono::milliseconds(delay));
+    delaysubtitles::delaySubTitles(std::chrono::milliseconds(delay), sourcePath, targetPath);
 
     return 0;
 }

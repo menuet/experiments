@@ -7,9 +7,12 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <vector>
 
 
 namespace delaysubtitles {
+
+    namespace fs = std::experimental::filesystem;
 
     struct Time
     {
@@ -72,20 +75,43 @@ namespace delaysubtitles {
     }
 
     static void delaySubTitles(
-        const std::experimental::filesystem::path& sourceFilePath,
-        const std::experimental::filesystem::path& targetFilePath,
-        const std::chrono::milliseconds& delay
+        const std::chrono::milliseconds& delay,
+        const fs::path& sourcePath,
+        fs::path targetPath
         )
     {
-        std::ofstream targetFile(targetFilePath);
-        std::ifstream sourceFile(sourceFilePath);
-        std::string sourceLine;
-        while (sourceFile)
+        if (fs::is_directory(sourcePath))
         {
-            std::getline(sourceFile, sourceLine);
-            delayLine(sourceLine, delay);
-            targetFile.write(sourceLine.c_str(), sourceLine.length());
-            targetFile << "\n";
+            std::vector<fs::path> sourceFilesPaths;
+            for (const auto& entry : fs::directory_iterator(sourcePath))
+            {
+                const auto path = entry.path();
+                const auto extension = path.extension();
+                if (fs::is_regular_file(path) && extension == L".srt")
+                    sourceFilesPaths.push_back(path);
+            }
+            for (const auto& sourceFilePath : sourceFilesPaths)
+            {
+                delaySubTitles(delay, sourceFilePath, fs::path());
+            }
+        }
+        else
+        {
+            if (targetPath.empty())
+            {
+                targetPath = sourcePath;
+                targetPath.replace_filename(targetPath.stem().wstring() + L"-delayed.srt");
+            }
+            std::ofstream targetFile(targetPath);
+            std::ifstream sourceFile(sourcePath);
+            std::string sourceLine;
+            while (sourceFile)
+            {
+                std::getline(sourceFile, sourceLine);
+                delayLine(sourceLine, delay);
+                targetFile.write(sourceLine.c_str(), sourceLine.length());
+                targetFile << "\n";
+            }
         }
     }
 
