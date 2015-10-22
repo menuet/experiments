@@ -2,7 +2,11 @@
 #pragma once
 
 
+#if defined(__GNUC__)
+#include <boost/filesystem.hpp>
+#else
 #include <filesystem>
+#endif
 #include <chrono>
 #include <fstream>
 #include <string>
@@ -12,7 +16,35 @@
 
 namespace delaysubtitles {
 
+#if defined(__GNUC__)
+    namespace fs = boost::filesystem;
+    template< typename... Ts >
+    inline void string_scanf(const std::string& s, const char* format, const Ts&... ts)
+    {
+        sscanf(s.c_str(), format, ts...); // not safe
+    }
+    template< typename... Ts >
+    inline void string_printf(std::string& s, const char* format, const Ts&... ts)
+    {
+        char sz[500] = {0};
+        sprintf(sz, format, ts...);
+        s = sz;
+    }
+#else
     namespace fs = std::experimental::filesystem;
+    template< typename... Ts >
+    inline void string_scanf(const std::string& s, const char* format, const Ts&... ts)
+    {
+        sscanf_s(s.c_str(), format, ts...); // not safe
+    }
+    template< typename... Ts >
+    inline void string_printf(std::string& s, const char* format, const Ts&... ts)
+    {
+        char sz[500] = {0};
+        sprintf_s(sz, format, ts...);
+        s = sz;
+    }
+#endif
 
     struct Time
     {
@@ -25,15 +57,14 @@ namespace delaysubtitles {
     static Time parseTime(const std::string& timeString)
     {
         Time time;
-        sscanf_s(timeString.c_str(), "%d:%d:%d,%d", &time.m_hours, &time.m_minutes, &time.m_seconds, &time.m_milliseconds);
+        string_scanf(timeString, "%d:%d:%d,%d", &time.m_hours, &time.m_minutes, &time.m_seconds, &time.m_milliseconds);
         return time;
     }
 
     static std::string formatTime(const Time& time)
     {
         std::string timeString;
-        timeString.resize(std::strlen("HH:MM:SS:III") + 1);
-        sprintf_s(&*timeString.begin(), timeString.length(), "%02d:%02d:%02d,%03d", time.m_hours, time.m_minutes, time.m_seconds, time.m_milliseconds);
+        string_printf(timeString, "%02d:%02d:%02d,%03d", time.m_hours, time.m_minutes, time.m_seconds, time.m_milliseconds);
         timeString.resize(timeString.length() - 1);
         return timeString;
     }
@@ -83,13 +114,16 @@ namespace delaysubtitles {
         if (fs::is_directory(sourcePath))
         {
             std::vector<fs::path> sourceFilesPaths;
-            for (const auto& entry : fs::directory_iterator(sourcePath))
+            const auto iterEnd = fs::directory_iterator();
+            for (auto iter = fs::directory_iterator(sourcePath) ; iter!=iterEnd; ++iter)
             {
+                const auto& entry = *iter;
                 const auto path = entry.path();
                 const auto extension = path.extension();
-                if (fs::is_regular_file(path) && extension == L".srt")
+                if (fs::is_regular_file(path) && extension == ".srt")
                     sourceFilesPaths.push_back(path);
             }
+            std::cout << "Found " << sourceFilesPaths.size() << " in directory '" << sourcePath << "'\n";
             for (const auto& sourceFilePath : sourceFilesPaths)
             {
                 delaySubTitles(delay, sourceFilePath, fs::path());
@@ -97,13 +131,19 @@ namespace delaysubtitles {
         }
         else
         {
+            std::ifstream sourceFile(sourcePath.string());
+            if (!sourceFile)
+            {
+                std::cout << "Could not read the subtitle file '" << sourcePath << "'\n";
+                return;
+            }
             if (targetPath.empty())
             {
                 targetPath = sourcePath;
-                targetPath.replace_filename(targetPath.stem().wstring() + L"-delayed.srt");
+                targetPath.remove_filename();
+                targetPath /= targetPath.stem().string() + "-delayed.srt";
             }
-            std::ofstream targetFile(targetPath);
-            std::ifstream sourceFile(sourcePath);
+            std::ofstream targetFile(targetPath.string());
             std::string sourceLine;
             while (sourceFile)
             {

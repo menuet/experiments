@@ -6,7 +6,10 @@
 int main(int argc, char* argv[])
 {
     if (argc < 3)
+    {
+        std::cout << "Usage:\nDelaySubTitles Delay DirectoryOrSubTitlesFileName [NewFileName]\n";
         return 1;
+    }
 
     const auto delay = std::stoi(argv[1]);
     const auto* const sourcePath = argv[2];
