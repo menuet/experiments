@@ -18,5 +18,5 @@ add_custom_target(sqlite3-install
 	${CMAKE_COMMAND} -E copy_if_different "${BUILD_PROP_SOURCE_DIR}/sqlite3.h" "${BUILD_PROP_INSTALL_DIR}/inc/sqlite3/sqlite3.h"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${BUILD_PROP_SOURCE_DIR}/sqlite3ext.h" "${BUILD_PROP_INSTALL_DIR}/inc/sqlite3/sqlite3ext.h"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/sqlite3.lib" "${BUILD_PROP_INSTALL_DIR}/lib/sqlite3.lib"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/sqlite3.dll" "${BUILD_PROP_INSTALL_DIR}/bin/sqlite3.dll"
 	DEPENDS sqlite3)
-

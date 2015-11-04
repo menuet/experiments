@@ -27,8 +27,16 @@ IF NOT EXIST "%MY_BUILD_DIR%" (
 
 cd %MY_BUILD_DIR%
 
-"c:\Program Files (x86)\CMake\bin\cmake.exe" -G "Visual Studio 12 2013" -D "SQLITE3_INCLUDE_DIR=%THIRDPARTY_SQLITE_INC_DIR%" -D "SQLITE3_LIBRARIES=%THIRDPARTY_SQLITE_LIB_DIR%" -D "BOOST_INCLUDE_DIR=%THIRDPARTY_BOOST_INC_DIR%" -D "BOOST_LIBRARIES=%THIRDPARTY_BOOST_LIB_DIR%" -D BOOST_RELEASE_VERSION=1.59.0 "%MY_SOURCE_DIR%" > %MY_SCRIPT_DIR%\build.logs.txt
+"c:\Program Files (x86)\CMake\bin\cmake.exe" -G "Visual Studio 12 2013" -D "SQLITE_ROOT_DIR=%THIRDPARTY_SQLITE_DIR%" -D "SQLITE3_INCLUDE_DIR=%THIRDPARTY_SQLITE_INC_DIR%" -D "SQLITE3_LIBRARIES=%THIRDPARTY_SQLITE_LIB_DIR%" -D "BOOST_INCLUDE_DIR=%THIRDPARTY_BOOST_INC_DIR%" -D "BOOST_LIBRARIES=%THIRDPARTY_BOOST_LIB_DIR%" -D BOOST_RELEASE_VERSION=1.59.0 "%MY_SOURCE_DIR%" > %MY_SCRIPT_DIR%\build.logs.txt
 
-%MSBUILD_PATH% "SOCI.sln" >> "%MY_SCRIPT_DIR%\build.logs.txt"
+%MSBUILD_PATH% "core\soci_core_static.vcxproj" "-p:Configuration=Debug" >> "%MY_SCRIPT_DIR%\build.logs.txt"
+%MSBUILD_PATH% "core\soci_core.vcxproj" "-p:Configuration=Debug" >> "%MY_SCRIPT_DIR%\build.logs.txt"
+%MSBUILD_PATH% "backends\sqlite3\soci_sqlite3_static.vcxproj" "-p:Configuration=Debug" >> "%MY_SCRIPT_DIR%\build.logs.txt"
+%MSBUILD_PATH% "backends\sqlite3\soci_sqlite3.vcxproj" "-p:Configuration=Debug" >> "%MY_SCRIPT_DIR%\build.logs.txt"
+
+xcopy "%MY_BUILD_DIR%\lib\Debug\*.lib" "%MY_INSTALL_DIR%\lib\Debug" /I /R /Y
+xcopy "%MY_BUILD_DIR%\bin\Debug\*.dll" "%MY_INSTALL_DIR%\bin\Debug" /I /R /Y
+xcopy "%MY_SOURCE_DIR%\core\*.h" "%MY_INSTALL_DIR%\inc\soci" /I /R /Y
+xcopy "%MY_SOURCE_DIR%\backends\sqlite3\soci-sqlite3.h" "%MY_INSTALL_DIR%\inc\soci" /I /R /Y
 
 cd %MY_SCRIPT_DIR%
