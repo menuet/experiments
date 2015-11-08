@@ -35,7 +35,7 @@ namespace TestOliveCSharp
         public static int onChangedFieldV1(int fieldId, string oldValue, string newValue, out string message)
         {
             const UInt32 messageMaxSize = 500;
-#if METHODE_AVEC_PIN
+#if true
             char[] messageArray = new char[messageMaxSize];
             GCHandle pinnedMessageArray = GCHandle.Alloc(messageArray, GCHandleType.Pinned);
             IntPtr messageData = pinnedMessageArray.AddrOfPinnedObject();
@@ -58,7 +58,7 @@ namespace TestOliveCSharp
             var result = TestOliveC_onChangedFieldV2(fieldId, oldValue, newValue, out messageData, out messageSize);
             message = Marshal.PtrToStringUni(messageData, (int)messageSize);
             TestOliveC_destroyMessageData(messageData);
-            return 0;
+            return result;
         }
     }
 }

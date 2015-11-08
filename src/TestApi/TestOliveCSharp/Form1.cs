@@ -32,5 +32,13 @@ namespace TestOliveCSharp
             tbResult.Text = Convert.ToString(result);
             tbMessage.Text = message;
         }
+
+        private void btnOnChangedFieldCppCli_Click(object sender, EventArgs e)
+        {
+            string message = null;
+            var result = TestOliveCppCli.TestOlive.onChangedField(Convert.ToInt32(tbFieldId.Text), tbOldValue.Text, tbNewValue.Text, ref message);
+            tbResult.Text = Convert.ToString(result);
+            tbMessage.Text = message;
+        }
     }
 }

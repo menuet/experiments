@@ -40,6 +40,7 @@
             this.tbResult = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.tbMessage = new System.Windows.Forms.TextBox();
+            this.btnOnChangedFieldCppCli = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -145,11 +146,22 @@
             this.tbMessage.Size = new System.Drawing.Size(431, 22);
             this.tbMessage.TabIndex = 1;
             // 
+            // btnOnChangedFieldCppCli
+            // 
+            this.btnOnChangedFieldCppCli.Location = new System.Drawing.Point(451, 183);
+            this.btnOnChangedFieldCppCli.Name = "btnOnChangedFieldCppCli";
+            this.btnOnChangedFieldCppCli.Size = new System.Drawing.Size(168, 23);
+            this.btnOnChangedFieldCppCli.TabIndex = 2;
+            this.btnOnChangedFieldCppCli.Text = "onChangedFieldClppCli";
+            this.btnOnChangedFieldCppCli.UseVisualStyleBackColor = true;
+            this.btnOnChangedFieldCppCli.Click += new System.EventHandler(this.btnOnChangedFieldCppCli_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(721, 417);
+            this.Controls.Add(this.btnOnChangedFieldCppCli);
             this.Controls.Add(this.btnOnChangedFieldV2);
             this.Controls.Add(this.btnOnChangedFieldV1);
             this.Controls.Add(this.tbNewValue);
@@ -183,6 +195,7 @@
         private System.Windows.Forms.TextBox tbResult;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox tbMessage;
+        private System.Windows.Forms.Button btnOnChangedFieldCppCli;
     }
 }
 
