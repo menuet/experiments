@@ -34,7 +34,7 @@ add_custom_target(
 
 add_custom_target(
 	khewil-soci-install
-	${CMAKE_COMMAND} -E copy_if_different "${KHEWIL_SOCI_SOURCE_DIR}/soci.h" "${KHEWIL_SOCI_INSTALL_DIR}/inc/soci/soci.h"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${KHEWIL_SOCI_SOURCE_DIR}/soci.h" "${KHEWIL_SOCI_INSTALL_DIR}/inc/soci/soci.h"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${KHEWIL_SOCI_SOURCE_DIR}/sociext.h" "${KHEWIL_SOCI_INSTALL_DIR}/inc/soci/sociext.h"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${KHEWIL_SOCI_BUILD_DIR}/soci.lib" "${KHEWIL_SOCI_INSTALL_DIR}/lib/soci.lib"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${KHEWIL_SOCI_BUILD_DIR}/soci.dll" "${KHEWIL_SOCI_INSTALL_DIR}/bin/soci.dll"
