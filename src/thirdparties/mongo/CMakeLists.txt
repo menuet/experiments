@@ -28,7 +28,7 @@ message(STATUS "KHEWIL_MONGO_INSTALL_DIR=${KHEWIL_MONGO_INSTALL_DIR}")
 
 add_custom_target(
 	khewil-mongo-build
-	COMMAND "${KHEWIL_SCONS}" --prefix=${KHEWIL_MONGO_BUILD_DIR}/prefix --dynamic-windows=on --dynamic-boost=off --c++11=on --dbg=off --msvc-version=12.0 --msvc-host-arch=x86 "--cpppath=${KHEWIL_BOOST_INSTALL_DIR}/inc" "--libpath=${KHEWIL_BOOST_INSTALL_DIR}/lib" install
+	COMMAND "${KHEWIL_TOOL_SCONS}" --prefix=${KHEWIL_MONGO_BUILD_DIR}/prefix --dynamic-windows=on --dynamic-boost=off --c++11=on --dbg=off --msvc-version=12.0 --msvc-host-arch=x86 "--cpppath=${KHEWIL_BOOST_INSTALL_DIR}/inc" "--libpath=${KHEWIL_BOOST_INSTALL_DIR}/lib" install
 	WORKING_DIRECTORY "${KHEWIL_MONGO_SOURCE_DIR}"
 	COMMENT "Building mongo-cxx using boost headers in ${KHEWIL_BOOST_INSTALL_DIR}/inc and boost libs in ${KHEWIL_BOOST_INSTALL_DIR}/lib"
 	)
