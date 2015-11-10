@@ -37,8 +37,12 @@ add_subdirectory(zeromq)
 add_subdirectory(mongo)
 add_subdirectory(soci)
 
-add_custom_target(khewil-thirdparties-build)
-add_dependencies(khewil-thirdparties-build khewil-sqlite-build khewil-boost-build khewil-zeromq-build khewil-mongo-build khewil-soci-build)
-
-add_custom_target(khewil-thirdparties-install)
-add_dependencies(khewil-thirdparties-install khewil-sqlite-install khewil-boost-install khewil-zeromq-install khewil-mongo-install khewil-soci-install)
+add_custom_target(khewil-thirdparties-build-install)
+add_dependencies(
+	khewil-thirdparties-build-install
+	khewil-sqlite-install
+	khewil-boost-install
+	khewil-zeromq-install
+	khewil-mongo-install
+	khewil-soci-install
+	)
