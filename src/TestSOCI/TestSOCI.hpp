@@ -2,7 +2,6 @@
 #pragma once
 
 
-#define SOCI_SQLITE3_DECL __declspec(dllimport)
 #include <soci/soci.h>
 #include <soci/soci-sqlite3.h>
 #include <iostream>
@@ -65,6 +64,8 @@ namespace testsoci {
         return count;
     }
 
+#pragma warning(push)
+#pragma warning(disable : 4715) // Disable warning C4715: 'testsoci::getRows' : not all control paths return a value
     inline soci::rowset<soci::row> getRows(soci::session& session)
     {
         try
@@ -76,7 +77,10 @@ namespace testsoci {
             std::cerr << "Error select: " << e.what() << '\n';
         }
     }
+#pragma warning(pop)
 
+#pragma warning(push)
+#pragma warning(disable : 4996) // Disable warning C4996: 'asctime': This function or variable may be unsafe. Consider using asctime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
     static void test()
     {
         try
@@ -139,39 +143,6 @@ namespace testsoci {
             std::cerr << "Error: " << e.what() << '\n';
         }
     }
-    //int main()
-    //{
-    //    try
-    //    {
-    //        soci::session l_session(sqli, "service=mydb user=john password=secret");
-
-    //        int count;
-    //        sql << "select count(*) from phonebook", into(count);
-
-    //        cout << "We have " << count << " entries in the phonebook.\n";
-
-    //        string name;
-    //        while (get_name(name))
-    //        {
-    //            string phone;
-    //            indicator ind;
-    //            sql << "select phone from phonebook where name = :name",
-    //                into(phone, ind), use(name);
-
-    //            if (ind == i_ok)
-    //            {
-    //                cout << "The phone number is " << phone << '\n';
-    //            }
-    //            else
-    //            {
-    //                cout << "There is no phone for " << name << '\n';
-    //            }
-    //        }
-    //    }
-    //    catch (exception const &e)
-    //    {
-    //        cerr << "Error: " << e.what() << '\n';
-    //    }
-    //}
+#pragma warning(pop)
 
 } // namespace testsoci
