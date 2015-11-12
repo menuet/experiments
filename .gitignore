@@ -1,0 +1,11 @@
+**/Debug/
+**/Release/
+**/output/
+src/packages/
+*.sdf
+*.suo
+*.logs.txt
+**/ipch/
+*.user
+*.pb.cc
+*.pb.h

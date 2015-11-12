@@ -34,6 +34,7 @@ message(STATUS "KHEWIL_TOOL_MSBUILD=${KHEWIL_TOOL_MSBUILD}")
 add_subdirectory(sqlite)
 add_subdirectory(boost)
 add_subdirectory(zeromq)
+add_subdirectory(protobuf)
 add_subdirectory(mongo)
 add_subdirectory(soci)
 
@@ -43,6 +44,7 @@ add_dependencies(
 	khewil-sqlite-install
 	khewil-boost-install
 	khewil-zeromq-install
+	khewil-protobuf-install
 	khewil-mongo-install
 	khewil-soci-install
 	)
