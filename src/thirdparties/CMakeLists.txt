@@ -14,12 +14,28 @@ message(STATUS "KHEWIL_THIRDPARTIES_DIR=${KHEWIL_THIRDPARTIES_DIR}")
 if("${KHEWIL_THIRDPARTIES_SOURCE_DIR}" STREQUAL "")
 	set(KHEWIL_THIRDPARTIES_SOURCE_DIR "${KHEWIL_THIRDPARTIES_DIR}/src")
 endif()
-message(STATUS "KHEWIL_THIRDPARTIES_SOURCE_DIR=${KHEWIL_THIRDPARTIES_SOURCE_DIR}")
+set(KHEWIL_THIRDPARTIES_SRC_DIR "${KHEWIL_THIRDPARTIES_SOURCE_DIR}")
+message(STATUS "KHEWIL_THIRDPARTIES_SRC_DIR=${KHEWIL_THIRDPARTIES_SRC_DIR}")
+
+if("${KHEWIL_THIRDPARTIES_SRC_ZIP_DIR}" STREQUAL "")
+	set(KHEWIL_THIRDPARTIES_SRC_ZIP_DIR "${KHEWIL_THIRDPARTIES_SRC_DIR}/zip")
+endif()
+message(STATUS "KHEWIL_THIRDPARTIES_SRC_ZIP_DIR=${KHEWIL_THIRDPARTIES_SRC_ZIP_DIR}")
+
+if("${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}" STREQUAL "")
+	set(KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR "${KHEWIL_THIRDPARTIES_SRC_DIR}/unzip")
+endif()
+message(STATUS "KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR=${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}")
 
 if("${KHEWIL_THIRDPARTIES_INSTALL_DIR}" STREQUAL "")
 	set(KHEWIL_THIRDPARTIES_INSTALL_DIR "${KHEWIL_THIRDPARTIES_DIR}/install")
 endif()
 message(STATUS "KHEWIL_THIRDPARTIES_INSTALL_DIR=${KHEWIL_THIRDPARTIES_INSTALL_DIR}")
+
+if("${KHEWIL_THIRDPARTIES_CACHE_DIR}" STREQUAL "")
+	set(KHEWIL_THIRDPARTIES_CACHE_DIR "${KHEWIL_THIRDPARTIES_DIR}/cache")
+endif()
+message(STATUS "KHEWIL_THIRDPARTIES_CACHE_DIR=${KHEWIL_THIRDPARTIES_CACHE_DIR}")
 
 if("${KHEWIL_TOOL_SCONS}" STREQUAL "")
 	set(KHEWIL_TOOL_SCONS "c:/Python27/Scripts/scons.bat")
@@ -31,6 +47,16 @@ if("${KHEWIL_TOOL_MSBUILD}" STREQUAL "")
 endif()
 message(STATUS "KHEWIL_TOOL_MSBUILD=${KHEWIL_TOOL_MSBUILD}")
 
+if("${KHEWIL_TOOL_CURL}" STREQUAL "")
+	set(KHEWIL_TOOL_CURL "${CMAKE_SOURCE_DIR}/tools/curl/7.39/curl.exe")
+endif()
+message(STATUS "KHEWIL_TOOL_CURL=${KHEWIL_TOOL_CURL}")
+
+if("${KHEWIL_TOOL_ZIP}" STREQUAL "")
+	set(KHEWIL_TOOL_ZIP "${CMAKE_SOURCE_DIR}/tools/7-Zip/9.20/7z.exe")
+endif()
+message(STATUS "KHEWIL_TOOL_ZIP=${KHEWIL_TOOL_ZIP}")
+
 add_subdirectory(sqlite)
 add_subdirectory(boost)
 add_subdirectory(zeromq)
@@ -38,13 +64,8 @@ add_subdirectory(protobuf)
 add_subdirectory(mongo)
 add_subdirectory(soci)
 
-add_custom_target(khewil-thirdparties-build-install)
+add_custom_target(khewil-thirdparties-build)
 add_dependencies(
-	khewil-thirdparties-build-install
-	khewil-sqlite-install
-	khewil-boost-install
-	khewil-zeromq-install
-	khewil-protobuf-install
-	khewil-mongo-install
-	khewil-soci-install
+	khewil-thirdparties-build
+	khewil-sqlite-build
 	)

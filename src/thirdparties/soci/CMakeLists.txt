@@ -40,7 +40,7 @@ add_custom_target(
 	WORKING_DIRECTORY "${KHEWIL_SOCI_BUILD_DIR}"
 	)
 
-add_dependencies(khewil-soci-build khewil-boost-install khewil-sqlite-install)
+add_dependencies(khewil-soci-build khewil-boost-install khewil-sqlite-build)
 
 add_custom_command(
 	TARGET khewil-soci-build

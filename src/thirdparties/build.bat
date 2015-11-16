@@ -11,6 +11,6 @@ IF NOT EXIST "%BUILD_DIR%" (
 cd "%BUILD_DIR%"
 
 "%CMAKE_PATH%" -G "Visual Studio 12 2013" "%SCRIPT_DIR%" > "%SCRIPT_DIR%\build.logs.txt"
-"%CMAKE_PATH%" --build . --target khewil-thirdparties-build-install >> "%SCRIPT_DIR%\build.logs.txt"
+"%CMAKE_PATH%" --build . --target khewil-thirdparties-build >> "%SCRIPT_DIR%\build.logs.txt"
 
 cd "%SCRIPT_DIR%"
