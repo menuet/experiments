@@ -33,7 +33,7 @@ add_custom_target(
 	COMMENT "Building mongo-cxx using boost headers in ${KHEWIL_BOOST_INSTALL_DIR}/inc and boost libs in ${KHEWIL_BOOST_INSTALL_DIR}/lib"
 	)
 
-add_dependencies(khewil-mongo-build khewil-boost-install)
+add_dependencies(khewil-mongo-build khewil-boost-build)
 
 add_custom_target(
 	khewil-mongo-install

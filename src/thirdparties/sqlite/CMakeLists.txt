@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(khewil-thirdparty-sqlite)
 
 if("${KHEWIL_SQLITE_BUILD_DIR}" STREQUAL "")
-	set(KHEWIL_SQLITE_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/inner-build-build")
+	set(KHEWIL_SQLITE_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/inner-build")
 endif()
 message(STATUS "KHEWIL_SQLITE_BUILD_DIR=${KHEWIL_SQLITE_BUILD_DIR}")
 
