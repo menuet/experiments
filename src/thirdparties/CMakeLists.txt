@@ -67,5 +67,5 @@ add_subdirectory(soci)
 add_custom_target(khewil-thirdparties-build)
 add_dependencies(
 	khewil-thirdparties-build
-	khewil-boost-build-install
+	khewil-protobuf-build
 	)

@@ -37,8 +37,8 @@ add_custom_target(
 	COMMAND "${CMAKE_COMMAND}" -E make_directory "${KHEWIL_THIRDPARTIES_SRC_ZIP_DIR}"
 	COMMAND
 		"${KHEWIL_TOOL_CURL}"
-		-k --ftp-method singlecwd -3 --insecure --retry 5 --retry-delay 15
-		-o "${KHEWIL_THIRDPARTIES_SRC_ZIP_DIR}/${KHEWIL_SQLITE_SRC_NAMEVERSION}.zip"
+		--location --retry 5 --retry-delay 15
+		--output "${KHEWIL_THIRDPARTIES_SRC_ZIP_DIR}/${KHEWIL_SQLITE_SRC_NAMEVERSION}.zip"
 		"${KHEWIL_SQLITE_SRC_ZIP_URL}"
 	)
 
