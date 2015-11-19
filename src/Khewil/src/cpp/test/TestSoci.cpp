@@ -82,7 +82,7 @@ namespace test_soci {
 #pragma warning(disable : 4996) // Disable warning C4996: 'asctime': This function or variable may be unsafe. Consider using asctime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
     void test()
     {
-        std::cout << "SOCI version = " << SOCI_LIB_VERSION << "\n";
+        std::cout << "Soci version = " << SOCI_LIB_VERSION << "\n";
         try
         {
             soci::session session(soci::sqlite3, "database-test");
