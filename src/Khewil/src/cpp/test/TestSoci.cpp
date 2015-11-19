@@ -1,7 +1,6 @@
 
-#pragma once
-
-
+#include "TestSoci.hpp"
+#include <soci/version.h>
 #include <soci/soci.h>
 #include <soci/soci-sqlite3.h>
 #include <iostream>
@@ -12,7 +11,7 @@
 #include <exception>
 
 
-namespace testsoci {
+namespace test_soci {
 
     inline void createTable(soci::session& session)
     {
@@ -81,8 +80,9 @@ namespace testsoci {
 
 #pragma warning(push)
 #pragma warning(disable : 4996) // Disable warning C4996: 'asctime': This function or variable may be unsafe. Consider using asctime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-    static void test()
+    void test()
     {
+        std::cout << "SOCI version = " << SOCI_LIB_VERSION << "\n";
         try
         {
             soci::session session(soci::sqlite3, "database-test");
@@ -145,4 +145,4 @@ namespace testsoci {
     }
 #pragma warning(pop)
 
-} // namespace testsoci
+} // namespace test_soci

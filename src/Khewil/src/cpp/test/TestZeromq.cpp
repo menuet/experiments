@@ -1,14 +1,12 @@
 
-#pragma once
-
-
+#include "TestZeromq.hpp"
 #include <zeromq/zmq.h>
 #include <memory>
 #include <thread>
 #include <iostream>
 
 
-namespace testzmq {
+namespace test_zeromq {
 
     namespace detail {
 
@@ -117,7 +115,7 @@ namespace testzmq {
     }
 #pragma warning(pop)
 
-    static void test()
+    static void testPublisherSubscriber()
     {
         std::cout << "BEGIN test\n";
 
@@ -132,4 +130,13 @@ namespace testzmq {
         std::cout << "END test\n";
     }
 
-} // namespace testzmq
+    void test()
+    {
+        int major = 0;
+        int minor = 0;
+        int patch = 0;
+        zmq_version(&major, &minor, &patch);
+        std::cout << "Zeromq version = " << major << "." << minor << "." << patch << "\n";
+    }
+
+} // namespace test_zeromq
