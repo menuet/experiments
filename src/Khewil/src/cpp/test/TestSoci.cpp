@@ -4,11 +4,12 @@
 #include <soci/soci.h>
 #include <soci/soci-sqlite3.h>
 #include <iostream>
-#include <istream>
-#include <ostream>
-#include <string>
 #include <vector>
 #include <exception>
+#include <string>
+#include <functional>
+
+bool registerTest(const std::string& testName, std::function<void()> testFunction);
 
 
 namespace test_soci {
@@ -80,9 +81,8 @@ namespace test_soci {
 
 #pragma warning(push)
 #pragma warning(disable : 4996) // Disable warning C4996: 'asctime': This function or variable may be unsafe. Consider using asctime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-    void test()
+    void testRich()
     {
-        std::cout << "Soci version = " << SOCI_LIB_VERSION << "\n";
         try
         {
             soci::session session(soci::sqlite3, "database-test");
@@ -144,5 +144,13 @@ namespace test_soci {
         }
     }
 #pragma warning(pop)
+
+    void testBasic()
+    {
+        std::cout << "Soci version = " << SOCI_LIB_VERSION << "\n";
+    }
+
+    static bool basicTestIsRegistered = registerTest("soci-basic", &testBasic);
+    static bool advancedTestIsRegistered = registerTest("soci-rich", &testRich);
 
 } // namespace test_soci

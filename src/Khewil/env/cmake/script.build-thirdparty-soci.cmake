@@ -40,26 +40,28 @@ function(khewil_soci_build)
 			"${KHEWIL_SOCI_SRC_UNZIP_DIR}"
 		WORKING_DIRECTORY "${KHEWIL_SOCI_INNERBUILD_DIR}"
 		)
-	execute_process(
-		COMMAND "${CMAKE_COMMAND}" --build "${KHEWIL_SOCI_INNERBUILD_DIR}" --config Release --target soci_core
-		WORKING_DIRECTORY "${KHEWIL_SOCI_INNERBUILD_DIR}"
-		)
-	execute_process(
-		COMMAND "${CMAKE_COMMAND}" --build "${KHEWIL_SOCI_INNERBUILD_DIR}" --config Release --target soci_sqlite3
-		WORKING_DIRECTORY "${KHEWIL_SOCI_INNERBUILD_DIR}"
-		)
-	khewil_copy(
-		"${KHEWIL_SOCI_INNERBUILD_DIR}/lib/Release"
-		"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_SOCI_INSTALL_NAMEVERSION}/lib"
-		"*.lib"
-		FALSE
-		)
-	khewil_copy(
-		"${KHEWIL_SOCI_INNERBUILD_DIR}/bin/Release"
-		"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_SOCI_INSTALL_NAMEVERSION}/bin"
-		"*.dll"
-		FALSE
-		)
+	foreach (config Debug Release)
+		execute_process(
+			COMMAND "${CMAKE_COMMAND}" --build "${KHEWIL_SOCI_INNERBUILD_DIR}" --config ${config} --target soci_core
+			WORKING_DIRECTORY "${KHEWIL_SOCI_INNERBUILD_DIR}"
+			)
+		execute_process(
+			COMMAND "${CMAKE_COMMAND}" --build "${KHEWIL_SOCI_INNERBUILD_DIR}" --config ${config} --target soci_sqlite3
+			WORKING_DIRECTORY "${KHEWIL_SOCI_INNERBUILD_DIR}"
+			)
+		khewil_copy(
+			"${KHEWIL_SOCI_INNERBUILD_DIR}/lib/${config}"
+			"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_SOCI_INSTALL_NAMEVERSION}/lib/${config}"
+			"*.lib"
+			FALSE
+			)
+		khewil_copy(
+			"${KHEWIL_SOCI_INNERBUILD_DIR}/bin/${config}"
+			"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_SOCI_INSTALL_NAMEVERSION}/bin/${config}"
+			"*.dll"
+			FALSE
+			)
+	endforeach()
 	khewil_copy(
 		"${KHEWIL_SOCI_SRC_UNZIP_DIR}/core"
 		"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_SOCI_INSTALL_NAMEVERSION}/inc/soci"

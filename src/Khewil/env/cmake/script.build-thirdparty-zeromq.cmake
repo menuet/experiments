@@ -18,30 +18,32 @@ include("${CMAKE_CURRENT_LIST_DIR}/script.helpers.cmake")
 
 function(khewil_zeromq_build)
 	file(MAKE_DIRECTORY "${KHEWIL_ZEROMQ_INNERBUILD_DIR}")
-	execute_process(
-		COMMAND
-			"${CMAKE_MAKE_PROGRAM}"
-			"${KHEWIL_ZEROMQ_INNERBUILD_DIR}/libzmq/libzmq.vcxproj"
-			-p:Configuration=ReleaseDLL
-			-p:Platform=Win32
-			-p:PlatformToolset=v120
-			"-p:SolutionDir=${KHEWIL_ZEROMQ_INNERBUILD_DIR}/"
-			-p:Option-sodium=false
-			-p:Linkage-libsodium=
-		WORKING_DIRECTORY "${KHEWIL_ZEROMQ_INNERBUILD_DIR}"
-		)
-	khewil_copy(
-		"${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}/${KHEWIL_ZEROMQ_SRC_NAMEVERSION}/bin/Win32/Release/v120/dynamic"
-		"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_ZEROMQ_INSTALL_NAMEVERSION}/lib"
-		"*.lib"
-		FALSE
-		)
-	khewil_copy(
-		"${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}/${KHEWIL_ZEROMQ_SRC_NAMEVERSION}/bin/Win32/Release/v120/dynamic"
-		"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_ZEROMQ_INSTALL_NAMEVERSION}/bin"
-		"*.dll"
-		FALSE
-		)
+	foreach (config Debug Release)
+		execute_process(
+			COMMAND
+				"${CMAKE_MAKE_PROGRAM}"
+				"${KHEWIL_ZEROMQ_INNERBUILD_DIR}/libzmq/libzmq.vcxproj"
+				-p:Configuration=${config}DLL
+				-p:Platform=Win32
+				-p:PlatformToolset=v120
+				"-p:SolutionDir=${KHEWIL_ZEROMQ_INNERBUILD_DIR}/"
+				-p:Option-sodium=false
+				-p:Linkage-libsodium=
+			WORKING_DIRECTORY "${KHEWIL_ZEROMQ_INNERBUILD_DIR}"
+			)
+		khewil_copy(
+			"${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}/${KHEWIL_ZEROMQ_SRC_NAMEVERSION}/bin/Win32/${config}/v120/dynamic"
+			"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_ZEROMQ_INSTALL_NAMEVERSION}/lib/${config}"
+			"*.lib"
+			FALSE
+			)
+		khewil_copy(
+			"${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}/${KHEWIL_ZEROMQ_SRC_NAMEVERSION}/bin/Win32/${config}/v120/dynamic"
+			"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_ZEROMQ_INSTALL_NAMEVERSION}/bin/${config}"
+			"*.dll"
+			FALSE
+			)
+	endforeach()
 	khewil_copy(
 		"${KHEWIL_THIRDPARTIES_SRC_UNZIP_DIR}/${KHEWIL_ZEROMQ_SRC_NAMEVERSION}/include"
 		"${KHEWIL_THIRDPARTIES_INSTALL_DIR}/${KHEWIL_ZEROMQ_INSTALL_NAMEVERSION}/inc/zeromq"

@@ -102,6 +102,6 @@ add_custom_target(
 		-D "BOOST_LIBRARIES=${BOOST_LIBRARIES}"
 		-D "SQLITE_ROOT=${SQLITE_ROOT}"
 		-D "SQLITE_INCLUDES=${SQLITE_ROOT}/inc/sqlite"
-		-D "SQLITE_LIBRARIES=${SQLITE_INCLUDES}"
+		-D "SQLITE_LIBRARIES=${SQLITE_LIBRARIES}"
 		-P "${KHEWIL_CMAKE_DIR}/script.build-thirdparty-soci.cmake"
 	)

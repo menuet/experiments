@@ -2,6 +2,8 @@
 **/Release/
 **/output/
 src/packages/
+src/Khewil_output/
+src/THIRDPARTIES/
 *.sdf
 *.suo
 *.logs.txt

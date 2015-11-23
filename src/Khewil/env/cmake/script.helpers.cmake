@@ -10,7 +10,7 @@ function(khewil_download url zipped_file_path)
 		execute_process(
 			COMMAND
 				"${KHEWIL_TOOL_CURL}"
-				--retry 5 --retry-delay 15 --location
+				--retry 5 --retry-delay 15 --location --insecure
 				--output "${zipped_file_path}"
 				"${url}"
 			)
@@ -60,7 +60,13 @@ endfunction()
 function(khewil_use_thirdparty target_name thirdparty_name thirdparty_components)
 	find_package(${thirdparty_name})
 	include_directories(${${thirdparty_name}_INCLUDES})
-	foreach(thirdparty_component ${thirdparty_components})
-		target_link_libraries(${target_name} "${${thirdparty_name}_LIBRARIES}/${thirdparty_component}.lib")
+	foreach(thirdparty_component_name ${thirdparty_components})
+		set(thirdparty_component_decorated_name "${${thirdparty_name}_COMPONENT_PREFIX}${thirdparty_component_name}${${thirdparty_name}_COMPONENT_SUFFIX}")
+		message("Linking target ${target_name} to component ${thirdparty_component_decorated_name}")
+		target_link_libraries(${target_name} "${${thirdparty_name}_LIBRARIES}/${thirdparty_component_decorated_name}.lib")
+		message("Copying ${thirdparty_component_decorated_name}.dll to ${KHEWIL_INSTALL_SUFFIX}")
+		# Generator expression does not work for install destination (I don't know why) so I cannot use ${KHEWIL_INSTALL_SUFFIX}
+		install(FILES "${${thirdparty_name}_BINARIES}/${thirdparty_component_decorated_name}.dll" DESTINATION "Debug/bin" CONFIGURATIONS Debug)
+		install(FILES "${${thirdparty_name}_BINARIES}/${thirdparty_component_decorated_name}.dll" DESTINATION "Release/bin" CONFIGURATIONS Release)
 	endforeach()
 endfunction()

@@ -1,5 +1,5 @@
 
 set CLEAR_LOGS=true
 
-set BUILD_PROJECTS="khewil-test"
+set "BUILD_TARGETS=khewil-test;install"
 _build_.bat

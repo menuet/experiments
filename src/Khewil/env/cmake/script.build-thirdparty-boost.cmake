@@ -35,7 +35,7 @@ function(khewil_boost_build)
 			link=shared
 			address-model=32
 			"--stagedir=${KHEWIL_BOOST_INNERBUILD_DIR}/stage"
-			--with-thread --with-date_time --with-regex --with-program_options
+			--with-thread --with-date_time --with-regex --with-program_options --with-log
 		WORKING_DIRECTORY "${KHEWIL_BOOST_SRC_UNZIP_DIR}"
 		)
 	khewil_copy(

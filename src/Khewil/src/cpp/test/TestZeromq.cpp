@@ -4,6 +4,10 @@
 #include <memory>
 #include <thread>
 #include <iostream>
+#include <string>
+#include <functional>
+
+bool registerTest(const std::string& testName, std::function<void()> testFunction);
 
 
 namespace test_zeromq {
@@ -138,5 +142,8 @@ namespace test_zeromq {
         zmq_version(&major, &minor, &patch);
         std::cout << "Zeromq version = " << major << "." << minor << "." << patch << "\n";
     }
+
+    static bool basicTestIsRegistered = registerTest("zeromq-basic", &test);
+    static bool advancedTestIsRegistered = registerTest("zeromq-rich", &testPublisherSubscriber);
 
 } // namespace test_zeromq

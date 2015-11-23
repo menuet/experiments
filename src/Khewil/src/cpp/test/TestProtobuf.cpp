@@ -5,6 +5,10 @@
 #include <google/protobuf/stubs/common.h>
 #pragma warning(pop)
 #include <iostream>
+#include <string>
+#include <functional>
+
+bool registerTest(const std::string& testName, std::function<void()> testFunction);
 
 
 namespace test_protobuf {
@@ -13,5 +17,7 @@ namespace test_protobuf {
     {
 		std::cout << "Protobuf version = " << GOOGLE_PROTOBUF_VERSION << "\n";
 	}
+
+    static bool basicTestIsRegistered = registerTest("protobuf-basic", &test);
 
 } // namespace test_protobuf
