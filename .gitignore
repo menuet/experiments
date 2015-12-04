@@ -11,3 +11,4 @@ src/THIRDPARTIES/
 *.user
 *.pb.cc
 *.pb.h
+*.ifc
