@@ -38,7 +38,7 @@ namespace pasc { namespace detail {
         const char* m_precision = nullptr;
         const char* m_lengthModifier = nullptr;
         const char* m_typeSpecifier = nullptr;
-    }
+    };
 
     inline bool isFlag(char character)
     {
