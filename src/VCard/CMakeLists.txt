@@ -13,5 +13,7 @@ add_executable(
     vcard.hpp
     )
 
+target_link_libraries(vcard PUBLIC ${CONAN_LIBS})
+
 target_compile_definitions(vcard PRIVATE DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES)
 
