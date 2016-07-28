@@ -6,6 +6,7 @@
 #include <ctime>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 
 namespace datetime {
@@ -27,16 +28,22 @@ namespace datetime {
         union DatetimeCalendar
         {
             std::uint64_t raw;
-            std::uint64_t
-                unused : 10,
-                millis : 10,
-                second : 6,
-                minute : 6,
-                hour : 5,
-                day : 5,
-                month : 4,
-                year : 16;
+            struct {
+                std::uint64_t
+                    unused : 10,
+                    millisecond : 10,
+                    second : 6,
+                    minute : 6,
+                    hour : 5,
+                    day : 5,
+                    month : 4,
+                    year : 16;
+            } fields;
         };
+    }
+
+    namespace system {
+        using DatetimeCalendar = std::tm;
     }
 
     using Clock = std::chrono::system_clock;
@@ -45,23 +52,79 @@ namespace datetime {
 
     struct DatetimeCalendar
     {
-        std::uint16_t year;
-        std::uint8_t month;
-        std::uint8_t day;
-        std::uint8_t hour;
-        std::uint8_t minute;
-        std::uint8_t second;
-        std::uint16_t millisecond;
-        std::uint16_t microsecond;
-        std::uint16_t nanosecond;
+        std::uint16_t year{};
+        std::uint8_t month{};
+        std::uint8_t day{};
+        std::uint8_t hour{};
+        std::uint8_t minute{};
+        std::uint8_t second{};
+        std::uint16_t millisecond{};
+        std::uint16_t microsecond{};
+        std::uint16_t nanosecond{};
     };
 
-    inline DatetimePoint getCurrentDatetime()
+    template< typename ToT, typename FromT >
+    inline ToT datetime_cast(const FromT&)
     {
-        return Clock::now();
+        static_assert(false, "This datetime cast is not supported");
     }
 
-    inline DatetimeCalendar toCalendar(DatetimePoint dt)
+    template<>
+    inline old::DatetimeCalendar datetime_cast<old::DatetimeCalendar, DatetimeCalendar>(const DatetimeCalendar& dt)
+    {
+        old::DatetimeCalendar odtc{};
+        odtc.fields.year = dt.year;
+        odtc.fields.month = dt.month;
+        odtc.fields.day = dt.day;
+        odtc.fields.hour = dt.hour;
+        odtc.fields.minute = dt.minute;
+        odtc.fields.second = dt.second;
+        odtc.fields.millisecond = dt.millisecond;
+        return odtc;
+    }
+
+    template<>
+    inline DatetimeCalendar datetime_cast<DatetimeCalendar, old::DatetimeCalendar>(const old::DatetimeCalendar& dt)
+    {
+        DatetimeCalendar ndtc{};
+        ndtc.year = dt.fields.year;
+        ndtc.month = dt.fields.month;
+        ndtc.day = dt.fields.day;
+        ndtc.hour = dt.fields.hour;
+        ndtc.minute = dt.fields.minute;
+        ndtc.second = dt.fields.second;
+        ndtc.millisecond = dt.fields.millisecond;
+        return ndtc;
+    }
+
+    template<>
+    inline system::DatetimeCalendar datetime_cast<system::DatetimeCalendar, DatetimeCalendar>(const DatetimeCalendar& dtc)
+    {
+        system::DatetimeCalendar sdtc{};
+        sdtc.tm_year = dtc.year - 1900;
+        sdtc.tm_mon = dtc.month - 1;
+        sdtc.tm_mday = dtc.day;
+        sdtc.tm_hour = dtc.hour;
+        sdtc.tm_min = dtc.minute;
+        sdtc.tm_sec = dtc.second;
+        return sdtc;
+    }
+
+    template<>
+    inline DatetimeCalendar datetime_cast<DatetimeCalendar, system::DatetimeCalendar>(const system::DatetimeCalendar& sdtc)
+    {
+        DatetimeCalendar dtc{};
+        dtc.year = sdtc.tm_year + 1900;
+        dtc.month = sdtc.tm_mon + 1;
+        dtc.day = sdtc.tm_mday;
+        dtc.hour = sdtc.tm_hour;
+        dtc.minute = sdtc.tm_min;
+        dtc.second = sdtc.tm_sec;
+        return dtc;
+    }
+
+    template<>
+    inline DatetimeCalendar datetime_cast<DatetimeCalendar, DatetimePoint>(const DatetimePoint& dt)
     {
         const auto durationSinceEpoch = dt.time_since_epoch();
 
@@ -77,28 +140,17 @@ namespace datetime {
         const auto remainingMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(remainingNanoseconds);
         remainingNanoseconds = remainingNanoseconds - remainingMicroseconds;
 
-        DatetimeCalendar dtc{};
-        dtc.year = clockTm.tm_year + 1900;
-        dtc.month = clockTm.tm_mon + 1;
-        dtc.day = clockTm.tm_mday;
-        dtc.hour = clockTm.tm_hour;
-        dtc.minute = clockTm.tm_min;
-        dtc.second = clockTm.tm_sec;
+        auto dtc = datetime_cast<DatetimeCalendar>(clockTm);
         dtc.millisecond = static_cast<std::uint16_t>(remainingMilliseconds.count());
         dtc.microsecond = static_cast<std::uint16_t>(remainingMicroseconds.count());
         dtc.nanosecond = static_cast<std::uint16_t>(remainingNanoseconds.count());
         return dtc;
     }
 
-    inline DatetimePoint toPoint(const DatetimeCalendar& dt)
+    template<>
+    inline DatetimePoint datetime_cast<DatetimePoint, DatetimeCalendar>(const DatetimeCalendar& dt)
     {
-        std::tm clockTm{};
-        clockTm.tm_year = dt.year - 1900;
-        clockTm.tm_mon = dt.month - 1;
-        clockTm.tm_mday = dt.day;
-        clockTm.tm_hour = dt.hour;
-        clockTm.tm_min = dt.minute;
-        clockTm.tm_sec = dt.second;
+        auto clockTm = datetime_cast<system::DatetimeCalendar>(dt);
         clockTm.tm_isdst = 1;
         const auto clockTimeT = std::mktime(&clockTm);
         const auto clockTimepoint = Clock::from_time_t(clockTimeT);
@@ -112,26 +164,36 @@ namespace datetime {
         return dtp;
     }
 
-    inline old::DatetimeCalendar toOld(const DatetimeCalendar& dt)
+    template< typename ToT, typename FromT >
+    inline ToT datetime_cast(const FromT&, const char* format)
     {
-        old::DatetimeCalendar odtc{};
-        return odtc;
+        static_assert(false, "This datetime cast is not supported");
     }
 
-    inline DatetimeCalendar toNew(const old::DatetimeCalendar& dt)
+    template<>
+    inline DatetimeCalendar datetime_cast<DatetimeCalendar, std::string>(const std::string& dts, const char* format)
     {
-        DatetimeCalendar dtc{};
+        std::stringstream ss;
+        ss.str(dts);
+        std::tm tmt{};
+        ss >> std::get_time(&tmt, format);
+        auto dtc = datetime_cast<DatetimeCalendar>(tmt);
         return dtc;
     }
 
-    inline DatetimeCalendar toCalendar(const std::string& dt)
+    template<>
+    inline std::string datetime_cast<std::string, DatetimeCalendar>(const DatetimeCalendar& dtc, const char* format)
     {
-        return DatetimeCalendar{};
+        const auto tmt = datetime_cast<system::DatetimeCalendar>(dtc);
+        std::stringstream ss;
+        ss << std::put_time(&tmt, format);
+        auto dts = ss.str();
+        return dts;
     }
 
-    inline std::string toString(const DatetimeCalendar& dt)
+    inline DatetimePoint getCurrentDatetime()
     {
-        return std::string{};
+        return Clock::now();
     }
 
 } // namespace datetime
