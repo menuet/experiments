@@ -2,9 +2,68 @@
 #include "vcard.hpp"
 #include <iostream>
 #include <catch/doctest.h>
-
+#pragma warning(disable : 4348) // disable warning C4348: 'boost::spirit::terminal<boost::spirit::tag::lit>::result_helper': redefinition of default parameter: parameter 3
+#pragma warning(disable : 4180) // disable warning C4180: qualifier applied to function type has no meaning; ignored
+#include <boost/spirit/include/qi.hpp>
 
 namespace vcard {
+
+    namespace qi = boost::spirit::qi;
+    namespace ascii = boost::spirit::ascii;
+
+    void printDouble(double d)
+    {
+        std::cout << d << "\n";
+    }
+
+    struct StoreDouble
+    {
+        StoreDouble(std::vector<double>& doubles)
+            : m_doubles(doubles)
+        {
+        }
+        void operator()(double d, qi::unused_type, qi::unused_type) const
+        {
+            m_doubles.get().push_back(d);
+        }
+        void print() const
+        {
+            for (const auto& d : m_doubles.get())
+            {
+                std::cout << d << ',';
+            }
+            std::cout << '\n';
+        }
+        std::reference_wrapper<std::vector<double>> m_doubles;
+    };
+
+    template <typename Iterator>
+    static bool parse_numbers(Iterator first, Iterator last, StoreDouble storeDouble)
+    {
+        using qi::double_;
+        using qi::phrase_parse;
+        using ascii::space;
+
+        bool r = phrase_parse(
+            first,                          /*< start iterator >*/
+            last,                           /*< end iterator >*/
+            double_[storeDouble] >> *(',' >> double_[storeDouble]),   /*< the parser >*/
+            space                           /*< the skip-parser >*/
+        );
+        if (first != last) // fail if we did not get a full match
+            return false;
+        return r;
+    }
+
+    static void load()
+    {
+        std::string s = "123.5,456,-7.5";
+        std::vector<double> doubles;
+        StoreDouble storeDouble(doubles);
+        const auto result = parse_numbers(begin(s), end(s), storeDouble);
+        storeDouble.print();
+        std::cout << result << "\n";
+    }
 
     static void decodeHexa(const std::string& hexa, std::string& decodedPropertyValue)
     {
@@ -139,29 +198,30 @@ namespace vcard {
 
     void Directory::loadFile(ContactFileType fileType, const FilePath& fileName)
     {
-        std::ifstream file(fileName);
-        while (file)
-        {
-            Contact contact;
-            contact.load(file);
-            m_contacts.push_back(std::move(contact));
-        }
+        load();
+        //std::ifstream file(fileName);
+        //while (file)
+        //{
+        //    Contact contact;
+        //    contact.load(file);
+        //    m_contacts.push_back(std::move(contact));
+        //}
     }
 
     void Directory::saveFile(ContactFileType fileType, const FilePath& fileName) const
     {
-        std::ofstream file(fileName);
-        Contact::PropertyNames propertyNames;
-        getUnionOfPropertyNames(*this, propertyNames);
-        for (const auto& propertyName : propertyNames)
-        {
-            file << propertyName << ";";
-        }
-        file << "\n";
-        for (const auto& contact : m_contacts)
-        {
-            contact.save(file, propertyNames);
-        }
+        //std::ofstream file(fileName);
+        //Contact::PropertyNames propertyNames;
+        //getUnionOfPropertyNames(*this, propertyNames);
+        //for (const auto& propertyName : propertyNames)
+        //{
+        //    file << propertyName << ";";
+        //}
+        //file << "\n";
+        //for (const auto& contact : m_contacts)
+        //{
+        //    contact.save(file, propertyNames);
+        //}
     }
 
     const Directory::Contacts& Directory::getContacts() const
