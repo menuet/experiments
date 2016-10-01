@@ -7,6 +7,7 @@ set (
 	EXPRTEMP_CPP_FILES
 	main.cpp
 	exprtemp.test.cpp
+	copy.test.cpp
 	)
 
 set (
