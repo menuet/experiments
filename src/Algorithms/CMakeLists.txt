@@ -7,12 +7,14 @@ set (
 	ALGO_CPP_FILES
 	main.cpp
 	algorithms.test.cpp
+	algorithms.v2.test.cpp
     datetime.test.cpp
 	)
 
 set (
 	ALGO_HPP_FILES
 	algorithms.hpp
+	algorithms.v2.hpp
     datetime.hpp
 	)
 
