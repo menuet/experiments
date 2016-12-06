@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iterator>
 #include <utility>
+#include <iostream>
 
 
 namespace my {
@@ -124,6 +125,98 @@ namespace my {
                 return false;
         }
         return first1 == last1 && first2 == last2;
+    }
+
+    template< typename InputIterT, typename ValueT >
+    InputIterT find(InputIterT first, InputIterT last, const ValueT& value)
+    {
+        for (; first != last; ++first)
+        {
+            if (*first == value)
+                break;
+        }
+        return first;
+    }
+
+    template< typename InputIterT, typename UnaryPredicateT >
+    InputIterT find_if(InputIterT first, InputIterT last, const UnaryPredicateT& unaryPredicate)
+    {
+        for (; first != last; ++first)
+        {
+            if (unaryPredicate(*first))
+                break;
+        }
+        return first;
+    }
+
+    template< typename InputIterT, typename UnaryPredicateT >
+    InputIterT find_if_not(InputIterT first, InputIterT last, const UnaryPredicateT& unaryPredicate)
+    {
+        for (; first != last; ++first)
+        {
+            if (!unaryPredicate(*first))
+                break;
+        }
+        return first;
+    }
+
+    template< typename InputIterT >
+    inline void print(InputIterT first, InputIterT last)
+    {
+#ifdef DEBUG_PRINT_RANGE
+        for (; first != last; ++first)
+        {
+            std::cout << *first << ", ";
+        }
+        std::cout << "\n";
+#endif
+    }
+
+    template< typename BidirIterT, typename BinaryPredicateT >
+    inline void inplace_merge(BidirIterT first, BidirIterT middle, BidirIterT last, BinaryPredicateT binaryPredicate)
+    {
+        print(first, last);
+        for (auto current1 = first, current2 = middle; current1 != current2 && current2 != last;)
+        {
+            if (binaryPredicate(*current2, *current1))
+            {
+                for (auto shifted1 = current2; shifted1 != current1; --shifted1)
+                {
+                    using std::swap;
+                    swap(*shifted1, *(shifted1 - 1));
+                }
+                ++current1;
+                ++current2;
+            }
+            else
+                ++current1;
+            print(first, last);
+        }
+        print(first, last);
+    }
+
+    template< typename BidirIterT >
+    inline void inplace_merge(BidirIterT first, BidirIterT middle, BidirIterT last)
+    {
+        my::inplace_merge(first, middle, last, std::less<typename std::iterator_traits<BidirIterT>::value_type>());
+    }
+
+    template< typename RandomIterT, typename BinaryPredicateT >
+    inline void sort(RandomIterT first, RandomIterT last, BinaryPredicateT binaryPredicate)
+    {
+        const auto size = std::distance(first, last);
+        if (size < 2)
+            return;
+        const auto middle = first + size / 2;
+        my::sort(first, middle, binaryPredicate);
+        my::sort(middle, last, binaryPredicate);
+        my::inplace_merge(first, middle, last, binaryPredicate);
+    }
+
+    template< typename RandomIterT >
+    inline void sort(RandomIterT first, RandomIterT last)
+    {
+        my::sort(first, last, std::less<typename std::iterator_traits<RandomIterT>::value_type>());
     }
 
 } // namespace my
