@@ -1,8 +1,10 @@
 cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
 project(vcard)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup()
+endif()
 
 include_directories(..)
 
