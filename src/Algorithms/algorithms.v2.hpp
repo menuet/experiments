@@ -6,6 +6,7 @@
 #include <iterator>
 #include <utility>
 #include <iostream>
+#include <functional>
 
 
 namespace my {
@@ -54,7 +55,7 @@ namespace my {
     template< typename InputIterT, typename Size, typename UnaryFunctionT >
     inline InputIterT for_each_n(InputIterT first, Size count, UnaryFunctionT unaryFunction)
     {
-        for (Size i=0; i != count; ++i, ++first)
+        for (Size i = 0; i != count; ++i, ++first)
             unaryFunction(*first);
         return first;
     }
@@ -83,8 +84,8 @@ namespace my {
         return c;
     }
 
-    template< typename InputIter1, typename InputIter2, typename BinaryPredicateT >
-    std::pair<InputIter1, InputIter2> mismatch(InputIter1 first1, InputIter1 last1, InputIter2 first2, InputIter2 last2, BinaryPredicateT binaryPredicate)
+    template< typename InputIterT1, typename InputIterT2, typename BinaryPredicateT >
+    std::pair<InputIterT1, InputIterT2> mismatch(InputIterT1 first1, InputIterT1 last1, InputIterT2 first2, InputIterT2 last2, BinaryPredicateT binaryPredicate)
     {
         for (; first1 != last1 && first2 != last2; ++first1, ++first2)
         {
@@ -94,8 +95,8 @@ namespace my {
         return std::make_pair(first1, first2);
     }
 
-    template< typename InputIter1, typename InputIter2 >
-    std::pair<InputIter1, InputIter2> mismatch(InputIter1 first1, InputIter1 last1, InputIter2 first2, InputIter2 last2)
+    template< typename InputIterT1, typename InputIterT2 >
+    std::pair<InputIterT1, InputIterT2> mismatch(InputIterT1 first1, InputIterT1 last1, InputIterT2 first2, InputIterT2 last2)
     {
         for (; first1 != last1 && first2 != last2; ++first1, ++first2)
         {
@@ -105,8 +106,8 @@ namespace my {
         return std::make_pair(first1, first2);
     }
 
-    template< typename InputIter1, typename InputIter2, typename BinaryPredicateT >
-    bool equal(InputIter1 first1, InputIter1 last1, InputIter2 first2, InputIter2 last2, BinaryPredicateT binaryPredicate)
+    template< typename InputIterT1, typename InputIterT2, typename BinaryPredicateT >
+    bool equal(InputIterT1 first1, InputIterT1 last1, InputIterT2 first2, InputIterT2 last2, BinaryPredicateT binaryPredicate)
     {
         for (; first1 != last1 && first2 != last2; ++first1, ++first2)
         {
@@ -116,8 +117,8 @@ namespace my {
         return first1 == last1 && first2 == last2;
     }
 
-    template< typename InputIter1, typename InputIter2 >
-    bool equal(InputIter1 first1, InputIter1 last1, InputIter2 first2, InputIter2 last2)
+    template< typename InputIterT1, typename InputIterT2 >
+    bool equal(InputIterT1 first1, InputIterT1 last1, InputIterT2 first2, InputIterT2 last2)
     {
         for (; first1 != last1 && first2 != last2; ++first1, ++first2)
         {
@@ -158,6 +159,77 @@ namespace my {
                 break;
         }
         return first;
+    }
+
+    namespace detail {
+        template< typename ForwardIterT1, typename ForwardIterT2, typename BinaryPredicateT >
+        inline bool beginsWith(ForwardIterT1 first, ForwardIterT1 last, ForwardIterT2 subFirst, ForwardIterT2 subLast, BinaryPredicateT binaryPredicate)
+        {
+            for (; first != last && subFirst != subLast; ++first, ++subFirst)
+            {
+                if (!binaryPredicate(*first, *subFirst))
+                    return false;
+            }
+            return subFirst == subLast;
+        }
+        struct EqualityComparer
+        {
+            template< typename T1, typename T2 >
+            bool operator()(const T1& t1, const T2& t2) const
+            {
+                return t1 == t2;
+            }
+        };
+    }
+
+    template< typename ForwardIterT1, typename ForwardIterT2, typename BinaryPredicateT >
+    inline ForwardIterT1 search(ForwardIterT1 first, ForwardIterT1 last, ForwardIterT2 subFirst, ForwardIterT2 subLast, BinaryPredicateT binaryPredicate)
+    {
+        auto subNext = subFirst;
+        if (subNext == subLast)
+            return first;
+        ++subNext;
+        auto firstCharComparer = std::bind(binaryPredicate, *subFirst, std::placeholders::_1);
+        auto firstCharMatch = my::find_if(first, last, firstCharComparer);
+        while (firstCharMatch != last)
+        {
+            auto secondChar = firstCharMatch; ++secondChar;
+            if (detail::beginsWith(secondChar, last, subNext, subLast, binaryPredicate))
+                return firstCharMatch;
+            ++first;
+            firstCharMatch = my::find_if(first, last, firstCharComparer);
+        }
+        return last;
+    }
+
+    template< typename ForwardIterT1, typename ForwardIterT2 >
+    inline ForwardIterT1 search(ForwardIterT1 first, ForwardIterT1 last, ForwardIterT2 subFirst, ForwardIterT2 subLast)
+    {
+        return my::search(first, last, subFirst, subLast, detail::EqualityComparer());
+    }
+
+    template< typename ForwardIterT1, typename ForwardIterT2, typename BinaryPredicateT >
+    inline ForwardIterT1 find_end(ForwardIterT1 first, ForwardIterT1 last, ForwardIterT2 subFirst, ForwardIterT2 subLast, BinaryPredicateT binaryPredicate)
+    {
+        if (subFirst == subLast)
+            return last;
+        auto currentMatch = first;
+        auto lastMatch = last;
+        do
+        {
+            currentMatch = my::search(currentMatch, last, subFirst, subLast, binaryPredicate);
+            if (currentMatch == last)
+                break;
+            lastMatch = currentMatch;
+            ++currentMatch;
+        } while (currentMatch != last);
+        return lastMatch;
+    }
+
+    template< typename ForwardIterT1, typename ForwardIterT2 >
+    inline ForwardIterT1 find_end(ForwardIterT1 first, ForwardIterT1 last, ForwardIterT2 subFirst, ForwardIterT2 subLast)
+    {
+        return my::find_end(first, last, subFirst, subLast, detail::EqualityComparer());
     }
 
     template< typename InputIterT >

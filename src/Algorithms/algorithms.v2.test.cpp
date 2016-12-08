@@ -363,4 +363,66 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: search, find_end", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::search <=> std::search")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    if (!vec.empty())
+                    {
+                        std::uniform_int_distribution<size_t> subSizeDistrib(0, vec.size() / 3);
+                        const auto subSize = subSizeDistrib(randGen());
+                        std::uniform_int_distribution<size_t> subStartIndexDistrib(0, vec.size() - subSize);
+                        const auto subStartIndex = subStartIndexDistrib(randGen());
+                        const auto subVecBegin = vec.begin() + subStartIndex;
+                        const auto subVecEnd = subVecBegin + subSize;
+
+                        const auto myResult = my::search(vec.begin(), vec.end(), subVecBegin, subVecEnd);
+                        const auto stdResult = std::search(vec.begin(), vec.end(), subVecBegin, subVecEnd);
+                        REQUIRE(myResult == stdResult);
+                    }
+                    else
+                    {
+                        const auto sub = { 1, 2, 3, 4 };
+                        const auto myResult = my::search(vec.begin(), vec.end(), begin(sub), end(sub));
+                        const auto stdResult = std::search(vec.begin(), vec.end(), begin(sub), end(sub));
+                        REQUIRE(myResult == stdResult);
+                    }
+                }
+            }
+
+            THEN("my::find_end <=> std::find_end")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    if (!vec.empty())
+                    {
+                        std::uniform_int_distribution<size_t> subSizeDistrib(0, vec.size() / 3);
+                        const auto subSize = subSizeDistrib(randGen());
+                        std::uniform_int_distribution<size_t> subStartIndexDistrib(0, vec.size() - subSize);
+                        const auto subStartIndex = subStartIndexDistrib(randGen());
+                        const auto subVecBegin = vec.begin() + subStartIndex;
+                        const auto subVecEnd = subVecBegin + subSize;
+
+                        const auto myResult = my::find_end(vec.begin(), vec.end(), subVecBegin, subVecEnd);
+                        const auto stdResult = std::find_end(vec.begin(), vec.end(), subVecBegin, subVecEnd);
+                        REQUIRE(myResult == stdResult);
+                    }
+                    else
+                    {
+                        const auto sub = { 1, 2, 3, 4 };
+                        const auto myResult = my::find_end(vec.begin(), vec.end(), begin(sub), end(sub));
+                        const auto stdResult = std::find_end(vec.begin(), vec.end(), begin(sub), end(sub));
+                        REQUIRE(myResult == stdResult);
+                    }
+                }
+            }
+        }
+    }
+
 } // namespace ut
