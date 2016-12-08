@@ -269,6 +269,35 @@ namespace my {
         return my::adjacent_find(first, last, detail::EqualityComparer());
     }
 
+    template< typename ForwardIterT, typename SizeT, typename ValueT, typename BinaryPredicateT >
+    ForwardIterT search_n(ForwardIterT first, ForwardIterT last, SizeT count, const ValueT& value, BinaryPredicateT binaryPredicate)
+    {
+        if (count <= 0)
+            return first;
+        auto foundStart = last;
+        SizeT foundCount = 0;
+        for (; first != last; ++first)
+        {
+            if (binaryPredicate(*first, value))
+            {
+                if (foundCount == 0)
+                    foundStart = first;
+                ++foundCount;
+                if (foundCount == count)
+                    return foundStart;
+            }
+            else
+                foundCount = 0;
+        }
+        return last;
+    }
+
+    template< typename ForwardIterT, typename SizeT, typename ValueT >
+    ForwardIterT search_n(ForwardIterT first, ForwardIterT last, SizeT count, const ValueT& value)
+    {
+        return my::search_n(first, last, count, value, detail::EqualityComparer());
+    }
+
     template< typename InputIterT >
     inline void print(InputIterT first, InputIterT last)
     {

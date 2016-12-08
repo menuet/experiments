@@ -6,7 +6,6 @@
 #include <vector>
 #include <cmath>
 
-
 namespace ut {
 
     static std::mt19937& randGen()
@@ -459,6 +458,28 @@ namespace ut {
                 {
                     const auto myResult = my::adjacent_find(vec.begin(), vec.end());
                     const auto stdResult = std::adjacent_find(vec.begin(), vec.end());
+                    REQUIRE(myResult == stdResult);
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: search_n", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::search_n <=> std::search_n")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<size_t> countDistrib(0, 3);
+                    const auto count = countDistrib(randGen());
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    const auto myResult = my::search_n(vec.begin(), vec.end(), count, value);
+                    const auto stdResult = std::search_n(vec.begin(), vec.end(), count, value);
                     REQUIRE(myResult == stdResult);
                 }
             }
