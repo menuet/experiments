@@ -425,4 +425,44 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: find_first_of", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::find_first_of <=> std::find_first_of")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    const auto vecOfSubVecs = generateRandomVectors(20);
+                    for (const auto& subVec : vecOfSubVecs)
+                    {
+                        const auto myResult = my::find_first_of(vec.begin(), vec.end(), subVec.begin(), subVec.end());
+                        const auto stdResult = std::find_first_of(vec.begin(), vec.end(), subVec.begin(), subVec.end());
+                        REQUIRE(myResult == stdResult);
+                    }
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: adjacent_find", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::adjacent_find <=> std::adjacent_find")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    const auto myResult = my::adjacent_find(vec.begin(), vec.end());
+                    const auto stdResult = std::adjacent_find(vec.begin(), vec.end());
+                    REQUIRE(myResult == stdResult);
+                }
+            }
+        }
+    }
+
 } // namespace ut

@@ -232,6 +232,43 @@ namespace my {
         return my::find_end(first, last, subFirst, subLast, detail::EqualityComparer());
     }
 
+    template< typename InputIterT, typename ForwardIterT, typename BinaryPredicateT >
+    inline InputIterT find_first_of(InputIterT first, InputIterT last, ForwardIterT subFirst, ForwardIterT subLast, BinaryPredicateT binaryPredicate)
+    {
+        for (; first != last; ++first)
+        {
+            auto comparer = std::bind(binaryPredicate, std::placeholders::_1, *first);
+            if (my::any_of(subFirst, subLast, comparer))
+                break;
+        }
+        return first;
+    }
+
+    template< typename InputIterT, typename ForwardIterT >
+    inline InputIterT find_first_of(InputIterT first, InputIterT last, ForwardIterT subFirst, ForwardIterT subLast)
+    {
+        return my::find_first_of(first, last, subFirst, subLast, detail::EqualityComparer());
+    }
+
+    template< typename ForwardIterT, typename BinaryPredicateT >
+    ForwardIterT adjacent_find(ForwardIterT first, ForwardIterT last, BinaryPredicateT binaryPredicate)
+    {
+        if (first == last)
+            return last;
+        for (auto prev = first++; first != last; prev = first++)
+        {
+            if (binaryPredicate(*prev, *first))
+                return prev;
+        }
+        return last;
+    }
+
+    template< typename ForwardIterT >
+    ForwardIterT adjacent_find(ForwardIterT first, ForwardIterT last)
+    {
+        return my::adjacent_find(first, last, detail::EqualityComparer());
+    }
+
     template< typename InputIterT >
     inline void print(InputIterT first, InputIterT last)
     {
