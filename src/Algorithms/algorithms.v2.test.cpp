@@ -1,4 +1,5 @@
 
+#define _SCL_SECURE_NO_WARNINGS
 #include <catch/catch.hpp>
 #include "algorithms.v2.hpp"
 #include <algorithm>
@@ -18,16 +19,20 @@ namespace ut {
         return gs_randomGenerator;
     }
 
+    static std::vector<int> generateRandomVector(size_t size)
+    {
+        std::uniform_int_distribution<int> valDistrib(-10, 10);
+        std::vector<int> vec(size);
+        std::generate(begin(vec), end(vec), [&]() { return valDistrib(randGen()); });
+        return vec;
+    }
+
     static std::vector<std::vector<int>> generateRandomVectors(size_t numberOfVecs)
     {
         std::uniform_int_distribution<size_t> sizeDistrib(0, 10);
-        std::uniform_int_distribution<int> valDistrib(-10, 10);
         std::vector<std::vector<int>> vecOfVecs(numberOfVecs);
         for (auto& vec : vecOfVecs)
-        {
-            vec.resize(sizeDistrib(randGen()));
-            std::generate(begin(vec), end(vec), [&]() { return valDistrib(randGen()); });
-        }
+            vec = generateRandomVector(sizeDistrib(randGen()));
         return vecOfVecs;
     }
 
@@ -770,6 +775,82 @@ namespace ut {
                     const auto stdResult = std::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; }, value + 1);
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
+            }
+        }
+    }
+
+    SCENARIO("v2: swap, iter_swap, swap_ranges", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            THEN("my::swap <=> std::swap")
+            {
+                std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                {
+                    const auto value1 = valueDistrib(randGen());
+                    const auto value2 = valueDistrib(randGen());
+                    auto myValue1 = value1;
+                    auto myValue2 = value2;
+                    auto stdValue1 = value1;
+                    auto stdValue2 = value2;
+                    my::swap(myValue1, myValue2);
+                    std::swap(stdValue1, stdValue2);
+                    REQUIRE(myValue1 == stdValue1);
+                    REQUIRE(myValue2 == stdValue2);
+                }
+                {
+                    using std::begin; using std::end;
+                    int values1[100] = {};
+                    std::generate(begin(values1), end(values1), [&] { return valueDistrib(randGen()); });
+                    int values2[100] = {};
+                    std::generate(begin(values2), end(values2), [&] { return valueDistrib(randGen()); });
+                    int myValues1[100] = {};
+                    std::copy(begin(values1), end(values1), begin(myValues1));
+                    int myValues2[100] = {};
+                    std::copy(begin(values2), end(values2), begin(myValues2));
+                    int stdValues1[100] = {};
+                    std::copy(begin(values1), end(values1), begin(stdValues1));
+                    int stdValues2[100] = {};
+                    std::copy(begin(values2), end(values2), begin(stdValues2));
+                    my::swap(myValues1, myValues2);
+                    std::swap(stdValues1, stdValues2);
+                    REQUIRE(std::equal(begin(myValues1), end(myValues1), begin(stdValues1), end(stdValues1)));
+                    REQUIRE(std::equal(begin(myValues2), end(myValues2), begin(stdValues2), end(stdValues2)));
+                }
+            }
+
+            THEN("my::iter_swap <=> std::iter_swap")
+            {
+                const auto vec1 = generateRandomVector(10);
+                const auto vec2 = generateRandomVector(10);
+                auto myVec1 = vec1;
+                auto myVec2 = vec2;
+                auto stdVec1 = vec1;
+                auto stdVec2 = vec2;
+                std::uniform_int_distribution<size_t> indexDistrib(0, 9);
+                for (auto i = 0; i < 20; ++i)
+                {
+                    const auto index1 = indexDistrib(randGen());
+                    const auto index2 = indexDistrib(randGen());
+                    my::iter_swap(myVec1.begin() + index1, myVec2.begin() + index2);
+                    std::iter_swap(stdVec1.begin() + index1, stdVec2.begin() + index2);
+                }
+                REQUIRE(std::equal(begin(myVec1), end(myVec1), begin(stdVec1), end(stdVec1)));
+                REQUIRE(std::equal(begin(myVec2), end(myVec2), begin(stdVec2), end(stdVec2)));
+            }
+
+            THEN("my::swap_ranges <=> std::swap_ranges")
+            {
+                const auto vec1 = generateRandomVector(10);
+                const auto vec2 = generateRandomVector(10);
+                auto myValues1 = vec1;
+                auto myValues2 = vec2;
+                auto stdValues1 = vec1;
+                auto stdValues2 = vec2;
+                my::swap_ranges(begin(myValues1), end(myValues1), begin(stdValues1));
+                std::swap_ranges(begin(myValues2), end(myValues2), begin(stdValues2));
+                REQUIRE(std::equal(begin(myValues1), end(myValues1), begin(stdValues1), end(stdValues1)));
+                REQUIRE(std::equal(begin(myValues2), end(myValues2), begin(stdValues2), end(stdValues2)));
             }
         }
     }

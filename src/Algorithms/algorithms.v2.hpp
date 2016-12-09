@@ -495,6 +495,37 @@ namespace my {
         return outFirst;
     }
 
+    template< typename T >
+    void swap(T& a, T& b)
+    {
+        auto temp = std::move(a);
+        a = std::move(b);
+        b = std::move(temp);
+    }
+
+    template< typename T2, size_t N >
+    void swap(T2(&a)[N], T2(&b)[N])
+    {
+        using my::swap;
+        for (size_t i = 0; i != N; ++i)
+            swap(a[i], b[i]);
+    }
+
+    template< typename ForwardIterT1, typename ForwardIterT2 >
+    void iter_swap(ForwardIterT1 iter1, ForwardIterT2 iter2)
+    {
+        using my::swap;
+        swap(*iter1, *iter2);
+    }
+
+    template< typename ForwardIterT1, typename ForwardIterT2 >
+    ForwardIterT2 swap_ranges(ForwardIterT1 first1, ForwardIterT1 last1, ForwardIterT2 first2)
+    {
+        for (; first1 != last1; ++first1, ++first2)
+            my::iter_swap(first1, first2);
+        return first2;
+    }
+
     template< typename InputIterT >
     inline void print(InputIterT first, InputIterT last)
     {
