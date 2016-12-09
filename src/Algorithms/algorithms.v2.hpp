@@ -298,6 +298,61 @@ namespace my {
         return my::search_n(first, last, count, value, detail::EqualityComparer());
     }
 
+    template< typename InputIterT, typename OutputIterT >
+    OutputIterT copy(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst)
+    {
+        for (; inFirst != inLast; )
+            *outFirst++ = *inFirst++;
+        return outFirst;
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename UnaryPredicateT >
+    OutputIterT copy_if(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, UnaryPredicateT unaryPredicate)
+    {
+        for (; inFirst != inLast; )
+        {
+            auto value = *inFirst++;
+            if (unaryPredicate(value))
+                *outFirst++ = value;
+        }
+        return outFirst;
+    }
+
+    template< typename InputIterT, typename SizeT, typename OutputIterT >
+    OutputIterT copy_n(InputIterT inFirst, SizeT count, OutputIterT outFirst)
+    {
+        if (count <= 0)
+            return outFirst;
+        *outFirst++ = *inFirst++;
+        for(SizeT i=1;i != count;++i)
+            *outFirst++ = *inFirst++;
+        return outFirst;
+    }
+
+    template< typename BidirIterT1, typename BidirIterT2 >
+    BidirIterT2 copy_backward(BidirIterT1 inFirst, BidirIterT1 inLast, BidirIterT2 outLast)
+    {
+        for (; inLast != inFirst;)
+            *--outLast = *--inLast;
+        return outLast;
+    }
+
+    template< typename InputIterT, typename OutputIterT >
+    OutputIterT move(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst)
+    {
+        for (; inFirst != inLast; )
+            *outFirst++ = std::move(*inFirst++);
+        return outFirst;
+    }
+
+    template< typename BidirIterT1, typename BidirIterT2 >
+    BidirIterT2 move_backward(BidirIterT1 inFirst, BidirIterT1 inLast, BidirIterT2 outLast)
+    {
+        for (; inLast != inFirst;)
+            *--outLast = std::move(*--inLast);
+        return outLast;
+    }
+
     template< typename InputIterT >
     inline void print(InputIterT first, InputIterT last)
     {

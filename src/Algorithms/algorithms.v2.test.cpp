@@ -5,6 +5,9 @@
 #include <random>
 #include <vector>
 #include <cmath>
+#include <list>
+#include <iterator>
+
 
 namespace ut {
 
@@ -481,6 +484,92 @@ namespace ut {
                     const auto myResult = my::search_n(vec.begin(), vec.end(), count, value);
                     const auto stdResult = std::search_n(vec.begin(), vec.end(), count, value);
                     REQUIRE(myResult == stdResult);
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: copy, copy_if, copy_n, copy_backward, move, move_backward", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::copy <=> std::copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::list<int> myOut;
+                    const auto myResult = my::copy(vec.begin(), vec.end(), std::back_inserter(myOut));
+                    std::list<int> stdOut;
+                    const auto stdResult = std::copy(vec.begin(), vec.end(), std::back_inserter(stdOut));
+                    REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                }
+            }
+
+            THEN("my::copy_if <=> std::copy_if")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::list<int> myOut;
+                    const auto myResult = my::copy_if(vec.begin(), vec.end(), std::back_inserter(myOut), [](int i) { return i % 2 == 0; });
+                    std::list<int> stdOut;
+                    const auto stdResult = std::copy_if(vec.begin(), vec.end(), std::back_inserter(stdOut), [](int i) { return i % 2 == 0; });
+                    REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                }
+            }
+
+            THEN("my::copy_n <=> std::copy_n")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<size_t> countDistrib(0, vec.size());
+                    const auto count = countDistrib(randGen());
+                    std::list<int> myOut;
+                    const auto myResult = my::copy_n(vec.begin(), count, std::back_inserter(myOut));
+                    std::list<int> stdOut;
+                    const auto stdResult = std::copy_n(vec.begin(), count, std::back_inserter(stdOut));
+                    REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                }
+            }
+
+            THEN("my::copy_backward <=> std::copy_backward")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::vector<int> myOut(vec.size());
+                    const auto myResult = my::copy_backward(vec.begin(), vec.end(), myOut.end());
+                    std::vector<int> stdOut(vec.size());
+                    const auto stdResult = std::copy_backward(vec.begin(), vec.end(), stdOut.end());
+                    REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                }
+            }
+
+            THEN("my::move <=> std::move")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myMovedFrom(vec);
+                    std::list<int> myOut;
+                    const auto myResult = my::move(myMovedFrom.begin(), myMovedFrom.end(), std::back_inserter(myOut));
+                    auto stdMovedFrom(vec);
+                    std::list<int> stdOut;
+                    const auto stdResult = std::move(stdMovedFrom.begin(), stdMovedFrom.end(), std::back_inserter(stdOut));
+                    REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                }
+            }
+
+            THEN("my::move_backward <=> std::move_backward")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myMovedFrom(vec);
+                    std::vector<int> myOut(vec.size());
+                    const auto myResult = my::move_backward(myMovedFrom.begin(), myMovedFrom.end(), myOut.end());
+                    auto stdMovedFrom(vec);
+                    std::vector<int> stdOut(vec.size());
+                    const auto stdResult = std::move_backward(stdMovedFrom.begin(), stdMovedFrom.end(), stdOut.end());
+                    REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
         }
