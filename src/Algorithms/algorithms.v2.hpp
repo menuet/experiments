@@ -353,6 +353,58 @@ namespace my {
         return outLast;
     }
 
+    template< typename ForwardIterT, typename ValueT >
+    void fill(ForwardIterT first, ForwardIterT last, const ValueT& value)
+    {
+        for (; first != last; ++first)
+            *first = value;
+    }
+
+    template< typename OutputIterT, typename SizeT, typename ValueT >
+    OutputIterT fill_n(OutputIterT first, SizeT count, const ValueT& value)
+    {
+        if (count <= 0)
+            return first;
+        *first++ = value;
+        for (SizeT i = 1; i != count; ++i)
+            *first++ = value;
+        return first;
+    }
+
+    template< typename ForwardIterT, typename GeneratorT >
+    void generate(ForwardIterT first, ForwardIterT last, GeneratorT generator)
+    {
+        for (; first != last; ++first)
+            *first = generator();
+    }
+
+    template< typename OutputIterT, typename SizeT, typename GeneratorT >
+    OutputIterT generate_n(OutputIterT first, SizeT count, GeneratorT generator)
+    {
+        if (count <= 0)
+            return first;
+        *first++ = generator();
+        for (SizeT i = 1; i != count; ++i)
+            *first++ = generator();
+        return first;
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename UnaryOperationT >
+    OutputIterT transform(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, UnaryOperationT unaryOperation)
+    {
+        for (; inFirst != inLast; ++inFirst)
+            *outFirst++ = unaryOperation(*inFirst);
+        return outFirst;
+    }
+
+    template< typename InputIterT1, typename InputIterT2, typename OutputIterT, typename BinaryOperationT >
+    OutputIterT transform(InputIterT1 inFirst1, InputIterT1 inLast1, InputIterT2 inFirst2, OutputIterT outFirst, BinaryOperationT binaryOperation)
+    {
+        for (; inFirst1 != inLast1; ++inFirst1, ++inFirst2)
+            *outFirst++ = binaryOperation(*inFirst1, *inFirst2);
+        return outFirst;
+    }
+
     template< typename InputIterT >
     inline void print(InputIterT first, InputIterT last)
     {

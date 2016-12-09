@@ -575,4 +575,79 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: fill, fill_n, generate, generate_n, transform", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::fill <=> std::fill")
+            {
+                std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                const auto value = valueDistrib(randGen());
+                std::vector<int> myVec(10);
+                my::fill(myVec.begin(), myVec.end(), value);
+                std::vector<int> stdVec(10);
+                std::fill(stdVec.begin(), stdVec.end(), value);
+                REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+            }
+
+            THEN("my::fill_n <=> std::fill_n")
+            {
+                std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                const auto value = valueDistrib(randGen());
+                std::vector<int> myVec(10);
+                my::fill_n(myVec.begin(), myVec.size(), value);
+                std::vector<int> stdVec(10);
+                std::fill_n(stdVec.begin(), stdVec.size(), value);
+                REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+            }
+
+            THEN("my::generate <=> std::generate")
+            {
+                std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                const auto value = valueDistrib(randGen());
+                std::vector<int> myVec(10);
+                my::generate(myVec.begin(), myVec.end(), [counter=value] () mutable { return counter++; });
+                std::vector<int> stdVec(10);
+                std::generate(stdVec.begin(), stdVec.end(), [counter = value]() mutable { return counter++; });
+                REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+            }
+
+            THEN("my::generate_n <=> std::generate_n")
+            {
+                std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                const auto value = valueDistrib(randGen());
+                std::vector<int> myVec(10);
+                my::generate_n(myVec.begin(), myVec.size(), [counter = value]() mutable { return counter++; });
+                std::vector<int> stdVec(10);
+                std::generate_n(stdVec.begin(), stdVec.size(), [counter = value]() mutable { return counter++; });
+                REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+            }
+
+            THEN("my::transform <=> std::transform")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    {
+                        std::vector<int> myOut;
+                        const auto myResult = my::transform(vec.begin(), vec.end(), std::back_inserter(myOut), [](int i) { return i*i; });
+                        std::list<int> stdOut;
+                        const auto stdResult = std::transform(vec.begin(), vec.end(), std::back_inserter(stdOut), [](int i) { return i*i; });
+                        REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                    }
+                    {
+                        std::vector<int> vec2(vec.size());
+                        std::transform(vec.begin(), vec.end(), std::back_inserter(vec2), [](int i) {return i*2; });
+                        std::vector<int> myOut;
+                        const auto myResult = my::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(myOut), [](int i, int j) { return i+j; });
+                        std::list<int> stdOut;
+                        const auto stdResult = std::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(stdOut), [](int i, int j) { return i+j; });
+                        REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
+                    }
+                }
+            }
+        }
+    }
+
 } // namespace ut
