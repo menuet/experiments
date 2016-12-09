@@ -405,6 +405,96 @@ namespace my {
         return outFirst;
     }
 
+    template< typename ForwardIterT, typename ValueT >
+    ForwardIterT remove(ForwardIterT first, ForwardIterT last, const ValueT& value)
+    {
+        auto newLast = first;
+        for (; first != last; ++first)
+        {
+            if (!(*first == value))
+            {
+                if (newLast != first)
+                    *newLast = *first;
+                ++newLast;
+            }
+        }
+        return newLast;
+    }
+
+    template< typename ForwardIterT, typename UnaryPredicateT >
+    ForwardIterT remove_if(ForwardIterT first, ForwardIterT last, UnaryPredicateT unaryPredicate)
+    {
+        auto newLast = first;
+        for (; first != last; ++first)
+        {
+            if (!unaryPredicate(*first))
+            {
+                if (newLast != first)
+                    *newLast = *first;
+                ++newLast;
+            }
+        }
+        return newLast;
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename ValueT >
+    OutputIterT remove_copy(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, const ValueT& value)
+    {
+        for (; inFirst != inLast; ++inFirst)
+        {
+            if (!(*inFirst == value))
+                *outFirst++ = *inFirst;
+        }
+        return outFirst;
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename UnaryPredicateT >
+    OutputIterT remove_copy_if(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, UnaryPredicateT unaryPredicate)
+    {
+        for (; inFirst != inLast; ++inFirst)
+        {
+            if (!unaryPredicate(*inFirst))
+                *outFirst++ = *inFirst;
+        }
+        return outFirst;
+    }
+
+    template< typename ForwardIterT, typename ValueT >
+    void replace(ForwardIterT first, ForwardIterT last, const ValueT& oldValue, const ValueT& newValue)
+    {
+        for (; first != last; ++first)
+        {
+            if (*first == oldValue)
+                *first = newValue;
+        }
+    }
+
+    template< typename ForwardIterT, typename UnaryPredicateT, typename ValueT >
+    void replace_if(ForwardIterT first, ForwardIterT last, UnaryPredicateT unaryPredicate, const ValueT& newValue)
+    {
+        for (; first != last; ++first)
+        {
+            if (unaryPredicate(*first))
+                *first = newValue;
+        }
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename ValueT >
+    OutputIterT replace_copy(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, const ValueT& oldValue, const ValueT& newValue)
+    {
+        for (; inFirst != inLast; ++inFirst)
+            *outFirst++ = (*inFirst == oldValue) ? newValue : *inFirst;
+        return outFirst;
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename UnaryPredicateT, typename ValueT >
+    OutputIterT replace_copy_if(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, UnaryPredicateT unaryPredicate, const ValueT& newValue)
+    {
+        for (; inFirst != inLast; ++inFirst)
+            *outFirst++ = unaryPredicate(*inFirst) ? newValue : *inFirst;
+        return outFirst;
+    }
+
     template< typename InputIterT >
     inline void print(InputIterT first, InputIterT last)
     {

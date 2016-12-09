@@ -650,4 +650,128 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: remove, remove_if, remove_copy, remove_copy_if, replace, replace_if, replace_copy, replace_copy_if", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::remove <=> std::remove")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    auto myVec = vec;
+                    const auto myResult = my::remove(myVec.begin(), myVec.end(), value);
+                    myVec.erase(myResult, myVec.end());
+                    auto stdVec = vec;
+                    const auto stdResult = std::remove(stdVec.begin(), stdVec.end(), value);
+                    stdVec.erase(stdResult, stdVec.end());
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::remove_if <=> std::remove_if")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    auto myVec = vec;
+                    const auto myResult = my::remove_if(myVec.begin(), myVec.end(), [&](int i) { return i == value; });
+                    myVec.erase(myResult, myVec.end());
+                    auto stdVec = vec;
+                    const auto stdResult = std::remove_if(stdVec.begin(), stdVec.end(), [&](int i) { return i == value; });
+                    stdVec.erase(stdResult, stdVec.end());
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::remove_copy <=> std::remove_copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    std::vector<int> myVec;
+                    const auto myResult = my::remove_copy(vec.begin(), vec.end(), std::back_inserter(myVec), value);
+                    std::vector<int> stdVec;
+                    const auto stdResult = std::remove_copy(vec.begin(), vec.end(), std::back_inserter(stdVec), value);
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::remove_copy <=> std::remove_copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    std::vector<int> myVec;
+                    const auto myResult = my::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; });
+                    std::vector<int> stdVec;
+                    const auto stdResult = std::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; });
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::replace <=> std::replace")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    auto myVec = vec;
+                    my::replace(myVec.begin(), myVec.end(), value, value+1);
+                    auto stdVec = vec;
+                    std::replace(stdVec.begin(), stdVec.end(), value, value+1);
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::replace_if <=> std::replace_if")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    auto myVec = vec;
+                    my::replace_if(myVec.begin(), myVec.end(), [&](int i) { return i == value; }, value + 1);
+                    auto stdVec = vec;
+                    std::replace_if(stdVec.begin(), stdVec.end(), [&](int i) { return i == value; }, value + 1);
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::replace_copy <=> std::replace_copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    std::vector<int> myVec;
+                    const auto myResult = my::replace_copy(vec.begin(), vec.end(), std::back_inserter(myVec), value, value + 1);
+                    std::vector<int> stdVec;
+                    const auto stdResult = std::replace_copy(vec.begin(), vec.end(), std::back_inserter(stdVec), value, value + 1);
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+
+            THEN("my::replace_copy_if <=> std::replace_copy_if")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::uniform_int_distribution<int> valueDistrib(-10, 10);
+                    const auto value = valueDistrib(randGen());
+                    std::vector<int> myVec;
+                    const auto myResult = my::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; }, value + 1);
+                    std::vector<int> stdVec;
+                    const auto stdResult = std::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; }, value + 1);
+                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
+                }
+            }
+        }
+    }
+
 } // namespace ut
