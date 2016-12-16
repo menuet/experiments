@@ -855,4 +855,40 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: reverse, reverse_copy", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::reverse <=> std::reverse")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    my::reverse(myVec.begin(), myVec.end());
+
+                    auto stdVec = vec;
+                    std::reverse(myVec.begin(), myVec.end());
+
+                    REQUIRE(myVec == stdVec);
+                }
+            }
+
+            THEN("my::reverse_copy <=> std::reverse_copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::vector<int> myVec;
+                    const auto myResult = my::reverse_copy(vec.begin(), vec.end(), std::back_inserter(myVec));
+
+                    std::vector<int> stdVec;
+                    const auto stdResult = std::reverse_copy(vec.begin(), vec.end(), std::back_inserter(stdVec));
+
+                    REQUIRE(myVec == stdVec);
+                }
+            }
+        }
+    }
+
 } // namespace ut

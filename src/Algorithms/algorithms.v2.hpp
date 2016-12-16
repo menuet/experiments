@@ -585,4 +585,23 @@ namespace my {
         my::sort(first, last, std::less<typename std::iterator_traits<RandomIterT>::value_type>());
     }
 
+    template< typename BidirIterT >
+    inline void reverse(BidirIterT first, BidirIterT last)
+    {
+        for (; first != last; ++first)
+        {
+            if (first == --last)
+                return;
+            my::iter_swap(first, last);
+        }
+    }
+
+    template< typename BidirIterT, typename OutputIterT >
+    OutputIterT reverse_copy(BidirIterT inFirst, BidirIterT inLast, OutputIterT outFirst)
+    {
+        for (; inFirst != inLast; )
+            *outFirst++ = *--inLast;
+        return outFirst;
+    }
+
 } // namespace my
