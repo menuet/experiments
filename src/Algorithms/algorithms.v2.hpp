@@ -259,7 +259,7 @@ namespace my {
     {
         if (first == last)
             return last;
-        for (auto prev = first++; first != last; prev = first++)
+        for (auto prev = first++; first != last; ++prev, ++first)
         {
             if (binaryPredicate(*prev, *first))
                 return prev;
@@ -662,6 +662,55 @@ namespace my {
         for (auto inCurrent = inFirst; inCurrent != inMid; )
             *outFirst++ = *inCurrent++;
         return outFirst;
+    }
+
+    template< typename ForwardIterT, typename BinaryPredicateT >
+    ForwardIterT unique(ForwardIterT first, ForwardIterT last, BinaryPredicateT binaryPredicate)
+    {
+        auto next = my::adjacent_find(first, last, binaryPredicate);
+        if (next == last)
+            return last;
+        auto prev = next++;
+        while (next != last)
+        {
+            if (binaryPredicate(*prev, *next))
+                ++next;
+            else
+                *++prev = *next++;
+        }
+        return ++prev;
+    }
+
+    template< typename ForwardIterT >
+    ForwardIterT unique(ForwardIterT first, ForwardIterT last)
+    {
+        return my::unique(first, last, detail::EqualityComparer());
+    }
+
+    template< typename InputIterT, typename OutputIterT, typename BinaryPredicateT >
+    OutputIterT unique_copy(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst, BinaryPredicateT binaryPredicate)
+    {
+        Printer<DEBUG_PRINT_ALGORITHMS> print;
+        print(inFirst, inLast);
+        if (inFirst == inLast)
+            return outFirst;
+        auto prev = inFirst;
+        auto next = inFirst;
+        *outFirst++ = *next++;
+        while (next != inLast)
+        {
+            if (!binaryPredicate(*prev, *next))
+                *outFirst++ = *next;
+            ++prev;
+            ++next;
+        }
+        return outFirst;
+    }
+
+    template< typename InputIterT, typename OutputIterT >
+    OutputIterT unique_copy(InputIterT inFirst, InputIterT inLast, OutputIterT outFirst)
+    {
+        return my::unique_copy(inFirst, inLast, outFirst, detail::EqualityComparer());
     }
 
 } // namespace my

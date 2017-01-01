@@ -19,20 +19,20 @@ namespace ut {
         return gs_randomGenerator;
     }
 
-    static std::vector<int> generateRandomVector(size_t size)
+    static std::vector<int> generateRandomVector(size_t size, int minVal=-10, int maxVal=10)
     {
-        std::uniform_int_distribution<int> valDistrib(-10, 10);
+        std::uniform_int_distribution<int> valDistrib(minVal, maxVal);
         std::vector<int> vec(size);
         std::generate(begin(vec), end(vec), [&]() { return valDistrib(randGen()); });
         return vec;
     }
 
-    static std::vector<std::vector<int>> generateRandomVectors(size_t numberOfVecs)
+    static std::vector<std::vector<int>> generateRandomVectors(size_t numberOfVecs, int minVal = -10, int maxVal = 10)
     {
         std::uniform_int_distribution<size_t> sizeDistrib(0, 10);
         std::vector<std::vector<int>> vecOfVecs(numberOfVecs);
         for (auto& vec : vecOfVecs)
-            vec = generateRandomVector(sizeDistrib(randGen()));
+            vec = generateRandomVector(sizeDistrib(randGen()), minVal, maxVal);
         return vecOfVecs;
     }
 
@@ -931,6 +931,45 @@ namespace ut {
 
                         REQUIRE(myVec == stdVec);
                     }
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: unique, unique_copy", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20, -2, 2);
+
+            THEN("my::unique <=> std::unique")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    const auto myResult = my::unique(myVec.begin(), myVec.end());
+
+                    auto stdVec = vec;
+                    const auto stdResult = std::unique(stdVec.begin(), stdVec.end());
+
+                    REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                    myVec.erase(myResult, myVec.end());
+                    stdVec.erase(stdResult, stdVec.end());
+                    REQUIRE(myVec == stdVec);
+                }
+            }
+
+            THEN("my::unique_copy <=> std::unique_copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::vector<int> myVec;
+                    const auto myResult = my::unique_copy(vec.begin(), vec.end(), std::back_inserter(myVec));
+
+                    std::vector<int> stdVec;
+                    const auto stdResult = std::unique_copy(vec.begin(), vec.end(), std::back_inserter(stdVec));
+
+                    REQUIRE(myVec == stdVec);
                 }
             }
         }
