@@ -9,6 +9,10 @@
 #include <functional>
 
 
+#ifndef DEBUG_PRINT_ALGORITHMS
+#define DEBUG_PRINT_ALGORITHMS false
+#endif
+
 namespace my {
 
     template< typename InputIterT, typename UnaryPredicateT >
@@ -324,7 +328,7 @@ namespace my {
         if (count <= 0)
             return outFirst;
         *outFirst++ = *inFirst++;
-        for(SizeT i=1;i != count;++i)
+        for (SizeT i = 1; i != count; ++i)
             *outFirst++ = *inFirst++;
         return outFirst;
     }
@@ -526,21 +530,33 @@ namespace my {
         return first2;
     }
 
-    template< typename InputIterT >
-    inline void print(InputIterT first, InputIterT last)
+    template< bool Enabled >
+    struct Printer
     {
-#ifdef DEBUG_PRINT_RANGE
-        for (; first != last; ++first)
+        template< typename InputIterT >
+        void operator()(InputIterT first, InputIterT last)
         {
-            std::cout << *first << ", ";
         }
-        std::cout << "\n";
-#endif
-    }
+    };
+
+    template<>
+    struct Printer<true>
+    {
+        template< typename InputIterT >
+        void operator()(InputIterT first, InputIterT last)
+        {
+            for (; first != last; ++first)
+            {
+                std::cout << *first << ", ";
+            }
+            std::cout << "\n";
+        }
+    };
 
     template< typename BidirIterT, typename BinaryPredicateT >
     inline void inplace_merge(BidirIterT first, BidirIterT middle, BidirIterT last, BinaryPredicateT binaryPredicate)
     {
+        Printer<DEBUG_PRINT_ALGORITHMS> print;
         print(first, last);
         for (auto current1 = first, current2 = middle; current1 != current2 && current2 != last;)
         {
@@ -601,6 +617,50 @@ namespace my {
     {
         for (; inFirst != inLast; )
             *outFirst++ = *--inLast;
+        return outFirst;
+    }
+
+    template< typename ForwardIterT >
+    ForwardIterT rotate(ForwardIterT first, ForwardIterT mid, ForwardIterT last)
+    {
+        Printer<DEBUG_PRINT_ALGORITHMS> print;
+        print(first, last);
+        if (first == mid)
+            return last;
+        if (mid == last)
+            return first;
+        auto firstCurrent = first;
+        auto midCurrent = mid;
+        auto returned = last;
+        for (;;)
+        {
+            do
+            {
+                using std::iter_swap;
+                iter_swap(firstCurrent++, midCurrent++);
+            } while (firstCurrent != mid && midCurrent != last);
+            print(first, last);
+            if (midCurrent == last)
+            {
+                if (returned == last)
+                    returned = firstCurrent;
+                if (firstCurrent == mid)
+                    break;
+                midCurrent = mid;
+            }
+            else if (firstCurrent == mid)
+                mid = midCurrent;
+        }
+        return returned;
+    }
+
+    template< typename ForwardIterT, typename OutputIterT >
+    OutputIterT rotate_copy(ForwardIterT inFirst, ForwardIterT inMid, ForwardIterT inLast, OutputIterT outFirst)
+    {
+        for (auto inCurrent = inMid; inCurrent != inLast; )
+            *outFirst++ = *inCurrent++;
+        for (auto inCurrent = inFirst; inCurrent != inMid; )
+            *outFirst++ = *inCurrent++;
         return outFirst;
     }
 

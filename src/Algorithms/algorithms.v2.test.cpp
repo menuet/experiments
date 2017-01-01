@@ -482,7 +482,7 @@ namespace ut {
             {
                 for (const auto& vec : vecOfVecs)
                 {
-                    std::uniform_int_distribution<size_t> countDistrib(0, 3);
+                    std::uniform_int_distribution<std::ptrdiff_t> countDistrib(0, 3);
                     const auto count = countDistrib(randGen());
                     std::uniform_int_distribution<int> valueDistrib(-10, 10);
                     const auto value = valueDistrib(randGen());
@@ -613,7 +613,7 @@ namespace ut {
                 std::uniform_int_distribution<int> valueDistrib(-10, 10);
                 const auto value = valueDistrib(randGen());
                 std::vector<int> myVec(10);
-                my::generate(myVec.begin(), myVec.end(), [counter=value] () mutable { return counter++; });
+                my::generate(myVec.begin(), myVec.end(), [counter = value]() mutable { return counter++; });
                 std::vector<int> stdVec(10);
                 std::generate(stdVec.begin(), stdVec.end(), [counter = value]() mutable { return counter++; });
                 REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
@@ -643,11 +643,11 @@ namespace ut {
                     }
                     {
                         std::vector<int> vec2(vec.size());
-                        std::transform(vec.begin(), vec.end(), std::back_inserter(vec2), [](int i) {return i*2; });
+                        std::transform(vec.begin(), vec.end(), std::back_inserter(vec2), [](int i) {return i * 2; });
                         std::vector<int> myOut;
-                        const auto myResult = my::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(myOut), [](int i, int j) { return i+j; });
+                        const auto myResult = my::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(myOut), [](int i, int j) { return i + j; });
                         std::list<int> stdOut;
-                        const auto stdResult = std::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(stdOut), [](int i, int j) { return i+j; });
+                        const auto stdResult = std::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(stdOut), [](int i, int j) { return i + j; });
                         REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                     }
                 }
@@ -728,9 +728,9 @@ namespace ut {
                     std::uniform_int_distribution<int> valueDistrib(-10, 10);
                     const auto value = valueDistrib(randGen());
                     auto myVec = vec;
-                    my::replace(myVec.begin(), myVec.end(), value, value+1);
+                    my::replace(myVec.begin(), myVec.end(), value, value + 1);
                     auto stdVec = vec;
-                    std::replace(stdVec.begin(), stdVec.end(), value, value+1);
+                    std::replace(stdVec.begin(), stdVec.end(), value, value + 1);
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
             }
@@ -869,7 +869,7 @@ namespace ut {
                     my::reverse(myVec.begin(), myVec.end());
 
                     auto stdVec = vec;
-                    std::reverse(myVec.begin(), myVec.end());
+                    std::reverse(stdVec.begin(), stdVec.end());
 
                     REQUIRE(myVec == stdVec);
                 }
@@ -886,6 +886,51 @@ namespace ut {
                     const auto stdResult = std::reverse_copy(vec.begin(), vec.end(), std::back_inserter(stdVec));
 
                     REQUIRE(myVec == stdVec);
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: rotate, rotate_copy", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::rotate <=> std::rotate")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    const auto vecSize = vec.size();
+                    for (decltype(vec.size()) index = 0; index <= vecSize; ++index)
+                    {
+                        auto myVec = vec;
+                        const auto myResult = my::rotate(myVec.begin(), myVec.begin() + index, myVec.end());
+
+                        auto stdVec = vec;
+                        const auto stdResult = std::rotate(stdVec.begin(), stdVec.begin() + index, stdVec.end());
+
+                        REQUIRE(myVec == stdVec);
+                        REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                    }
+                }
+            }
+
+            THEN("my::rotate_copy <=> std::rotate_copy")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    const auto vecSize = vec.size();
+                    for (decltype(vec.size()) index = 0; index <= vecSize; ++index)
+                    {
+                        std::vector<int> myVec;
+                        const auto myResult = my::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(myVec));
+
+                        std::vector<int> stdVec;
+                        const auto stdResult = std::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(stdVec));
+
+                        REQUIRE(myVec == stdVec);
+                    }
                 }
             }
         }
