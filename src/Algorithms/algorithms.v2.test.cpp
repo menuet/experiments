@@ -975,4 +975,133 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: is_partitioned, partition, partition_copy, stable_partition, partition_point", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20, -2, 2);
+
+            THEN("my::is_partitioned <=> std::is_partitioned")
+            {
+                const auto partitioner = [](auto v) { return v % 2 == 0; };
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    {
+                        const auto myResult = my::is_partitioned(vec.begin(), vec.end(), partitioner);
+
+                        const auto stdResult = std::is_partitioned(vec.begin(), vec.end(), partitioner);
+
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    {
+                        auto myVec = vec;
+                        std::partition(myVec.begin(), myVec.end(), partitioner);
+                        const auto myResult = my::is_partitioned(myVec.begin(), myVec.end(), partitioner);
+
+                        auto stdVec = vec;
+                        std::partition(stdVec.begin(), stdVec.end(), partitioner);
+                        const auto stdResult = std::is_partitioned(stdVec.begin(), stdVec.end(), partitioner);
+
+                        REQUIRE(myResult);
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    {
+                        auto myVec = vec;
+                        std::partition(myVec.begin(), myVec.end(), partitioner);
+                        myVec.push_back(1);
+                        myVec.push_back(0);
+                        const auto myResult = my::is_partitioned(myVec.begin(), myVec.end(), partitioner);
+
+                        auto stdVec = vec;
+                        std::partition(stdVec.begin(), stdVec.end(), partitioner);
+                        stdVec.push_back(1);
+                        stdVec.push_back(0);
+                        const auto stdResult = std::is_partitioned(stdVec.begin(), stdVec.end(), partitioner);
+
+                        REQUIRE(!myResult);
+                        REQUIRE(myResult == stdResult);
+                    }
+                }
+            }
+
+            THEN("my::partition <=> std::partition")
+            {
+                const auto partitioner = [](auto v) { return v % 2 == 0; };
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    const auto myPartitionPoint = my::partition(myVec.begin(), myVec.end(), partitioner);
+                    const auto myResult = std::is_partitioned(myVec.begin(), myVec.end(), partitioner);
+
+                    auto stdVec = vec;
+                    const auto stdPartitionPoint = std::partition(stdVec.begin(), stdVec.end(), partitioner);
+                    const auto stdResult = std::is_partitioned(stdVec.begin(), stdVec.end(), partitioner);
+
+                    REQUIRE(std::distance(myVec.begin(), myPartitionPoint) == std::distance(stdVec.begin(), stdPartitionPoint));
+                    REQUIRE(myResult);
+                    REQUIRE(myResult == stdResult);
+                }
+            }
+
+            THEN("my::partition_copy <=> std::partition_copy")
+            {
+                const auto partitioner = [](auto v) { return v % 2 == 0; };
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::vector<int> myVecTrue, myVecFalse;
+                    my::partition_copy(vec.begin(), vec.end(), std::back_inserter(myVecTrue), std::back_inserter(myVecFalse), partitioner);
+
+                    std::vector<int> stdVecTrue, stdVecFalse;
+                    std::partition_copy(vec.begin(), vec.end(), std::back_inserter(stdVecTrue), std::back_inserter(stdVecFalse), partitioner);
+
+                    REQUIRE(myVecTrue == stdVecTrue);
+                    REQUIRE(myVecFalse == stdVecFalse);
+                }
+            }
+
+            THEN("my::stable_partition <=> std::stable_partition")
+            {
+                const auto partitioner = [](auto v) { return v % 2 == 0; };
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    const auto myPartitionPoint = my::stable_partition(myVec.begin(), myVec.end(), partitioner);
+                    const auto myResult = std::is_partitioned(myVec.begin(), myVec.end(), partitioner);
+
+                    auto stdVec = vec;
+                    const auto stdPartitionPoint = std::stable_partition(stdVec.begin(), stdVec.end(), partitioner);
+                    const auto stdResult = std::is_partitioned(stdVec.begin(), stdVec.end(), partitioner);
+
+                    REQUIRE(std::distance(myVec.begin(), myPartitionPoint) == std::distance(stdVec.begin(), stdPartitionPoint));
+                    REQUIRE(myResult);
+                    REQUIRE(myResult == stdResult);
+                }
+            }
+
+            THEN("my::partition_point <=> std::partition_point")
+            {
+                const auto partitioner = [](auto v) { return v % 2 == 0; };
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    my::partition(myVec.begin(), myVec.end(), partitioner);
+                    auto stdVec = vec;
+                    std::partition(stdVec.begin(), stdVec.end(), partitioner);
+
+                    const auto myResult = std::partition_point(myVec.begin(), myVec.end(), partitioner);
+                    const auto stdResult = std::partition_point(stdVec.begin(), stdVec.end(), partitioner);
+
+                    REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                }
+            }
+        }
+    }
+
 } // namespace ut

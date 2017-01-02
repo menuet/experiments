@@ -713,4 +713,69 @@ namespace my {
         return my::unique_copy(inFirst, inLast, outFirst, detail::EqualityComparer());
     }
 
+    template< typename InputIterT, typename UnaryPredicateT >
+    bool is_partitioned(InputIterT first, InputIterT last, UnaryPredicateT unaryPredicate)
+    {
+        const auto no = my::find_if_not(first, last, unaryPredicate);
+        if (no == last)
+            return true;
+        const auto yes = my::find_if(no, last, unaryPredicate);
+        return yes == last;
+    }
+
+    template< typename ForwardIterT, typename UnaryPredicateT >
+    ForwardIterT partition(ForwardIterT first, ForwardIterT last, UnaryPredicateT unaryPredicate)
+    {
+        auto no = my::find_if_not(first, last, unaryPredicate);
+        if (no == last)
+            return last;
+        auto yes = my::find_if(no, last, unaryPredicate);
+        while (yes != last)
+        {
+            my::iter_swap(no++, yes++);
+            yes = my::find_if(yes, last, unaryPredicate);
+        }
+        return no;
+    }
+
+    template< typename InputIterT, typename OutputIterT1, typename OutputIterT2, typename UnaryPredicateT >
+    std::pair<OutputIterT1, OutputIterT2> partition_copy(InputIterT inFirst, InputIterT inLast, OutputIterT1 outFirstTrue, OutputIterT2 outFirstFalse, UnaryPredicateT unaryPredicate)
+    {
+        for (; inFirst != inLast; ++inFirst)
+        {
+            if (unaryPredicate(*inFirst))
+                *outFirstTrue++ = *inFirst;
+            else
+                *outFirstFalse++ = *inFirst;
+        }
+        return std::make_pair(outFirstTrue, outFirstFalse);
+    }
+
+    template< typename BidirIterT, typename UnaryPredicateT >
+    BidirIterT stable_partition(BidirIterT first, BidirIterT last, UnaryPredicateT unaryPredicate)
+    {
+        auto no = my::find_if_not(first, last, unaryPredicate);
+        if (no == last)
+            return last;
+        auto yes = my::find_if(no, last, unaryPredicate);
+        while (yes != last)
+        {
+            for (auto prev = yes; prev != no; )
+            {
+                auto current = prev--;
+                my::iter_swap(current, prev);
+            }
+            ++no;
+            yes = my::find_if(yes, last, unaryPredicate);
+        }
+        return no;
+    }
+
+    template< typename ForwardIterT, typename UnaryPredicateT >
+    ForwardIterT partition_point(ForwardIterT first, ForwardIterT last, UnaryPredicateT p)
+    {
+        const auto no = my::find_if_not(first, last, unaryPredicate);
+        return no;
+    }
+
 } // namespace my
