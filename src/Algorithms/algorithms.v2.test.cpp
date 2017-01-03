@@ -348,28 +348,6 @@ namespace ut {
         }
     }
 
-    SCENARIO("v2: sort", "[algorithms]")
-    {
-        GIVEN("several vectors of random size and random data")
-        {
-            auto vecOfVecs = generateRandomVectors(20);
-
-            THEN("my::inplace_merge <=> std::inplace_merge")
-            {
-                for (const auto& vec : vecOfVecs)
-                {
-                    auto myVec = vec;
-                    my::sort(myVec.begin(), myVec.end());
-
-                    auto stdVec = vec;
-                    std::sort(stdVec.begin(), stdVec.end());
-
-                    REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
-                }
-            }
-        }
-    }
-
     SCENARIO("v2: search, find_end", "[algorithms]")
     {
         GIVEN("several vectors of random size and random data")
@@ -1099,6 +1077,123 @@ namespace ut {
                     const auto stdResult = std::partition_point(stdVec.begin(), stdVec.end(), partitioner);
 
                     REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: is_sorted, is_sorted_until, sort", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20, -2, 2);
+
+            THEN("my::is_sorted <=> std::is_sorted")
+            {
+                std::vector<int> emptyVec;
+                const auto myResult = my::is_sorted(emptyVec.begin(), emptyVec.end());
+                const auto stdResult = std::is_sorted(emptyVec.begin(), emptyVec.end());
+                REQUIRE(myResult == stdResult);
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    {
+                        const auto myResult = my::is_sorted(vec.begin(), vec.end());
+
+                        const auto stdResult = std::is_sorted(vec.begin(), vec.end());
+
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    {
+                        auto myVec = vec;
+                        std::sort(myVec.begin(), myVec.end());
+                        const auto myResult = my::is_sorted(myVec.begin(), myVec.end());
+
+                        auto stdVec = vec;
+                        std::sort(stdVec.begin(), stdVec.end());
+                        const auto stdResult = std::is_sorted(stdVec.begin(), stdVec.end());
+
+                        REQUIRE(myResult);
+                        REQUIRE(myResult == stdResult);
+                    }
+                }
+            }
+
+            THEN("my::is_sorted_until <=> std::is_sorted_until")
+            {
+                std::vector<int> emptyVec;
+                const auto myResult = my::is_sorted_until(emptyVec.begin(), emptyVec.end());
+                const auto stdResult = std::is_sorted_until(emptyVec.begin(), emptyVec.end());
+                REQUIRE(std::distance(emptyVec.begin(), myResult) == std::distance(emptyVec.begin(), stdResult));
+
+                for (const auto& vec : vecOfVecs)
+                {
+                    {
+                        const auto myResult = my::is_sorted_until(vec.begin(), vec.end());
+
+                        const auto stdResult = std::is_sorted_until(vec.begin(), vec.end());
+
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    {
+                        auto myVec = vec;
+                        std::sort(myVec.begin(), myVec.end());
+                        const auto myResult = my::is_sorted_until(myVec.begin(), myVec.end());
+
+                        auto stdVec = vec;
+                        std::sort(stdVec.begin(), stdVec.end());
+                        const auto stdResult = std::is_sorted_until(stdVec.begin(), stdVec.end());
+
+                        REQUIRE(myResult == myVec.end());
+                        REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                    }
+                }
+            }
+
+            THEN("my::sort <=> std::sort")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    my::sort(myVec.begin(), myVec.end());
+
+                    auto stdVec = vec;
+                    std::sort(stdVec.begin(), stdVec.end());
+
+                    REQUIRE(my::is_sorted(myVec.begin(), myVec.end()));
+                    REQUIRE(myVec == stdVec);
+                }
+            }
+        }
+    }
+
+    SCENARIO("v2: push_heap", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::push_heap <=> std::push_heap")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::vector<int> myVec;
+                    std::vector<int> stdVec;
+
+                    for (const auto& val : vec)
+                    {
+                        myVec.push_back(val);
+                        my::push_heap(myVec.begin(), myVec.end());
+
+                        stdVec.push_back(val);
+                        std::push_heap(stdVec.begin(), stdVec.end());
+
+                        if (myVec != stdVec)
+                            my::Printer<true>()(vec.begin(), vec.end());
+                        REQUIRE(myVec == stdVec);
+                    }
                 }
             }
         }

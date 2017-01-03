@@ -583,24 +583,6 @@ namespace my {
         my::inplace_merge(first, middle, last, std::less<typename std::iterator_traits<BidirIterT>::value_type>());
     }
 
-    template< typename RandomIterT, typename BinaryPredicateT >
-    inline void sort(RandomIterT first, RandomIterT last, BinaryPredicateT binaryPredicate)
-    {
-        const auto size = std::distance(first, last);
-        if (size < 2)
-            return;
-        const auto middle = first + size / 2;
-        my::sort(first, middle, binaryPredicate);
-        my::sort(middle, last, binaryPredicate);
-        my::inplace_merge(first, middle, last, binaryPredicate);
-    }
-
-    template< typename RandomIterT >
-    inline void sort(RandomIterT first, RandomIterT last)
-    {
-        my::sort(first, last, std::less<typename std::iterator_traits<RandomIterT>::value_type>());
-    }
-
     template< typename BidirIterT >
     inline void reverse(BidirIterT first, BidirIterT last)
     {
@@ -776,6 +758,113 @@ namespace my {
     {
         const auto no = my::find_if_not(first, last, unaryPredicate);
         return no;
+    }
+
+    namespace detail {
+        struct LessThanComparer
+        {
+            template< typename T1, typename T2 >
+            bool operator()(const T1& t1, const T2& t2) const
+            {
+                return t1 < t2;
+            }
+        };
+    }
+
+    template< typename ForwardIterT, typename CompareT >
+    ForwardIterT is_sorted_until(ForwardIterT first, ForwardIterT last, CompareT compare)
+    {
+        auto next = first;
+        if (next == last)
+            return last;
+        for (++next; next != last; ++next, ++first)
+        {
+            if (!compare(*first, *next) && compare(*next, *first))
+                return next;
+        }
+        return last;
+    }
+
+    template< typename ForwardIterT >
+    ForwardIterT is_sorted_until(ForwardIterT first, ForwardIterT last)
+    {
+        return my::is_sorted_until(first, last, detail::LessThanComparer());
+    }
+
+    template< typename ForwardIterT, typename CompareT >
+    bool is_sorted(ForwardIterT first, ForwardIterT last, CompareT compare)
+    {
+        return my::is_sorted_until(first, last, compare) == last;
+    }
+
+    template< typename ForwardIterT >
+    bool is_sorted(ForwardIterT first, ForwardIterT last)
+    {
+        return my::is_sorted_until(first, last, detail::LessThanComparer()) == last;
+    }
+
+    template< typename RandomIterT, typename CompareT >
+    inline void sort(RandomIterT first, RandomIterT last, CompareT compare)
+    {
+        const auto size = std::distance(first, last);
+        if (size < 2)
+            return;
+        const auto middle = first + size / 2;
+        my::sort(first, middle, compare);
+        my::sort(middle, last, compare);
+        my::inplace_merge(first, middle, last, compare);
+    }
+
+    template< typename RandomIterT >
+    inline void sort(RandomIterT first, RandomIterT last)
+    {
+        my::sort(first, last, std::less<typename std::iterator_traits<RandomIterT>::value_type>());
+    }
+
+    template< typename RandomIterT, typename CompareT >
+    void partial_sort(RandomIterT first, RandomIterT middle, RandomIterT last, CompareT compare)
+    {
+        blablablah; // TODO
+    }
+
+    template< typename RandomIterT, typename CompareT >
+    void push_heap(RandomIterT first, RandomIterT last, CompareT compare)
+    {
+        if (first == last)
+            return;
+        auto toPush = last;
+        --toPush;
+        while (toPush != first)
+        {
+            auto parent = first + (std::distance(first, toPush) - 1) / 2;
+            if (!compare(*parent, *toPush))
+                return;
+            my::iter_swap(parent, toPush);
+            toPush = parent;
+        }
+    }
+
+    template< typename RandomIterT >
+    void push_heap(RandomIterT first, RandomIterT last)
+    {
+        my::push_heap(first, last, detail::LessThanComparer());
+    }
+
+    template< typename RandomIterT, typename CompareT >
+    void pop_heap(RandomIterT first, RandomIterT last, CompareT compare)
+    {
+        if (first == last)
+            return;
+        auto toSwap = last;
+        --toPush;
+        while (toPush != first)
+        {
+            auto parent = first + (std::distance(first, toPush) - 1) / 2;
+            if (!compare(*parent, *toPush))
+                return;
+            my::iter_swap(parent, toPush);
+            toPush = parent;
+        }
     }
 
 } // namespace my
