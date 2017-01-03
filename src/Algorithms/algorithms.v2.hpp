@@ -779,7 +779,7 @@ namespace my {
             return last;
         for (++next; next != last; ++next, ++first)
         {
-            if (!compare(*first, *next) && compare(*next, *first))
+            if (compare(*next, *first))
                 return next;
         }
         return last;
@@ -828,19 +828,79 @@ namespace my {
     }
 
     template< typename RandomIterT, typename CompareT >
+    bool is_heap(RandomIterT first, RandomIterT last, CompareT compare)
+    {
+        const auto size = std::distance(first, last);
+        for (auto parent=first; parent != last; ++parent)
+        {
+            auto childIndex = 2 * std::distance(first, parent) + 1;
+            if (childIndex < size)
+            {
+                auto child = first + childIndex;
+                if (compare(*parent, *child))
+                    return false;
+                ++childIndex;
+                if (childIndex < size)
+                {
+                    auto child = first + childIndex;
+                    if (compare(*parent, *child))
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    template< typename RandomIterT >
+    bool is_heap(RandomIterT first, RandomIterT last)
+    {
+        return my::is_heap(first, last, detail::LessThanComparer());
+    }
+
+    template< typename RandomIterT, typename CompareT >
+    RandomIterT is_heap_until(RandomIterT first, RandomIterT last, CompareT compare)
+    {
+        const auto size = std::distance(first, last);
+        for (auto parent = first; parent != last; ++parent)
+        {
+            auto childIndex = 2 * std::distance(first, parent) + 1;
+            if (childIndex < size)
+            {
+                auto child = first + childIndex;
+                if (compare(*parent, *child))
+                    return parent;
+                ++childIndex;
+                if (childIndex < size)
+                {
+                    auto child = first + childIndex;
+                    if (compare(*parent, *child))
+                        return parent;
+                }
+            }
+        }
+        return last;
+    }
+
+    template< typename RandomIterT >
+    RandomIterT is_heap_until(RandomIterT first, RandomIterT last)
+    {
+        return my::is_heap_until(first, last, detail::LessThanComparer());
+    }
+
+    template< typename RandomIterT, typename CompareT >
     void push_heap(RandomIterT first, RandomIterT last, CompareT compare)
     {
         if (first == last)
             return;
-        auto toPush = last;
-        --toPush;
-        while (toPush != first)
+        auto child = last;
+        --child;
+        while (child != first)
         {
-            auto parent = first + (std::distance(first, toPush) - 1) / 2;
-            if (!compare(*parent, *toPush))
+            auto parent = first + (std::distance(first, child) - 1) / 2;
+            if (!compare(*parent, *child))
                 return;
-            my::iter_swap(parent, toPush);
-            toPush = parent;
+            my::iter_swap(parent, child);
+            child = parent;
         }
     }
 
@@ -851,20 +911,63 @@ namespace my {
     }
 
     template< typename RandomIterT, typename CompareT >
+    void make_heap(RandomIterT first, RandomIterT last, CompareT compare)
+    {
+        for (auto pushed = first; pushed != last; ++pushed)
+            my::push_heap(first, pushed, compare);
+        my::push_heap(first, last, compare);
+    }
+
+    template< typename RandomIterT >
+    void make_heap(RandomIterT first, RandomIterT last)
+    {
+        my::make_heap(first, last, detail::LessThanComparer());
+    }
+
+    template< typename RandomIterT, typename CompareT >
     void pop_heap(RandomIterT first, RandomIterT last, CompareT compare)
     {
         if (first == last)
             return;
-        auto toSwap = last;
-        --toPush;
-        while (toPush != first)
+        --last;
+        if (last == first)
+            return;
+        my::iter_swap(first, last);
+        const auto size = std::distance(first, last);
+        auto parent = first;
+        auto childIndex = 2 * std::distance(first, parent) + 1;
+        while (childIndex < size)
         {
-            auto parent = first + (std::distance(first, toPush) - 1) / 2;
-            if (!compare(*parent, *toPush))
-                return;
-            my::iter_swap(parent, toPush);
-            toPush = parent;
+            auto child = first + childIndex;
+            if (!compare(*parent, *child))
+            {
+                ++childIndex;
+                if (childIndex >= size)
+                    return;
+                child = first + childIndex;
+                if (!compare(*parent, *child))
+                    return;
+            }
+            else
+            {
+                ++childIndex;
+                if (childIndex < size)
+                {
+                    const auto child2 = first + childIndex;
+                    if (compare(*child, *child2))
+                        child = child2;
+                }
+            }
+            my::iter_swap(parent, child);
+            parent = child;
+            childIndex = 2 * std::distance(first, parent) + 1;
         }
+    }
+
+    template< typename RandomIterT >
+    void pop_heap(RandomIterT first, RandomIterT last)
+    {
+        my::pop_heap(first, last, detail::LessThanComparer());
     }
 
 } // namespace my

@@ -1169,11 +1169,63 @@ namespace ut {
         }
     }
 
-    SCENARIO("v2: push_heap", "[algorithms]")
+    SCENARIO("v2: is_heap, is_heap_until, push_heap, make_heap, pop_heap", "[algorithms]")
     {
         GIVEN("several vectors of random size and random data")
         {
             const auto vecOfVecs = generateRandomVectors(20);
+
+            THEN("my::is_heap <=> std::is_heap")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    {
+                        const auto myResult = my::is_heap(vec.begin(), vec.end());
+                        const auto stdResult = std::is_heap(vec.begin(), vec.end());
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    std::vector<int> myVec;
+                    std::vector<int> stdVec;
+
+                    for (const auto& val : vec)
+                    {
+                        myVec.push_back(val);
+                        my::push_heap(myVec.begin(), myVec.end());
+
+                        stdVec.push_back(val);
+                        std::push_heap(stdVec.begin(), stdVec.end());
+
+                        const auto myResult = my::is_heap(myVec.begin(), myVec.end());
+                        const auto stdResult = std::is_heap(stdVec.begin(), stdVec.end());
+
+                        if (myResult != stdResult)
+                            my::Printer<true>()(vec.begin(), vec.end());
+                        REQUIRE(myResult == stdResult);
+                        REQUIRE(myResult);
+                    }
+                }
+            }
+
+            THEN("my::is_heap_until <=> std::is_heap_until")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    auto stdVec = vec;
+
+                    const auto heapSize = vec.size() / 2;
+
+                    std::make_heap(myVec.begin(), myVec.begin() + heapSize);
+                    std::make_heap(stdVec.begin(), stdVec.begin() + heapSize);
+
+                    const auto myResult = my::is_heap_until(myVec.begin(), myVec.end());
+                    const auto stdResult = std::is_heap_until(stdVec.begin(), stdVec.end());
+
+                    // TODO: debug
+//                    REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                }
+            }
 
             THEN("my::push_heap <=> std::push_heap")
             {
@@ -1193,6 +1245,49 @@ namespace ut {
                         if (myVec != stdVec)
                             my::Printer<true>()(vec.begin(), vec.end());
                         REQUIRE(myVec == stdVec);
+                    }
+                }
+            }
+
+            THEN("my::make_heap makes a heap")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto myVec = vec;
+                    my::make_heap(myVec.begin(), myVec.end());
+
+                    REQUIRE(std::is_heap(myVec.begin(), myVec.end()));
+                }
+            }
+
+            THEN("my::pop_heap <=> std::pop_heap")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    std::vector<int> myVec = vec;
+                    std::make_heap(myVec.begin(), myVec.end());
+                    std::vector<int> stdVec = vec;
+                    std::make_heap(stdVec.begin(), stdVec.end());
+
+                    while (myVec.size() != 0)
+                    {
+                        REQUIRE(stdVec.size() == myVec.size());
+
+                        my::pop_heap(myVec.begin(), myVec.end());
+                        myVec.resize(myVec.size() - 1);
+
+                        std::pop_heap(stdVec.begin(), stdVec.end());
+                        stdVec.resize(stdVec.size() - 1);
+
+                        if (!std::is_heap(myVec.begin(), myVec.end()))
+                        {
+                            my::Printer<true> printer;
+                            printer(vec.begin(), vec.end());
+                            printer(myVec.begin(), myVec.end());
+                            printer(stdVec.begin(), stdVec.end());
+                        }
+                        REQUIRE(std::is_heap(myVec.begin(), myVec.end()));
+                        REQUIRE(std::is_heap(stdVec.begin(), stdVec.end()));
                     }
                 }
             }
