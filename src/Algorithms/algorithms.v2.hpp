@@ -537,6 +537,10 @@ namespace my {
         void operator()(InputIterT first, InputIterT last)
         {
         }
+        template< typename ValueT >
+        void operator()(const ValueT& val)
+        {
+        }
     };
 
     template<>
@@ -550,6 +554,11 @@ namespace my {
                 std::cout << *first << ", ";
             }
             std::cout << "\n";
+        }
+        template< typename ValueT >
+        void operator()(const ValueT& val)
+        {
+            std::cout << val << "\n";
         }
     };
 
@@ -968,6 +977,83 @@ namespace my {
     void pop_heap(RandomIterT first, RandomIterT last)
     {
         my::pop_heap(first, last, detail::LessThanComparer());
+    }
+
+    template< typename ForwardIterT, typename ValueT, typename CompareT >
+    ForwardIterT lower_bound(ForwardIterT first, ForwardIterT last, const ValueT& value, CompareT compare)
+    {
+        for (; first != last; )
+        {
+            const auto dist = std::distance(first, last);
+            const auto middleDist = dist / 2;
+            auto middle = first;
+            std::advance(middle, middleDist);
+            if (compare(*middle, value))
+                first = ++middle;
+            else
+                last = middle;
+        }
+        return first;
+    }
+
+    template< typename ForwardIterT, typename ValueT >
+    ForwardIterT lower_bound(ForwardIterT first, ForwardIterT last, const ValueT& value)
+    {
+        return my::lower_bound(first, last, value, detail::LessThanComparer());
+    }
+
+    template< typename ForwardIterT, typename ValueT, typename CompareT >
+    ForwardIterT upper_bound(ForwardIterT first, ForwardIterT last, const ValueT& value, CompareT compare)
+    {
+        for (; first != last; )
+        {
+            const auto dist = std::distance(first, last);
+            const auto middleDist = dist / 2;
+            auto middle = first;
+            std::advance(middle, middleDist);
+            if (compare(value, *middle))
+                last = middle;
+            else
+                first = ++middle;
+        }
+        return first;
+    }
+
+    template< typename ForwardIterT, typename ValueT >
+    ForwardIterT upper_bound(ForwardIterT first, ForwardIterT last, const ValueT& value)
+    {
+        return my::upper_bound(first, last, value, detail::LessThanComparer());
+    }
+
+    template< typename ForwardIterT, typename ValueT, typename CompareT >
+    bool binary_search(ForwardIterT first, ForwardIterT last, const ValueT& value, CompareT compare)
+    {
+        const auto lowerBound = my::lower_bound(first, last, value, compare);
+        if (lowerBound == last)
+            return false;
+        if (compare(value, *lowerBound))
+            return false;
+        return true;
+    }
+
+    template< typename ForwardIterT, typename ValueT >
+    bool binary_search(ForwardIterT first, ForwardIterT last, const ValueT& value)
+    {
+        return my::binary_search(first, last, value, detail::LessThanComparer());
+    }
+
+    template< typename ForwardIterT, typename T, typename Compare >
+    std::pair<ForwardIterT, ForwardIterT> equal_range(ForwardIterT first, ForwardIterT last, const T& value, Compare compare)
+    {
+        const auto lowerBound = my::lower_bound(first, last, value, compare);
+        const auto upperBound = my::upper_bound(first, last, value, compare);
+        return std::make_pair(lowerBound, upperBound);
+    }
+
+    template< typename ForwardIterT, typename ValueT >
+    std::pair<ForwardIterT, ForwardIterT> equal_range(ForwardIterT first, ForwardIterT last, const ValueT& value)
+    {
+        return my::equal_range(first, last, value, detail::LessThanComparer());
     }
 
 } // namespace my

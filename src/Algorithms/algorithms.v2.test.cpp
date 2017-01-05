@@ -1294,4 +1294,224 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: lower_bound, upper_bound, binary_search, equal_range", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs = generateRandomVectors(20, -2, 2);
+
+            THEN("my::lower_bound <=> std::lower_bound")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto sortedVec = vec;
+                    std::sort(sortedVec.begin(), sortedVec.end());
+
+                    for (const auto& val : vec)
+                    {
+                        const auto myResult = my::lower_bound(sortedVec.begin(), sortedVec.end(), val);
+                        const auto stdResult = std::lower_bound(sortedVec.begin(), sortedVec.end(), val);
+
+                        if (myResult != stdResult)
+                        {
+                            my::Printer<true> printer;
+                            printer(sortedVec.begin(), sortedVec.end());
+                            printer(val);
+                        }
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    if (!sortedVec.empty())
+                    {
+                        {
+                            const auto lessThanMin = sortedVec.front() - 1;
+                            const auto myResult = my::lower_bound(sortedVec.begin(), sortedVec.end(), lessThanMin);
+                            const auto stdResult = std::lower_bound(sortedVec.begin(), sortedVec.end(), lessThanMin);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("min");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                        {
+                            const auto greaterThanMax = sortedVec.back() + 1;
+                            const auto myResult = my::lower_bound(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+                            const auto stdResult = std::lower_bound(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("max");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                    }
+                }
+            }
+
+            THEN("my::upper_bound <=> std::upper_bound")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto sortedVec = vec;
+                    std::sort(sortedVec.begin(), sortedVec.end());
+
+                    for (const auto& val : vec)
+                    {
+                        const auto myResult = my::upper_bound(sortedVec.begin(), sortedVec.end(), val);
+                        const auto stdResult = std::upper_bound(sortedVec.begin(), sortedVec.end(), val);
+
+                        if (myResult != stdResult)
+                        {
+                            my::Printer<true> printer;
+                            printer(sortedVec.begin(), sortedVec.end());
+                            printer(val);
+                        }
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    if (!sortedVec.empty())
+                    {
+                        {
+                            const auto lessThanMin = sortedVec.front() - 1;
+                            const auto myResult = my::upper_bound(sortedVec.begin(), sortedVec.end(), lessThanMin);
+                            const auto stdResult = std::upper_bound(sortedVec.begin(), sortedVec.end(), lessThanMin);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("min");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                        {
+                            const auto greaterThanMax = sortedVec.back() + 1;
+                            const auto myResult = my::upper_bound(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+                            const auto stdResult = std::upper_bound(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("max");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                    }
+                }
+            }
+
+            THEN("my::binary_search <=> std::binary_search")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto sortedVec = vec;
+                    std::sort(sortedVec.begin(), sortedVec.end());
+
+                    for (const auto& val : vec)
+                    {
+                        const auto myResult = my::binary_search(sortedVec.begin(), sortedVec.end(), val);
+                        const auto stdResult = std::binary_search(sortedVec.begin(), sortedVec.end(), val);
+
+                        if (myResult != stdResult)
+                        {
+                            my::Printer<true> printer;
+                            printer(sortedVec.begin(), sortedVec.end());
+                            printer(val);
+                        }
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    if (!sortedVec.empty())
+                    {
+                        {
+                            const auto lessThanMin = sortedVec.front() - 1;
+                            const auto myResult = my::binary_search(sortedVec.begin(), sortedVec.end(), lessThanMin);
+                            const auto stdResult = std::binary_search(sortedVec.begin(), sortedVec.end(), lessThanMin);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("min");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                        {
+                            const auto greaterThanMax = sortedVec.back() + 1;
+                            const auto myResult = my::binary_search(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+                            const auto stdResult = std::binary_search(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("max");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                    }
+                }
+            }
+
+            THEN("my::equal_range <=> std::equal_range")
+            {
+                for (const auto& vec : vecOfVecs)
+                {
+                    auto sortedVec = vec;
+                    std::sort(sortedVec.begin(), sortedVec.end());
+
+                    for (const auto& val : vec)
+                    {
+                        const auto myResult = my::equal_range(sortedVec.begin(), sortedVec.end(), val);
+                        const auto stdResult = std::equal_range(sortedVec.begin(), sortedVec.end(), val);
+
+                        if (myResult != stdResult)
+                        {
+                            my::Printer<true> printer;
+                            printer(sortedVec.begin(), sortedVec.end());
+                            printer(val);
+                        }
+                        REQUIRE(myResult == stdResult);
+                    }
+
+                    if (!sortedVec.empty())
+                    {
+                        {
+                            const auto lessThanMin = sortedVec.front() - 1;
+                            const auto myResult = my::equal_range(sortedVec.begin(), sortedVec.end(), lessThanMin);
+                            const auto stdResult = std::equal_range(sortedVec.begin(), sortedVec.end(), lessThanMin);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("min");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                        {
+                            const auto greaterThanMax = sortedVec.back() + 1;
+                            const auto myResult = my::equal_range(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+                            const auto stdResult = std::equal_range(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+
+                            if (myResult != stdResult)
+                            {
+                                my::Printer<true> printer;
+                                printer(sortedVec.begin(), sortedVec.end());
+                                printer("max");
+                            }
+                            REQUIRE(myResult == stdResult);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 } // namespace ut
