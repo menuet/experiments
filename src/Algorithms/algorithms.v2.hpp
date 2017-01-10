@@ -1056,4 +1056,78 @@ namespace my {
         return my::equal_range(first, last, value, detail::LessThanComparer());
     }
 
+    template< typename InputIterT1, typename InputIterT2, typename OutputIterT, typename CompareT>
+    OutputIterT merge(InputIterT1 inFirst1, InputIterT1 inLast1, InputIterT2 inFirst2, InputIterT2 inLast2, OutputIterT outFirst, CompareT compare)
+    {
+        while (inFirst1 != inLast1 && inFirst2 != inLast2)
+        {
+            if (compare(*inFirst1, *inFirst2))
+                *outFirst++ = *inFirst1++;
+            else
+                *outFirst++ = *inFirst2++;
+        }
+        if (inFirst1 == inLast1)
+        {
+            inFirst1 = inFirst2;
+            inLast1 = inLast2;
+        }
+        while (inFirst1 != inLast1)
+            *outFirst++ = *inFirst1++;
+        return outFirst;
+    }
+
+    template< typename InputIterT1, typename InputIterT2, typename OutputIterT>
+    OutputIterT merge(InputIterT1 inFirst1, InputIterT1 inLast1, InputIterT2 inFirst2, InputIterT2 inLast2, OutputIterT outFirst)
+    {
+        return my::merge(inFirst1, inLast1, inFirst2, inLast2, outFirst, detail::LessThanComparer());
+    }
+
+    namespace detail {
+        template< typename InputIterT, typename ValueT, typename CompareT >
+        InputIterT binary_find(InputIterT first, InputIterT last, const ValueT& value, CompareT compare)
+        {
+            auto lowerBound = my::lower_bound(first, last, value, compare);
+            if (lowerBound == last)
+                return last;
+            if (compare(value, *lowerBound))
+                return last;
+            return lowerBound;
+        }
+    }
+
+    template< typename InputIterT1, typename InputIterT2, typename CompareT >
+    bool includes(InputIterT1 first1, InputIterT1 last1, InputIterT2 first2, InputIterT2 last2, CompareT compare)
+    {
+        for (; first2 != last2; ++first2)
+        {
+            first1 = detail::binary_find(first1, last1, *first2, compare);
+            if (first1 == last1)
+                return false;
+        }
+        return true;
+    }
+
+    template< typename InputIterT1, typename InputIterT2 >
+    bool includes(InputIterT1 first1, InputIterT1 last1, InputIterT2 first2, InputIterT2 last2)
+    {
+        return my::includes(first1, last1, first2, last2, detail::LessThanComparer());
+    }
+
+    template< typename InputItT1, typename InputItT2, typename OutputItT, typename CompareT >
+    OutputItT set_difference(InputItT1 inFirst1, InputItT1 inLast1, InputItT2 inFirst2, InputItT2 inLast2, OutputItT outFirst, CompareT compare)
+    {
+        for (; inFirst1 != inLast1; ++inFirst1)
+        {
+            if (detail::binary_find(inFirst2, inLast2, *inFirst1, compare) == inLast2)
+                *outFirst++ = *inFirst1;
+        }
+        return outFirst;
+    }
+
+    template< typename InputItT1, typename InputItT2, typename OutputItT >
+    OutputItT set_difference(InputItT1 inFirst1, InputItT1 inLast1, InputItT2 inFirst2, InputItT2 inLast2, OutputItT outFirst)
+    {
+        return my::set_difference(inFirst1, inLast1, inFirst2, inLast2, outFirst, detail::LessThanComparer());
+    }
+
 } // namespace my

@@ -1514,4 +1514,118 @@ namespace ut {
         }
     }
 
+    SCENARIO("v2: merge, includes, set_difference", "[algorithms]")
+    {
+        GIVEN("several vectors of random size and random data")
+        {
+            const auto vecOfVecs1 = generateRandomVectors(20, -5, 5);
+            const auto vecOfVecs2 = generateRandomVectors(20, -5, 5);
+
+            THEN("my::merge <=> std::merge")
+            {
+                REQUIRE(vecOfVecs1.size() == vecOfVecs2.size());
+
+                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end(); ++iter1, ++iter2)
+                {
+                    auto vec1 = *iter1;
+                    std::sort(vec1.begin(), vec1.end());
+                    auto vec2 = *iter2;
+                    std::sort(vec2.begin(), vec2.end());
+
+                    std::vector<int> myVec;
+                    my::merge(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), std::back_inserter(myVec));
+
+                    std::vector<int> stdVec;
+                    std::merge(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), std::back_inserter(stdVec));
+
+                    if (myVec != stdVec)
+                    {
+                        my::Printer<true> printer;
+                        printer(vec1.begin(), vec1.end());
+                        printer(vec2.begin(), vec2.end());
+                    }
+                    REQUIRE(myVec == stdVec);
+                }
+            }
+
+            THEN("my::includes <=> std::includes")
+            {
+                REQUIRE(vecOfVecs1.size() == vecOfVecs2.size());
+
+                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end(); ++iter1, ++iter2)
+                {
+                    auto vec1 = *iter1;
+                    std::sort(vec1.begin(), vec1.end());
+                    vec1.erase(std::unique(vec1.begin(), vec1.end()), vec1.end());
+                    auto vec2 = *iter2;
+                    std::sort(vec2.begin(), vec2.end());
+                    vec2.erase(std::unique(vec2.begin(), vec2.end()), vec2.end());
+
+                    const auto myResult = my::includes(vec1.begin(), vec1.end(), vec2.begin(), vec2.end());
+
+                    const auto stdResult = std::includes(vec1.begin(), vec1.end(), vec2.begin(), vec2.end());
+
+                    if (myResult != stdResult)
+                    {
+                        my::Printer<true> printer;
+                        printer(vec1.begin(), vec1.end());
+                        printer(vec2.begin(), vec2.end());
+                    }
+                    REQUIRE(myResult == stdResult);
+                }
+
+                for (auto vec : vecOfVecs1)
+                {
+                    std::vector<int> subvec(vec.begin(), vec.begin() + vec.size() / 2);
+                    std::sort(vec.begin(), vec.end());
+                    vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+                    std::sort(subvec.begin(), subvec.end());
+                    subvec.erase(std::unique(subvec.begin(), subvec.end()), subvec.end());
+
+                    const auto myResult = my::includes(vec.begin(), vec.end(), subvec.begin(), subvec.end());
+
+                    const auto stdResult = std::includes(vec.begin(), vec.end(), subvec.begin(), subvec.end());
+
+                    if (myResult != stdResult)
+                    {
+                        my::Printer<true> printer;
+                        printer(vec.begin(), vec.end());
+                        printer(subvec.begin(), subvec.end());
+                    }
+                    REQUIRE(myResult == stdResult);
+                    REQUIRE(myResult);
+                }
+            }
+
+            THEN("my::set_difference <=> std::set_difference")
+            {
+                REQUIRE(vecOfVecs1.size() == vecOfVecs2.size());
+
+                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end(); ++iter1, ++iter2)
+                {
+                    auto vec1 = *iter1;
+                    std::sort(vec1.begin(), vec1.end());
+                    vec1.erase(std::unique(vec1.begin(), vec1.end()), vec1.end());
+                    auto vec2 = *iter2;
+                    std::sort(vec2.begin(), vec2.end());
+                    vec2.erase(std::unique(vec2.begin(), vec2.end()), vec2.end());
+
+                    std::vector<int> myVec;
+                    my::set_difference(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), back_inserter(myVec));
+
+                    std::vector<int> stdVec;
+                    std::set_difference(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), back_inserter(stdVec));
+
+                    if (myVec != stdVec)
+                    {
+                        my::Printer<true> printer;
+                        printer(vec1.begin(), vec1.end());
+                        printer(vec2.begin(), vec2.end());
+                    }
+                    REQUIRE(myVec == stdVec);
+                }
+            }
+        }
+    }
+
 } // namespace ut
