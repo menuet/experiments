@@ -124,7 +124,7 @@ namespace delaysubtitles {
                 if (fs::is_regular_file(path) && extension == ".srt")
                     sourceFilesPaths.push_back(path);
             }
-            std::cout << "Found " << sourceFilesPaths.size() << " in directory '" << sourcePath << "'\n";
+            std::cout << "Found " << sourceFilesPaths.size() << " srt file in directory '" << sourcePath << "'\n";
             for (const auto& sourceFilePath : sourceFilesPaths)
             {
                 delaySubTitles(delay, sourceFilePath, fs::path());
@@ -138,11 +138,12 @@ namespace delaysubtitles {
                 std::cout << "Could not read the subtitle file '" << sourcePath << "'\n";
                 return;
             }
+            std::cout << "sourcePath = '" << sourcePath << "'\n";
             if (targetPath.empty())
             {
                 targetPath = sourcePath;
-                targetPath.remove_filename();
-                targetPath /= targetPath.stem().string() + "-delayed.srt";
+                targetPath.replace_extension(".delayed" + sourcePath.extension().string());
+                std::cout << "targetPath = '" << targetPath << "'\n";
             }
             std::ofstream targetFile(targetPath.string());
             std::string sourceLine;
