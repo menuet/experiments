@@ -7,8 +7,9 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <Windows.h>
 
+#ifdef _MSC_VER
+#include <Windows.h>
 
 namespace datetime {
 
@@ -256,3 +257,5 @@ namespace datetime {
     }
 
 } // namespace datetime
+
+#endif

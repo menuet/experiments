@@ -12,3 +12,4 @@ src/THIRDPARTIES/
 *.pb.cc
 *.pb.h
 *.ifc
+**/build/

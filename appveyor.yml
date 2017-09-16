@@ -1,0 +1,19 @@
+branches:
+  only:
+    - travis-appveyor
+
+max_jobs: 1
+
+image: Visual Studio 2017
+
+build_script:
+  mkdir build
+
+  cd build
+
+  cmake .. -G "Visual Studio 15"
+
+  cmake --build . --config "Debug"
+
+test_script:
+  ctest -C Debug
