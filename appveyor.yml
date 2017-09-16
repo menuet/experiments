@@ -1,23 +1,32 @@
-branches:
-  only:
-    - travis-appveyor
+version: 1.0.{build}
 
 max_jobs: 1
 
 image: Visual Studio 2017
 
 install:
-  - cmd: set PATH=%PATH%;%PYTHON%/Scripts/
-  - cmd: pip.exe install conan
-  - cmd: conan user
+- cmd: >-
+    set PATH=%PATH%;%PYTHON%/Scripts/
+
+    pip.exe install conan
+
+    conan user
 
 build_script:
-  - cmd: mkdir build
-  - cmd: cd build
-  - cmd: cmake --version
-  - cmd: conan --version
-  - cmd: conan install ..
-  - cmd: conan build --file ../conanfile.py
+- cmd: >-
+    cmake --version
+
+    conan --version
+
+    mkdir build
+
+    cd build
+
+    conan export --path ../src/conan/sfml sfml/2.4.1@pascal/testing
+
+    conan install --file ../conanfile.py --build=missing -s build_type=Debug
+
+    conan build --file ../conanfile.py
 
 test_script:
-  ctest
+- cmd: ctest

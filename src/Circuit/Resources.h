@@ -10,10 +10,11 @@
 #include <regex>
 #include <windows.h>
 
+namespace stdcxx17 = std::experimental::filesystem;
 
-static std::tr2::sys::path getRunningModuleDirectory()
+static stdcxx17::path getRunningModuleDirectory()
 {
-    std::tr2::sys::path l_runningModuleDirectory;
+    stdcxx17::path l_runningModuleDirectory;
 
     static const char l_dummyChar = 0;
     HMODULE l_hModule{};
@@ -30,7 +31,7 @@ static std::tr2::sys::path getRunningModuleDirectory()
     return l_runningModuleDirectory;
 }
 
-static std::tr2::sys::path getResourceFileAbsolutePathName(const std::tr2::sys::path& a_resourceFileName)
+static stdcxx17::path getResourceFileAbsolutePathName(const stdcxx17::path& a_resourceFileName)
 {
     if (a_resourceFileName.has_root_path())
         return a_resourceFileName;
@@ -48,7 +49,7 @@ public:
     {
     }
 
-    Sound(const std::tr2::sys::path& a_soundFileName)
+    Sound(const stdcxx17::path& a_soundFileName)
         : m_spSound{ std::make_unique<std::pair<sf::SoundBuffer, sf::Sound>>() }
     {
         load(a_soundFileName);
@@ -65,12 +66,12 @@ public:
         return *this;
     }
 
-    bool load(const std::tr2::sys::path& a_soundFileName)
+    bool load(const stdcxx17::path& a_soundFileName)
     {
         const auto l_soundFilePathName = getResourceFileAbsolutePathName(a_soundFileName);
         m_spSound->second.stop();
         m_spSound->second.resetBuffer();
-        if (!m_spSound->first.loadFromFile(l_soundFilePathName))
+        if (!m_spSound->first.loadFromFile(l_soundFilePathName.string()))
             return false;
         m_spSound->second.setBuffer(m_spSound->first);
         return true;
@@ -97,9 +98,9 @@ static std::vector<Sound> loadSoundsSeries(std::string l_soundFilePrefix)
     l_soundFilePrefix += R"((\d).wav)";
     const std::regex l_soundsPattern{ l_soundFilePrefix };
     const auto l_resourcesDirectory = getRunningModuleDirectory();
-    std::for_each(std::tr2::sys::directory_iterator(l_resourcesDirectory), std::tr2::sys::directory_iterator(), [&](const std::tr2::sys::path& a_resourceFilePathName)
+    std::for_each(stdcxx17::directory_iterator(l_resourcesDirectory), stdcxx17::directory_iterator(), [&](const stdcxx17::path& a_resourceFilePathName)
     {
-        const auto& l_resourceFileName = a_resourceFilePathName.filename();
+        const auto& l_resourceFileName = a_resourceFilePathName.filename().string();
         std::smatch l_matchResults;
         if (std::regex_match(l_resourceFileName, l_matchResults, l_soundsPattern))
         {
