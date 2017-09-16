@@ -24,4 +24,4 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	target_compile_definitions(algorithms.test PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
 
-add_test(algorithms algorithms.test)
+add_test(algorithms "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/algorithms.test")

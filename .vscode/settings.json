@@ -25,5 +25,6 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp"
-    }
+    },
+    "python.linting.pylintEnabled": false
 }

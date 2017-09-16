@@ -15,4 +15,4 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STR
 	target_link_libraries(concurrency pthread)
 endif()
 
-add_test(concurrency concurrency)
+add_test(concurrency "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/concurrency")
