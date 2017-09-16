@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
-project (Algorithms)
+
+project (algorithms)
 
 include_directories (..)
 
@@ -19,5 +19,9 @@ set (
 	)
 
 add_executable (algorithms.test ${ALGO_CPP_FILES} ${ALGO_HPP_FILES})
+set_property(TARGET algorithms.test PROPERTY CXX_STANDARD 14)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	target_compile_definitions(algorithms.test PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+add_test(algorithms algorithms.test)

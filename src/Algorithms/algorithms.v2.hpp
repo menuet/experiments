@@ -765,7 +765,8 @@ namespace my {
     template< typename ForwardIterT, typename UnaryPredicateT >
     ForwardIterT partition_point(ForwardIterT first, ForwardIterT last, UnaryPredicateT p)
     {
-        const auto no = my::find_if_not(first, last, unaryPredicate);
+        // TODO
+        const auto no = my::find_if_not(first, last, p);
         return no;
     }
 
@@ -833,7 +834,7 @@ namespace my {
     template< typename RandomIterT, typename CompareT >
     void partial_sort(RandomIterT first, RandomIterT middle, RandomIterT last, CompareT compare)
     {
-        blablablah; // TODO
+        // TODO
     }
 
     template< typename RandomIterT, typename CompareT >

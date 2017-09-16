@@ -2,6 +2,7 @@
 #include <catch/catch.hpp>
 #include "datetime.hpp"
 
+#ifdef _MSC_VER
 
 namespace datetime {
 
@@ -266,3 +267,5 @@ namespace datetime {
 	} // namespace ut
 
 } // namespace datetime
+
+#endif
