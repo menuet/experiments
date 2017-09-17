@@ -2,7 +2,6 @@
 #include "Car.h"
 #include "EventDispatcher.h"
 #include <sfml/graphics.hpp>
-#include <windows.h>
 #include <vector>
 
 

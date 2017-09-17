@@ -34,10 +34,11 @@ install:
   - conan user
 
 script:
-  - mkdir build
-  - cd build
   - cmake --version
   - conan --version
-  - conan install ..
+  - mkdir build
+  - cd build
+  - conan export --path ../src/conan/sfml sfml/2.4.1@pascal/testing
+  - conan install --file ../conanfile.py --build=missing -s build_type=Debug
   - conan build --file ../conanfile.py
   - ctest

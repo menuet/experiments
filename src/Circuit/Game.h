@@ -21,7 +21,7 @@ public:
         , m_pCurrentModeSupport(&m_modeSupportEditing)
     {
         const auto l_fontFilePathName = getResourceFileAbsolutePathName("mickey.ttf");
-        m_font.loadFromFile(l_fontFilePathName);
+        m_font.loadFromFile(l_fontFilePathName.string());
         m_pCurrentModeSupport->onEnterMode();
     }
 

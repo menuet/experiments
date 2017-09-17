@@ -13,7 +13,7 @@ public:
 
     Car(const sf::Vector2f& a_size)
     {
-        m_texture.loadFromFile(getResourceFileAbsolutePathName("Car.png"));
+        m_texture.loadFromFile(getResourceFileAbsolutePathName("Car.png").string());
         m_sprite.setTexture(m_texture);
         const auto& l_size = m_texture.getSize();
         m_sprite.setOrigin({ (float) l_size.x / 2.f, (float) l_size.y / 2.f });
