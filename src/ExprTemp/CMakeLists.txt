@@ -1,18 +1,13 @@
-cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
+
 project (ExprTemp)
 
-include_directories (..)
-
-set (
-	EXPRTEMP_CPP_FILES
+add_executable(
+	exprtemp.test
 	main.cpp
 	exprtemp.test.cpp
 	copy.test.cpp
-	)
-
-set (
-	EXPRTEMP_HPP_FILES
 	exprtemp.hpp
 	)
+exp_setup_common_options(exprtemp.test)
 
-add_executable (exprtemp.test ${EXPRTEMP_CPP_FILES} ${EXPRTEMP_HPP_FILES})
+add_test(expression_templates "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/exprtemp.test")

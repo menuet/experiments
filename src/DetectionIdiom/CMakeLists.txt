@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
+
 project(DetectionIdiom)
 
 add_executable(DetectionIdiom
@@ -10,5 +10,6 @@ add_executable(DetectionIdiom
     thirdparties/json11/json11.cpp
     )
 target_include_directories(DetectionIdiom PRIVATE thirdparties ejson/inc)
-set_target_properties(DetectionIdiom PROPERTIES CXX_STANDARD 14)
+exp_setup_common_options(DetectionIdiom)
 
+add_test(detection_idiom "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/DetectionIdiom")

@@ -1,3 +1,3 @@
 
-#include "catch.hpp"
+#include <catch/catch.hpp>
 #include "srw_lock.h"
