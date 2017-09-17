@@ -1,5 +1,5 @@
 
-#include "catch.hpp"
+#include <catch/catch.hpp>
 #include "parser.manual.h"
 #include <map>
 
