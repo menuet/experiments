@@ -2,7 +2,9 @@
 #include "contracts.hpp"
 #include <csignal>
 #include <cstdlib>
-
+#if defined(_WIN64) || defined(_WIN32) || defined(__WIN32__)
+#include <windows.h>
+#endif
 
 namespace juke { namespace contracts {
 
@@ -54,6 +56,18 @@ namespace juke { namespace contracts {
 
     // Note: cannot be tested with unit tests
     void abortingFailureHandler(const FailureContext& ) {
+
+#if defined(_WIN64) || defined(_WIN32) || defined(__WIN32__)
+        // The following configures the runtime library on how to report asserts,
+        // errors, and warnings in order to avoid pop-up windows when 'abort' is
+        // called.
+//        if (!IsDebuggerPresent()) {
+            _CrtSetReportMode(_CRT_ASSERT, 0);
+            _CrtSetReportMode(_CRT_ERROR, 0);
+            _CrtSetReportMode(_CRT_WARN, 0);
+//        }
+#endif
+
         std::abort();
     }
 
