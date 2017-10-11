@@ -5,3 +5,6 @@ add_executable(error_handling main.cpp contracts.cpp contracts.gtest.cpp libcpp_
 exp_setup_common_options(error_handling)
 
 add_test(error_handling "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/error_handling")
+
+add_executable(uncaught_exception uncaught_exception.cpp)
+exp_setup_common_options(uncaught_exception)
