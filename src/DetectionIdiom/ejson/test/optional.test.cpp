@@ -1,18 +1,20 @@
 
+#include <platform/platform.h>
 #include <stdnext/type_traits.hpp>
 #include <stdexcept>
-#undef SCJ_OPTIONAL_DO_NOT_USE_CONTRACT
-#define SCJ_CONTRACT_ASSERT(expr) contractAssert(expr)
+#include <cstring>
+#include <catch/catch.hpp>
+
 namespace {
 
-    struct ContractFailure : std::logic_error {
+    struct TestContractFailure : std::logic_error {
         using std::logic_error::logic_error;
     };
 
-    void contractAssert(bool expr) {
+    void testContractAssert(bool expr) {
         if (expr)
             return;
-        throw ContractFailure("contract failure");
+        throw TestContractFailure("test contract failure");
     }
 
     template<typename T>
@@ -30,8 +32,12 @@ namespace {
     struct Derived : public Base {};
     struct ManyParamsConstructor { ManyParamsConstructor(int i, double d, char) : bob(i), bil(d) {} int bob{}; double bil{}; };
 }
+
+#undef SCJ_OPTIONAL_USE_CUSTOM_CONTRACT
+#define SCJ_OPTIONAL_USE_CUSTOM_CONTRACT 1
+#define SCJ_OPTIONAL_CONTRACT_ASSERT(expr) testContractAssert(expr)
 #include <optional/optional.hpp>
-#include <catch/catch.hpp>
+
 
 TEST_CASE("modified optional", "") {
 
@@ -66,30 +72,30 @@ TEST_CASE("modified optional", "") {
     }
 
     SECTION("operator->") {
-        { scj::optional<int> opt; REQUIRE_THROWS_AS(opt.operator->(), ContractFailure); }
+        { scj::optional<int> opt; REQUIRE_THROWS_AS(opt.operator->(), TestContractFailure); }
         { scj::optional<ManyParamsConstructor> opt(scj::in_place, 1, 1.5, 'a'); REQUIRE(opt->bil == 1.5); }
+        { const scj::optional<int> opt; REQUIRE_THROWS_AS(opt.operator->(), TestContractFailure); }
+        { const scj::optional<ManyParamsConstructor> opt(scj::in_place, 1, 1.5, 'a'); REQUIRE(opt->bil == 1.5); }
     }
 
     SECTION("operator*") {
-        { scj::optional<int> opt; REQUIRE_THROWS_AS(*opt, ContractFailure); }
+        { scj::optional<int> opt; REQUIRE_THROWS_AS(*opt, TestContractFailure); }
         { scj::optional<int> opt(987); REQUIRE(*opt == 987); }
-    }
-
-    SECTION("operator*") {
-        { const scj::optional<int> opt; REQUIRE_THROWS_AS(*opt, ContractFailure); }
+        { const scj::optional<int> opt; REQUIRE_THROWS_AS(*opt, TestContractFailure); }
         { const scj::optional<int> opt(987); REQUIRE(*opt == 987); }
-    }
-
-    SECTION("operator*") {
-        { scj::optional<int> opt; REQUIRE_THROWS_AS(*std::move(opt), ContractFailure); }
+        { scj::optional<int> opt; REQUIRE_THROWS_AS(*std::move(opt), TestContractFailure); }
         { scj::optional<int> opt(987); REQUIRE(*std::move(opt) == 987); }
+        { const scj::optional<int> opt; REQUIRE_THROWS_AS(*std::move(opt), TestContractFailure); }
+        { const scj::optional<int> opt(987); REQUIRE(*std::move(opt) == 987); }
     }
 
     SECTION("value") {
         REQUIRE(has_member_function_value<HasPublicValue>);
         REQUIRE(!has_member_function_value<HasNotValue>);
-#ifndef _MSC_VER
+#if ! EXP_PLATFORM_CPL_IS_MSVC
         REQUIRE(!has_member_function_value<HasPrivateValue>);
+#else // Bug in MSVC (I hope)
+        REQUIRE(has_member_function_value<HasPrivateValue>);
 #endif
         REQUIRE(!has_member_function_value<HasDeletedValue>);
         REQUIRE(!has_member_function_value<scj::optional<int>>);

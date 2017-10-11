@@ -7,8 +7,9 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <platform/platform.h>
 
-#ifdef _MSC_VER
+#if EXP_PLATFORM_OS_IS_WINDOWS
 #include <Windows.h>
 
 namespace datetime {
