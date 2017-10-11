@@ -5,7 +5,7 @@
                 "name": "(Windows) Launch",
                 "type": "cppvsdbg",
                 "request": "launch",
-                "program": "${workspaceRoot}/build/win/bin/error_handling.exe",
+                "program": "${workspaceRoot}/build/win/bin/DetectionIdiom.exe",
                 "args": [],
                 "stopAtEntry": false,
                 "cwd": "${workspaceRoot}",
