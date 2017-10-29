@@ -4,13 +4,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "Create Build Dir",
+            "taskName": "First Build",
             "type": "shell",
             "windows": {
-                "command": "mkdir build\\win"
+                "command": "first-build.bat"
             },
             "linux": {
-                "command": "mkdir -p build/lin"
+                "command": "./first-build.sh"
             },
             "problemMatcher": []
         },
@@ -20,12 +20,12 @@
             "command": "conan build --file ../../conanfile.py",
             "windows": {
                 "options": {
-                    "cwd": "${WorkspaceDir}/build/win"
+                    "cwd": "${workspaceFolder}/build/win"
                 }
             },
             "linux": {
                 "options": {
-                    "cwd": "${WorkspaceDir}/build/win"
+                    "cwd": "${workspaceFolder}/build/lin"
                 }
             },
             "problemMatcher": []

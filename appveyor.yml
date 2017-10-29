@@ -8,25 +8,16 @@ install:
 - cmd: >-
     set PATH=%PATH%;%PYTHON%/Scripts/
 
-    pip.exe install conan
+    pip.exe install conan==0.27
 
     conan user
 
 build_script:
 - cmd: >-
-    cmake --version
-
-    conan --version
-
-    mkdir build
-
-    cd build
-
-    conan export --path ../src/conan/sfml sfml/2.4.1@pascal/testing
-
-    conan install --file ../conanfile.py --build=missing -s build_type=Debug
-
-    conan build --file ../conanfile.py
+    first-build.bat
 
 test_script:
-- cmd: ctest
+- cmd: >-
+    cd build\win
+
+    ctest

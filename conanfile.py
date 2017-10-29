@@ -11,6 +11,7 @@ class ExperimentsConan(conans.ConanFile):
     generators = "cmake"
 
     def requirements(self):
+        self.requires("fmt/3.0.1@pascal/testing")
         if self.settings.os != "Windows":
             # self.requires("Boost/1.64.0@inexorgame/stable")
             pass
@@ -24,7 +25,7 @@ class ExperimentsConan(conans.ConanFile):
     def build(self):
         cmake = conans.CMake(self)
         this_file_directory = os.path.dirname(os.path.realpath(__file__))
-        self.run("cmake -D CMAKE_VERBOSE_MAKEFILE=ON {} {}".format(cmake.command_line, this_file_directory))
+        self.run("cmake -D CMAKE_VERBOSE_MAKEFILE=ON {} -DCMAKE_CONFIGURATION_TYPES={} {}".format(cmake.command_line, self.settings.build_type, this_file_directory))
         self.run("cmake --build . {}".format(cmake.build_config))
 
     def imports(self):
