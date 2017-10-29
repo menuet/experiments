@@ -30,15 +30,9 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - pip install --user conan
+  - pip install --user conan==0.27
   - conan user
 
 script:
-  - cmake --version
-  - conan --version
-  - mkdir build
-  - cd build
-  - conan export --path ../src/conan/sfml sfml/2.4.1@pascal/testing
-  - conan install --file ../conanfile.py --build=missing -s build_type=Debug
-  - conan build --file ../conanfile.py
+  - ./first-build.sh
   - ctest
