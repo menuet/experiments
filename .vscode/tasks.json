@@ -4,7 +4,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "First Build",
+            "label": "Git Clean All !!!",
+            "command": "git clean -xfd && git submodule foreach --recursive git clean -xfd",
+            "type": "shell",
+            "problemMatcher": []
+        },
+        {
+            "label": "First Build",
             "type": "shell",
             "windows": {
                 "command": "first-build.bat"
@@ -15,7 +21,7 @@
             "problemMatcher": []
         },
         {
-            "taskName": "Build",
+            "label": "Build",
             "type": "shell",
             "command": "conan build --file ../../conanfile.py",
             "windows": {
