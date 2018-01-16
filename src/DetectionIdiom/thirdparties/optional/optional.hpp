@@ -1,29 +1,51 @@
 
 #pragma once
 
-#if defined(SCJ_OPTIONAL_DO_NOT_USE_CONTRACT)
-#define SCJ_CONTRACT_ASSERT(expr)
-#elif !defined(SCJ_CONTRACT_ASSERT)
-#ifdef _MSC_VER
-#pragma message("error: You should define the macro SCJ_CONTRACT_ASSERT in order to check the contract expression and handle the failure")
-#else
-#pragma error "You should define the macro SCJ_CONTRACT_ASSERT in order to check the contract expression and handle the failure"
+
+#if !defined(SCJ_OPTIONAL_USE_CUSTOM_CONTRACT)
+    #define SCJ_OPTIONAL_USE_CUSTOM_CONTRACT 0
 #endif
+
+#if !SCJ_OPTIONAL_USE_CUSTOM_CONTRACT
+    #define SCJ_OPTIONAL_CONTRACT_ASSERT(expr) optionalContractAssert(expr)
+#endif
+
+#if !defined(SCJ_OPTIONAL_OVERWRITE_NAMESPACE_STD_EXPERIMENTAL)
+    #define SCJ_OPTIONAL_OVERWRITE_NAMESPACE_STD_EXPERIMENTAL 0
+#endif
+
+#if SCJ_OPTIONAL_OVERWRITE_NAMESPACE_STD_EXPERIMENTAL
+    #define OPTIONAL_EXPERIMENTAL_NAMESPACE hidden_experimental
+#else
+    #define OPTIONAL_EXPERIMENTAL_NAMESPACE experimental
 #endif
 
 #include <optional/stdex_optional.hpp>
 #include <type_traits>
 #include <utility>
+#include <stdexcept>
+#include <cstring>
+
 
 namespace scj {
 
-    using std::experimental::nullopt_t;
-    using std::experimental::nullopt;
-    using std::experimental::in_place_t;
-    using std::experimental::in_place;
+    struct OptionalContractFailure : std::logic_error {
+        using std::logic_error::logic_error;
+    };
+
+    inline void optionalContractAssert(bool expr) {
+        if (expr)
+            return;
+        throw OptionalContractFailure("optional contract failure");
+    }
+
+    using std::OPTIONAL_EXPERIMENTAL_NAMESPACE::nullopt_t;
+    using std::OPTIONAL_EXPERIMENTAL_NAMESPACE::nullopt;
+    using std::OPTIONAL_EXPERIMENTAL_NAMESPACE::in_place_t;
+    using std::OPTIONAL_EXPERIMENTAL_NAMESPACE::in_place;
 
     template <typename T>
-    using stdex_optional = std::experimental::optional<T>;
+    using stdex_optional = std::OPTIONAL_EXPERIMENTAL_NAMESPACE::optional<T>;
 
     template <typename T>
     class optional : public stdex_optional<T> {
@@ -85,23 +107,35 @@ namespace scj {
 
         void swap(optional& rhs) noexcept { Base::swap(rhs); }
 
-        T* operator->() {
-            SCJ_CONTRACT_ASSERT(this->has_value());
+        const T* operator->() const {
+            SCJ_OPTIONAL_CONTRACT_ASSERT(this->has_value());
             return Base::operator->();
         }
 
-        T const& operator*() const & {
-            SCJ_CONTRACT_ASSERT(this->has_value());
+        T* operator->() {
+            SCJ_OPTIONAL_CONTRACT_ASSERT(this->has_value());
+            return Base::operator->();
+        }
+
+        const T& operator*() const & {
+            SCJ_OPTIONAL_CONTRACT_ASSERT(this->has_value());
             return Base::operator*();
         }
 
+#if 0 // TODO: fix it
+        const T&& operator*() const && {
+            SCJ_OPTIONAL_CONTRACT_ASSERT(this->has_value());
+            return Base::operator*();
+        }
+#endif
+
         T& operator*() & {
-            SCJ_CONTRACT_ASSERT(this->has_value());
+            SCJ_OPTIONAL_CONTRACT_ASSERT(this->has_value());
             return Base::operator*();
         }
 
         T& operator*() && {
-            SCJ_CONTRACT_ASSERT(this->has_value());
+            SCJ_OPTIONAL_CONTRACT_ASSERT(this->has_value());
             return std::move(*this).Base::operator*();
         }
 
@@ -127,3 +161,15 @@ namespace scj {
     }
 
 } // namespace scj
+
+#if SCJ_OPTIONAL_OVERWRITE_NAMESPACE_STD_EXPERIMENTAL
+namespace std { namespace experimental {
+    using scj::nullopt_t;
+    using scj::nullopt;
+    using scj::in_place_t;
+    using scj::in_place;
+    using scj::swap;
+    using scj::make_optional;
+    using scj::optional;
+} }
+#endif

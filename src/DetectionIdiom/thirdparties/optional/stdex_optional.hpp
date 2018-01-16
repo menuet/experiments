@@ -97,9 +97,13 @@
 #   define OPTIONAL_MUTABLE_CONSTEXPR constexpr
 # endif
 
+# if ! defined(OPTIONAL_EXPERIMENTAL_NAMESPACE)
+# define OPTIONAL_EXPERIMENTAL_NAMESPACE experimental
+# endif
+
 namespace std{
 
-namespace experimental{
+namespace OPTIONAL_EXPERIMENTAL_NAMESPACE{
 
 // BEGIN workaround for missing is_trivially_destructible
 # if defined TR2_OPTIONAL_GCC_4_8_AND_HIGHER___
@@ -236,6 +240,19 @@ T* static_addressof(T& ref)
 template <class U>
 constexpr U convert(U v) { return v; }
 
+// unlike other C++17 workarounds above, this is not in old clang/gcc versions.
+// some have __is_nothrow_swappable.
+// Can't check this properly inside the noexcept spec of optional<T>::swap,
+// as ADL does not work properly in that context.
+// c.f. https://wg21.cmeerw.net/lwg/issue2456 https://wg21.cmeerw.net/lwg/msg7635
+using std::swap;
+template <class T>
+struct is_nothrow_swappable
+{
+  constexpr static bool value =  noexcept(swap(declval<T&>(), declval<T&>()));
+};
+template <class T>
+constexpr bool is_nothrow_swappable_v = is_nothrow_swappable<T>::value;
 } // namespace detail
 
 
@@ -1021,16 +1038,16 @@ constexpr optional<X&> make_optional(reference_wrapper<X> v)
 }
 
 
-} // namespace experimental
+} // namespace OPTIONAL_EXPERIMENTAL_NAMESPACE
 } // namespace std
 
 namespace std
 {
   template <typename T>
-  struct hash<std::experimental::optional<T>>
+  struct hash<std::OPTIONAL_EXPERIMENTAL_NAMESPACE::optional<T>>
   {
     typedef typename hash<T>::result_type result_type;
-    typedef std::experimental::optional<T> argument_type;
+    typedef std::OPTIONAL_EXPERIMENTAL_NAMESPACE::optional<T> argument_type;
 
     constexpr result_type operator()(argument_type const& arg) const {
       return arg ? std::hash<T>{}(*arg) : result_type{};
@@ -1038,10 +1055,10 @@ namespace std
   };
 
   template <typename T>
-  struct hash<std::experimental::optional<T&>>
+  struct hash<std::OPTIONAL_EXPERIMENTAL_NAMESPACE::optional<T&>>
   {
     typedef typename hash<T>::result_type result_type;
-    typedef std::experimental::optional<T&> argument_type;
+    typedef std::OPTIONAL_EXPERIMENTAL_NAMESPACE::optional<T&> argument_type;
 
     constexpr result_type operator()(argument_type const& arg) const {
       return arg ? std::hash<T>{}(*arg) : result_type{};

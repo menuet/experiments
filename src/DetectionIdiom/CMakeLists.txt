@@ -14,6 +14,6 @@ add_executable(DetectionIdiom
     )
 target_include_directories(DetectionIdiom PRIVATE thirdparties ejson/inc)
 exp_setup_common_options(DetectionIdiom)
-target_compile_definitions(DetectionIdiom PRIVATE SCJ_OPTIONAL_DO_NOT_USE_CONTRACT=1)
+target_compile_definitions(DetectionIdiom PRIVATE SCJ_OPTIONAL_USE_CONTRACTS=0 SCJ_OPTIONAL_OVERWRITE_NAMESPACE_STD_EXPERIMENTAL=0)
 
 add_test(detection_idiom "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/DetectionIdiom")

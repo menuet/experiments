@@ -2,7 +2,7 @@
 #include <catch/catch.hpp>
 #include "datetime.hpp"
 
-#ifdef _MSC_VER
+#if EXP_PLATFORM_OS_IS_WINDOWS
 
 namespace datetime {
 
