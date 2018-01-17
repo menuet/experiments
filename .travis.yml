@@ -30,9 +30,8 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - pip install --user conan==0.27
+  - pip install --user conan>=1
   - conan user
 
 script:
-  - ./first-build.sh
-  - ctest
+  - python build.py --conan_install --conan_build --cmake_test --build_type Debug

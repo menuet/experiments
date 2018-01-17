@@ -6,7 +6,7 @@
 #include "Car.h"
 #include "ModeSupport.h"
 #include "Resources.h"
-#include <sfml/graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 
 class Game
@@ -87,6 +87,15 @@ public:
     void onMouseMoved(const sf::RenderWindow& a_window, const sf::Event::MouseMoveEvent& a_event)
     {
         m_pCurrentModeSupport->onMouseMoved(a_window, a_event);
+    }
+
+    void setupText(sf::Text& text, sf::Color color, unsigned int size, sf::Vector2f position)
+    {
+        text.setFont(m_font);
+        text.setFillColor(color);
+        text.setOutlineColor(color);
+        text.setCharacterSize(size);
+        text.setPosition(position);
     }
 
 private:

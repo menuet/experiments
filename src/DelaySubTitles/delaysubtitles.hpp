@@ -2,11 +2,7 @@
 #pragma once
 
 
-#if defined(__GNUC__)
-#include <boost/filesystem.hpp>
-#else
-#include <filesystem>
-#endif
+#include <platform/filesystem.hpp>
 #include <chrono>
 #include <fstream>
 #include <string>
@@ -17,8 +13,9 @@
 
 namespace delaysubtitles {
 
-#if defined(__GNUC__)
-    namespace fs = boost::filesystem;
+    namespace fs = stdnext::filesystem;
+
+#if ! EXP_PLATFORM_OS_IS_WINDOWS
     template< typename... Ts >
     inline void string_scanf(const std::string& s, const char* format, const Ts&... ts)
     {
@@ -32,7 +29,6 @@ namespace delaysubtitles {
         s = sz;
     }
 #else
-    namespace fs = std::experimental::filesystem;
     template< typename... Ts >
     inline void string_scanf(const std::string& s, const char* format, const Ts&... ts)
     {

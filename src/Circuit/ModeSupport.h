@@ -4,11 +4,11 @@
 
 #include "Track.h"
 #include "Resources.h"
-#include <sfml/graphics.hpp>
-#include <sfml/audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <chrono>
 #include <algorithm>
-#include <filesystem>
+#include <platform/filesystem.hpp>
 
 
 class ModeSupport
@@ -105,6 +105,7 @@ private:
     Action m_currentAction = Action::IsIdle;
     Tool m_currentTool = Tool::Road;
     unsigned int m_currentActionRadius = 2;
+    sf::Text m_commandsText;
     sf::Text m_currentCheckpointsCountText;
     sf::Text m_currentToolText;
     Sound m_circuitSound;
@@ -163,6 +164,7 @@ private:
     Game& m_game;
     Action m_currentAction = Action::IsIdle;
     bool m_isCurrentlyFaulty = false;
+    sf::Text m_commandsText;
     unsigned int m_currentCheckpointLevel = 0;
     sf::Text m_currentCheckpointLevelText;
     unsigned int m_currentFaultsCount = 0;

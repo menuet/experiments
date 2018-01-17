@@ -10,30 +10,63 @@
             "problemMatcher": []
         },
         {
-            "label": "First Build",
+            "label": "Debug - Show configuration",
             "type": "shell",
-            "windows": {
-                "command": "first-build.bat"
-            },
-            "linux": {
-                "command": "./first-build.sh"
-            },
+            "command": "python build.py --build_type Debug",
             "problemMatcher": []
         },
         {
-            "label": "Build",
+            "label": "Debug - Install Third-parties",
             "type": "shell",
-            "command": "conan build --file ../../conanfile.py",
-            "windows": {
-                "options": {
-                    "cwd": "${workspaceFolder}/build/win"
-                }
-            },
-            "linux": {
-                "options": {
-                    "cwd": "${workspaceFolder}/build/lin"
-                }
-            },
+            "command": "python build.py --conan_install --build_type Debug",
+            "problemMatcher": []
+        },
+        {
+            "label": "Debug - Build Project",
+            "type": "shell",
+            "command": "python build.py --conan_build --build_type Debug",
+            "problemMatcher": []
+        },
+        {
+            "label": "Debug - Test Project",
+            "type": "shell",
+            "command": "python build.py --cmake_test --build_type Debug",
+            "problemMatcher": []
+        },
+        {
+            "label": "Debug - Everything",
+            "type": "shell",
+            "command": "python build.py --conan_install --conan_build --cmake_test --build_type Debug",
+            "problemMatcher": []
+        },
+        {
+            "label": "Release - Show configuration",
+            "type": "shell",
+            "command": "python build.py --build_type Release",
+            "problemMatcher": []
+        },
+        {
+            "label": "Release - Install Third-parties",
+            "type": "shell",
+            "command": "python build.py --conan_install --build_type Release",
+            "problemMatcher": []
+        },
+        {
+            "label": "Release - Build Project",
+            "type": "shell",
+            "command": "python build.py --conan_build --build_type Release",
+            "problemMatcher": []
+        },
+        {
+            "label": "Release - Test Project",
+            "type": "shell",
+            "command": "python build.py --cmake_test --build_type Release",
+            "problemMatcher": []
+        },
+        {
+            "label": "Release - Everything",
+            "type": "shell",
+            "command": "python build.py --conan_install --conan_build --cmake_test --build_type Release",
             "problemMatcher": []
         }
     ]

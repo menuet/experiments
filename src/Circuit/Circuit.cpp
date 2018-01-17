@@ -1,7 +1,7 @@
 
 #include "Car.h"
 #include "EventDispatcher.h"
-#include <sfml/graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <vector>
 
 
