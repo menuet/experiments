@@ -5,16 +5,13 @@
 
 void ModeSupportEditing::onEnterMode()
 {
-    m_currentCheckpointsCountText.setFont(m_game.getFont());
-    m_currentCheckpointsCountText.setColor(sf::Color::Blue);
-    m_currentCheckpointsCountText.setCharacterSize(14);
-    m_currentCheckpointsCountText.setPosition(20, 20);
+    m_game.setupText(m_commandsText, sf::Color::Blue, 14, { 20, 20 });
+    m_commandsText.setString("Keys: +:Increase Radius, -:Decrease Radius, Bksp:Erase Checkpoint, S:Save, R:Tool Road, T:Tool Start, K:Tool Checkpoint, P:Play");
+
+    m_game.setupText(m_currentCheckpointsCountText, sf::Color::Blue, 14, {20, 40});
     setCurrentCheckpointsCountText();
 
-    m_currentToolText.setFont(m_game.getFont());
-    m_currentToolText.setColor(sf::Color::Blue);
-    m_currentToolText.setCharacterSize(14);
-    m_currentToolText.setPosition(20, 40);
+    m_game.setupText(m_currentToolText, sf::Color::Blue, 14, {20, 60});
     setCurrentToolText();
 }
 
@@ -29,6 +26,7 @@ void ModeSupportEditing::onUpdate(const sf::RenderWindow& a_window)
 void ModeSupportEditing::onDraw(sf::RenderWindow& a_window)
 {
     m_game.getTrack().draw(a_window);
+    a_window.draw(m_commandsText);
     a_window.draw(m_currentCheckpointsCountText);
     a_window.draw(m_currentToolText);
 }
@@ -148,20 +146,14 @@ void ModeSupportEditing::setCurrentCheckpointsCountText()
 
 void ModeSupportPlaying::onEnterMode()
 {
-    m_currentCheckpointLevelText.setFont(m_game.getFont());
-    m_currentCheckpointLevelText.setColor(sf::Color::Blue);
-    m_currentCheckpointLevelText.setCharacterSize(14);
-    m_currentCheckpointLevelText.setPosition(20, 20);
+    m_game.setupText(m_commandsText, sf::Color::Blue, 14, { 20, 20 });
+    m_commandsText.setString("Keys: Spc:Play/Pause, Up:Accelerate, Down:Break, Left:Left, Right:Right, E:Edit");
 
-    m_currentFaultsCountText.setFont(m_game.getFont());
-    m_currentFaultsCountText.setColor(sf::Color::Red);
-    m_currentFaultsCountText.setCharacterSize(14);
-    m_currentFaultsCountText.setPosition(20, 40);
+    m_game.setupText(m_currentCheckpointLevelText, sf::Color::Blue, 14, {20, 40});
 
-    m_currenDurationText.setFont(m_game.getFont());
-    m_currenDurationText.setColor(sf::Color::Black);
-    m_currenDurationText.setCharacterSize(14);
-    m_currenDurationText.setPosition(20, 60);
+    m_game.setupText(m_currentFaultsCountText, sf::Color::Red, 14, {20, 60});
+
+    m_game.setupText(m_currenDurationText, sf::Color::Black, 14, {20, 80});
 
     m_currentAction = Action::IsIdle;
     m_game.getCar().moveToStartPoint(m_game.getTrack());
@@ -230,16 +222,14 @@ void ModeSupportPlaying::onDraw(sf::RenderWindow& a_window)
 {
     m_game.getTrack().draw(a_window);
     m_game.getCar().draw(a_window);
+    a_window.draw(m_commandsText);
     a_window.draw(m_currentCheckpointLevelText);
     a_window.draw(m_currentFaultsCountText);
     a_window.draw(m_currenDurationText);
     if (m_currentAction == Action::IsCountingDown)
     {
         sf::Text l_countDownText;
-        l_countDownText.setFont(m_game.getFont());
-        l_countDownText.setColor(sf::Color::Red);
-        l_countDownText.setCharacterSize(100);
-        l_countDownText.setPosition((float) m_game.getTrack().getWindowSize().x / 2, (float) m_game.getTrack().getWindowSize().y / 2);
+        m_game.setupText(l_countDownText, sf::Color::Red, 100, {(float) m_game.getTrack().getWindowSize().x / 2, (float) m_game.getTrack().getWindowSize().y / 2});
         l_countDownText.setString(std::to_string(m_countDown));
         sf::FloatRect l_textRect = l_countDownText.getLocalBounds();
         l_countDownText.setOrigin(l_textRect.width / 2, l_textRect.height / 2);

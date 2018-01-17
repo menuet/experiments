@@ -3,7 +3,7 @@
 
 
 #include "Cell.h"
-#include <sfml/graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 
 class Track

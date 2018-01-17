@@ -3,7 +3,7 @@
 
 
 #include "Game.h"
-#include <sfml/graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 
 class EventDispatcher

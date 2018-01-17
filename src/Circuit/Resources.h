@@ -2,20 +2,22 @@
 #pragma once
 
 
-#include <sfml/audio.hpp>
-#include <filesystem>
+#include <SFML/Audio.hpp>
+#include <platform/filesystem.hpp>
 #include <memory>
 #include <utility>
 #include <vector>
 #include <regex>
+#if EXP_PLATFORM_OS_IS_WINDOWS
 #include <windows.h>
+#endif
 
-namespace stdcxx17 = std::experimental::filesystem;
+namespace stdnextfs = stdnext::filesystem;
 
-static stdcxx17::path getRunningModuleDirectory()
+static stdnextfs::path getRunningModuleDirectory()
 {
-    stdcxx17::path l_runningModuleDirectory;
-
+    stdnextfs::path l_runningModuleDirectory;
+#if EXP_PLATFORM_OS_IS_WINDOWS
     static const char l_dummyChar = 0;
     HMODULE l_hModule{};
     if (::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, &l_dummyChar, &l_hModule) && l_hModule)
@@ -27,15 +29,24 @@ static stdcxx17::path getRunningModuleDirectory()
             l_runningModuleDirectory.remove_filename();
         }
     }
-
+#else
+    // TODO
+#endif
     return l_runningModuleDirectory;
 }
 
-static stdcxx17::path getResourceFileAbsolutePathName(const stdcxx17::path& a_resourceFileName)
+static stdnextfs::path getResourcesDirectory()
+{
+    auto l_resourcesDir = getRunningModuleDirectory();
+    l_resourcesDir /= "Resources";
+    return l_resourcesDir;
+}
+
+static stdnextfs::path getResourceFileAbsolutePathName(const stdnextfs::path& a_resourceFileName)
 {
     if (a_resourceFileName.has_root_path())
         return a_resourceFileName;
-    auto l_resourceFileAbsolutePathName = getRunningModuleDirectory();
+    auto l_resourceFileAbsolutePathName = getResourcesDirectory();
     l_resourceFileAbsolutePathName /= a_resourceFileName;
     return l_resourceFileAbsolutePathName;
 }
@@ -49,7 +60,7 @@ public:
     {
     }
 
-    Sound(const stdcxx17::path& a_soundFileName)
+    Sound(const stdnextfs::path& a_soundFileName)
         : m_spSound{ std::make_unique<std::pair<sf::SoundBuffer, sf::Sound>>() }
     {
         load(a_soundFileName);
@@ -66,7 +77,7 @@ public:
         return *this;
     }
 
-    bool load(const stdcxx17::path& a_soundFileName)
+    bool load(const stdnextfs::path& a_soundFileName)
     {
         const auto l_soundFilePathName = getResourceFileAbsolutePathName(a_soundFileName);
         m_spSound->second.stop();
@@ -97,8 +108,8 @@ static std::vector<Sound> loadSoundsSeries(std::string l_soundFilePrefix)
     std::vector<Sound> l_sounds;
     l_soundFilePrefix += R"((\d).wav)";
     const std::regex l_soundsPattern{ l_soundFilePrefix };
-    const auto l_resourcesDirectory = getRunningModuleDirectory();
-    std::for_each(stdcxx17::directory_iterator(l_resourcesDirectory), stdcxx17::directory_iterator(), [&](const stdcxx17::path& a_resourceFilePathName)
+    const auto l_resourcesDirectory = getResourcesDirectory();
+    std::for_each(stdnextfs::directory_iterator(l_resourcesDirectory), stdnextfs::directory_iterator(), [&](const stdnextfs::path& a_resourceFilePathName)
     {
         const auto& l_resourceFileName = a_resourceFilePathName.filename().string();
         std::smatch l_matchResults;

@@ -8,25 +8,28 @@ class ExperimentsConan(conans.ConanFile):
     url = "<Package recipe repository url here, for issues about the package>"
     description = "<Description of Toto here>"
     settings = "os", "compiler", "build_type", "arch"
+    options = {"use_boost_filesystem": [True, False]}
+    default_options = "use_boost_filesystem=False"
     generators = "cmake"
 
     def requirements(self):
-        self.requires("fmt/3.0.1@pascal/testing")
-        if self.settings.os != "Windows":
-            # self.requires("Boost/1.64.0@inexorgame/stable")
-            pass
-        else:
-            self.requires("sfml/2.4.1@pascal/testing")
+        self.requires("fmt/4.1.0@bincrafters/stable")
+        if self.settings.os == "Windows":
+            self.requires("sfml/2.4.2@bincrafters/testing")
+        if self.options.use_boost_filesystem:
+            self.requires("boost_filesystem/1.66.0@bincrafters/testing")
 
     def configure(self):
-        # self.settings["sfml"].shared = True
-        pass
+        if self.settings.os == "Windows":
+            self.options["sfml"].shared = True
 
     def build(self):
         cmake = conans.CMake(self)
-        this_file_directory = os.path.dirname(os.path.realpath(__file__))
-        self.run("cmake -D CMAKE_VERBOSE_MAKEFILE=ON {} -DCMAKE_CONFIGURATION_TYPES={} {}".format(cmake.command_line, self.settings.build_type, this_file_directory))
-        self.run("cmake --build . {}".format(cmake.build_config))
+        cmake.definitions["CMAKE_CONFIGURATION_TYPES"] = str(self.settings.build_type)
+        cmake.definitions["CMAKE_VERBOSE_MAKEFILE"] = "TRUE"
+        cmake.definitions["EXP_USE_BOOST_FILESYSTEM"] = str(self.options.use_boost_filesystem).upper()
+        cmake.configure()
+        cmake.build()
 
     def imports(self):
         self.copy("*.dll", "bin", "bin")

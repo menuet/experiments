@@ -2,7 +2,7 @@
 #pragma once
 
 
-#include <sfml/graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 
 enum class CellType

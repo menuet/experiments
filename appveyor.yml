@@ -8,16 +8,14 @@ install:
 - cmd: >-
     set PATH=%PATH%;%PYTHON%/Scripts/
 
-    pip.exe install conan==0.27
+    pip.exe install conan>=1
 
     conan user
 
 build_script:
 - cmd: >-
-    first-build.bat
+    python build.py --conan_install --conan_build --build_type Debug
 
 test_script:
 - cmd: >-
-    cd build\win
-
-    ctest
+    python build.py --cmake_test --build_type Debug
