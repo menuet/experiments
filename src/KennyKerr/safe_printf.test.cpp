@@ -1,5 +1,5 @@
 
-#include <catch/catch.hpp>
+#include <catch.hpp>
 #include "safe_printf.h"
 #include <iostream>
 #include <array>

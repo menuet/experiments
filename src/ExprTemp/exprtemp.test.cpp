@@ -1,5 +1,5 @@
 
-#include <catch/catch.hpp>
+#include <catch.hpp>
 #include "exprtemp.hpp"
 
 

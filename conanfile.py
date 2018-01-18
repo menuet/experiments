@@ -13,6 +13,7 @@ class ExperimentsConan(conans.ConanFile):
     generators = "cmake"
 
     def requirements(self):
+        self.requires("catch2/2.1.0@bincrafters/stable")
         self.requires("fmt/4.1.0@bincrafters/stable")
         if self.settings.os == "Windows":
             self.requires("sfml/2.4.2@bincrafters/testing")
@@ -20,8 +21,7 @@ class ExperimentsConan(conans.ConanFile):
             self.requires("boost_filesystem/1.66.0@bincrafters/testing")
 
     def configure(self):
-        if self.settings.os == "Windows":
-            self.options["sfml"].shared = True
+        pass
 
     def build(self):
         cmake = conans.CMake(self)
