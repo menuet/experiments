@@ -1,6 +1,6 @@
 
 #include "sqlgen.hpp"
-#include <catch/catch.hpp>
+#include <catch.hpp>
 #include <sstream>
 
 

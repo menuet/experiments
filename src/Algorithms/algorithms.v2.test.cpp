@@ -1,6 +1,6 @@
 
 #define _SCL_SECURE_NO_WARNINGS
-#include <catch/catch.hpp>
+#include <catch.hpp>
 #include "algorithms.v2.hpp"
 #include <algorithm>
 #include <random>

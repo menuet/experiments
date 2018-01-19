@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <catch/catch.hpp>
+#include <catch.hpp>
 
 #define TEST(suite, case) TEST_CASE(#suite "." #case, "")
 #define DISABLED_TEST(suite, case) TEST_CASE(#suite "." #case, "[!hide]")

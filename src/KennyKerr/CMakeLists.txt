@@ -14,6 +14,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         srw_lock.test.cpp
         )
     exp_setup_common_options(kenny_kerr)
+    target_link_libraries(kenny_kerr CONAN_PKG::catch2)
 
     add_test(kenny_kerr "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/kenny_kerr")
 endif()
