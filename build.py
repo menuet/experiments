@@ -30,6 +30,9 @@ def configure(config):
     subprocess.check_call(["conan", "--version"])
     subprocess.check_call(["cmake", "--version"])
     subprocess.call(["conan", "remote", "add", "bincrafters", "https://api.bintray.com/conan/bincrafters/public-conan"])
+    if get_default_os() != "Windows":
+        subprocess.call(["conan", "profile", "new", "default", "--detect"])
+        subprocess.check_call(["conan", "profile", "update", "settings.compiler.libcxx=libstdc++11", "default"])
 
 def conan_install(config):
     print_step("Installing Third-parties")
@@ -56,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--os", help="set the os", type=str, choices=["Linux", "Windows"], default=get_default_os())
     parser.add_argument("--arch", help="set the arch", type=str, choices=["x86", "x86_64"], default=get_default_arch())
     parser.add_argument("--build_type", help="set the build type", type=str, choices=["Debug", "Release"], default=get_default_build_type())
-    parser.add_argument("--use_boost_filesystem", help="use boost filesystem instead of std filesystem", action="store_true")
+    parser.add_argument("--use_boost_filesystem", help="use boost filesystem instead of std filesystem", action="store_true", default=True)
     config = parser.parse_args()
     configure(config)
     if config.conan_install:

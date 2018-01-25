@@ -225,7 +225,7 @@ void copy_file_in_this_thread(
     const fs::path& source_file,
     const fs::path& target_dir)
 {
-    std::error_code ec;
+    stdnext::error_code ec;
     if (!fs::exists(target_dir))
     {
         std::cout << "Creating target directory: " << target_dir << "\n";
@@ -233,7 +233,11 @@ void copy_file_in_this_thread(
     }
     const auto target_file = target_dir / source_file.filename();
     std::cout << "Copying: " << source_file << " to: " << target_file << "\n";
+#if EXP_USE_BOOST_FILESYSTEM
+    fs::copy_file(source_file, target_file, fs::copy_option::fail_if_exists, ec);
+#else
     fs::copy_file(source_file, target_file, fs::copy_options::skip_existing, ec);
+#endif
 }
 
 void copy_files(

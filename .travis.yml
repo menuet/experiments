@@ -10,7 +10,7 @@ compiler:
   - gcc
 
 install:
-  - pip install --user conan>=1
+  - pip install --user conan>=1.10
   - conan user
 
 script:

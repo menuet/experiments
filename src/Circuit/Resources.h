@@ -8,8 +8,11 @@
 #include <utility>
 #include <vector>
 #include <regex>
+#include <cstdio>
 #if EXP_PLATFORM_OS_IS_WINDOWS
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 namespace stdnextfs = stdnext::filesystem;
@@ -30,7 +33,13 @@ static stdnextfs::path getRunningModuleDirectory()
         }
     }
 #else
-    // TODO
+    static constexpr std::size_t MODULE_PATH_SIZE = 2048;
+    char runningModulePath[MODULE_PATH_SIZE];
+    const auto realSize = ::readlink("/proc/self/exe", runningModulePath, MODULE_PATH_SIZE - 1);
+    if (realSize >= 0) {
+        l_runningModuleDirectory.assign(runningModulePath, runningModulePath+realSize);
+        l_runningModuleDirectory.remove_filename();
+    }
 #endif
     return l_runningModuleDirectory;
 }
