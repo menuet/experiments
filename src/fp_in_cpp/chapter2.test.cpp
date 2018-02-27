@@ -6,7 +6,7 @@
 
 using namespace fp_in_cpp;
 
-TEST_CASE("chapter2", "")
+TEST_CASE("chapter 2", "")
 {
     SECTION("names_for")
     {

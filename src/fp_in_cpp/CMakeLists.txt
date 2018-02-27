@@ -8,6 +8,8 @@ add_executable(
     itcppcon17_monads.hpp
     chapter2.test.cpp
     chapter2.hpp
+    chapter8.test.cpp
+    chapter8.hpp
     )
 exp_setup_common_options(fp_in_cpp)
 target_link_libraries(fp_in_cpp CONAN_PKG::catch2)

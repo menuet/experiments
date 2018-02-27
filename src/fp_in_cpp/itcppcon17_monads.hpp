@@ -28,9 +28,8 @@ class IO
     Act _act;
 
   public:
-
     IO(Act act)
-        : _act(act)
+        : _act(std::move(act))
     {
     }
 
@@ -68,13 +67,13 @@ inline IO<T> pure(T x)
 
 inline IO<U> putStr(std::string s)
 {
-    return IO<U>([s]() {
+    return IO<U>([s = std::move(s)]() {
         std::cout << s;
         return U{};
     });
 }
 
-inline IO<std::string> getLine(U)
+inline IO<std::string> getLine(U /*u*/)
 {
     return IO<std::string>([]() {
         std::string s;

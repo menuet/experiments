@@ -41,7 +41,9 @@ std::vector<std::string> names_for(
     for (const person_t &person : people)
     {
         if (filter(person))
+        {
             result.push_back(name(person));
+        }
     }
 
     return result;
@@ -54,7 +56,9 @@ template <typename T>
 std::vector<T> tail(std::vector<T> v)
 {
     if (!v.empty())
+    {
         v.erase(v.begin());
+    }
     return v;
 }
 
@@ -74,12 +78,16 @@ std::vector<std::string> names_for(
     FilterFunction filter)
 {
     if (people.empty())
+    {
         return {};
+    }
 
-    const auto head = people.front();
+    const auto &head = people.front();
     const auto processed_tail = names_for(tail(people), filter);
     if (filter(head))
+    {
         return prepend(name(head), processed_tail);
+    }
 
     return processed_tail;
 }
@@ -94,11 +102,15 @@ std::vector<std::string> names_for_helper(
     std::vector<std::string> previously_collected)
 {
     if (people.empty())
+    {
         return previously_collected;
+    }
 
-    const auto head = people.front();
+    const auto &head = people.front();
     if (filter(head))
+    {
         previously_collected.push_back(name(head));
+    }
 
     const auto processed_tail = names_for_helper(tail(people), filter, std::move(previously_collected));
 
@@ -125,7 +137,9 @@ auto append_name_if(
                std::vector<std::string> previously_collected,
                const person_t &person) {
         if (filter(person))
+        {
             previously_collected.push_back(name(person));
+        }
         return previously_collected;
     };
 }
@@ -142,13 +156,15 @@ std::vector<std::string> names_for(
         append_name_if(filter));
 }
 
-template< class InputIt, class UnaryPredicate >
-bool any_of( InputIt first, InputIt last, UnaryPredicate p ) {
+template <class InputIt, class UnaryPredicate>
+bool any_of(InputIt first, InputIt last, UnaryPredicate p)
+{
     return std::accumulate(first, last, false, [&](bool acc, auto item) { return acc || p(item); });
 }
 
-template< class InputIt, class UnaryPredicate >
-bool all_of( InputIt first, InputIt last, UnaryPredicate p ) {
+template <class InputIt, class UnaryPredicate>
+bool all_of(InputIt first, InputIt last, UnaryPredicate p)
+{
     return std::accumulate(first, last, true, [&](bool acc, auto item) { return acc && p(item); });
 }
 }
