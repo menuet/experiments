@@ -7,25 +7,30 @@
 
 int main(int argc, char* argv [])
 {
-    sf::RenderWindow l_window{ { 1200, 800 }, "Golf" };
-    l_window.setFramerateLimit(60);
+    sf::RenderWindow window{ { 1200, 800 }, "Golf" };
+    window.setFramerateLimit(60);
 
-    Game l_game{ l_window.getSize() };
+    Game game{ window.getSize() };
 
-    EventDispatcher l_eventDispatcher;
+    const EventDispatcher eventDispatcher;
+
+    const auto ed = createEventDispatcher(
+        handleEvent<sf::Event::Closed>([]() { return false; }),
+        handleEvent<sf::Event::KeyPressed>([](sf::Event::KeyEvent key) { return true; })
+    );
 
     for (;;)
     {
-        l_window.clear(sf::Color::Black);
+        window.clear(sf::Color::Black);
 
-        if (!l_eventDispatcher.pollEvent(l_window, l_game))
+        if (!eventDispatcher.pollEvent(window))
             return 0;
 
-        l_game.update(l_window);
+        game.update(window);
 
-        l_game.draw(l_window);
+        game.draw(window);
 
-        l_window.display();
+        window.display();
     }
 
     return 0;
