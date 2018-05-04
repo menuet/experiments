@@ -3,7 +3,7 @@
 
 
 #include "Track.h"
-#include "Resources.h"
+#include <games/common/resources.h>
 #include <SFML/Graphics.hpp>
 
 

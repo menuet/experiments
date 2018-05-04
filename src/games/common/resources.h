@@ -35,10 +35,14 @@ static stdnextfs::path getRunningModuleDirectory()
     return l_runningModuleDirectory;
 }
 
+#define EXP_GAME_STRINGIFY_(s) #s
+#define EXP_GAME_STRINGIFY(s) EXP_GAME_STRINGIFY_(s)
+
 static stdnextfs::path getResourcesDirectory()
 {
     auto l_resourcesDir = getRunningModuleDirectory();
-    l_resourcesDir /= "Resources";
+    l_resourcesDir /= "resources";
+    l_resourcesDir /= EXP_GAME_STRINGIFY(EXP_GAME_NAME);
     return l_resourcesDir;
 }
 
