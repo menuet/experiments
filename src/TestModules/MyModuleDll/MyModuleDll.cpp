@@ -1,6 +1,6 @@
 
 
-module MyModuleShared;
+export module MyModuleShared;
 
 export
 

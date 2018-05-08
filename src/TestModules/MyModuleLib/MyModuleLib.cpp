@@ -1,6 +1,6 @@
 
 
-module MyModuleStatic;
+export module MyModuleStatic;
 
 export
 
