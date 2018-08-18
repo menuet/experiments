@@ -26,6 +26,7 @@ endfunction()
 
 add_subdirectory("src/Algorithms")
 add_subdirectory("src/BoolExprParser")
+add_subdirectory("src/cellang")
 add_subdirectory("src/Circuit")
 add_subdirectory("src/Concurrency")
 add_subdirectory("src/coroutines")
