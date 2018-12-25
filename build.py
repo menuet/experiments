@@ -31,6 +31,7 @@ def configure(config):
     subprocess.check_call(["cmake", "--version"])
     subprocess.call(["conan", "remote", "add", "bincrafters", "https://api.bintray.com/conan/bincrafters/public-conan"])
     if get_default_os() != "Windows":
+        subprocess.call(["conan", "profile", "new", "default", "--detect"])
         subprocess.check_call(["conan", "profile", "update", "settings.compiler.libcxx=libstdc++11", "default"])
 
 def conan_install(config):
