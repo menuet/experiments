@@ -1,33 +1,13 @@
 
+dist: xenial
+
 sudo: false
 
 language: cpp
 
-matrix:
-  include:
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env:
-         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-    # TODO: fix stdlib issue with clang
-    # - os: linux
-    #   addons:
-    #     apt:
-    #       sources:
-    #         - ubuntu-toolchain-r-test
-    #         - llvm-toolchain-trusty-4.0
-    #       packages:
-    #         - clang-4.0
-    #   env:
-    #     - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
-
-before_install:
-  - eval "${MATRIX_EVAL}"
+compiler:
+  - clang
+  - gcc
 
 install:
   - pip install --user conan>=1
