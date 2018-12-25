@@ -16,6 +16,9 @@ class ExperimentsConan(conans.ConanFile):
         self.requires("catch2/2.1.0@bincrafters/stable")
         self.requires("fmt/4.1.0@bincrafters/stable")
         self.requires("sfml/2.5.1@bincrafters/stable")
+        self.options["sfml"].audio = True
+        self.options["sfml"].graphics = True
+        self.options["sfml"].window = True
         self.requires("boost_optional/1.66.0@bincrafters/stable")
         if self.options.use_boost_filesystem:
             self.requires("boost_filesystem/1.66.0@bincrafters/stable")
