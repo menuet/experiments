@@ -18,7 +18,8 @@ class ExperimentsConan(conans.ConanFile):
         self.requires("sfml/2.5.1@bincrafters/stable")
         self.requires("boost_optional/1.66.0@bincrafters/stable")
         if self.options.use_boost_filesystem:
-            self.requires("boost_filesystem/1.66.0@bincrafters/testing")
+            self.requires("boost_filesystem/1.66.0@bincrafters/stable")
+            self.requires("boost_system/1.66.0@bincrafters/stable")
         self.requires("boost_process/1.66.0@bincrafters/stable")
         self.requires("boost_interprocess/1.66.0@bincrafters/stable")
         self.requires("boost_program_options/1.66.0@bincrafters/stable")
