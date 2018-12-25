@@ -5,6 +5,7 @@
 #include "Track.h"
 #include "Resources.h"
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 
 class Car
