@@ -8,7 +8,7 @@ install:
 - cmd: >-
     set PATH=%PATH%;%PYTHON%/Scripts/
 
-    pip.exe install conan>=1
+    pip.exe install conan>=1.10
 
     conan user
 
