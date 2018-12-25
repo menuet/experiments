@@ -3,7 +3,10 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <platform/platform.h>
+#if EXP_PLATFORM_OS_IS_WINDOWS
 #include <conio.h>
+#endif
 
 int random_number(std::default_random_engine& rg, int min = 3, int max = 10)
 {
@@ -28,10 +31,14 @@ void show_random_additions(int wait_seconds)
         //}
         const auto code = []
         {
+#if EXP_PLATFORM_OS_IS_WINDOWS
             const auto first = _getch();
             if (first != 0)
                 return first;
             return _getch();
+#else
+            return 3;
+#endif
         }();
         std::cout << "Reponse : " << left + right << "\n\n";
 //        std::this_thread::sleep_for(std::chrono::seconds(1));

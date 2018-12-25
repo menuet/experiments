@@ -30,7 +30,6 @@ def configure(config):
     subprocess.check_call(["conan", "--version"])
     subprocess.check_call(["cmake", "--version"])
     subprocess.call(["conan", "remote", "add", "bincrafters", "https://api.bintray.com/conan/bincrafters/public-conan"])
-    subprocess.call(["conan", "remote", "add", "pmenuet", "https://api.bintray.com/conan/pmenuet/public-conan"])
 
 def conan_install(config):
     print_step("Installing Third-parties")
