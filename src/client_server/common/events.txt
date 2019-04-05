@@ -1,0 +1,4 @@
+{"time":2000,"type":"startup","utcstart":"20190819T132856.425"}
+{"time":4500,"type":"msg","text":"Hello"}
+{"time":7500,"type":"msg","text":"World"}
+{"time":8500,"type":"msg","text":"!"}

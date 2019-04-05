@@ -1,6 +1,13 @@
 
 #include "photos.hpp"
+#if EXP_PLATFORM_CPL_IS_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4244)
+#endif
 #include <boost/process.hpp>
+#if EXP_PLATFORM_CPL_IS_MSVC
+#pragma warning(pop)
+#endif
 #include <system_error>
 #include <fstream>
 #include <iostream>

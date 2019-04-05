@@ -16,6 +16,7 @@ class ExperimentsConan(conans.ConanFile):
         self.requires("boost/1.70.0@conan/stable")
         self.requires("bzip2/1.0.8@conan/stable")
         # self.requires("sfml/2.5.0@bincrafters/stable")
+        self.requires("jsonformoderncpp/3.6.1@vthiery/stable")
 
     def configure(self):
         self.options["sfml"].window = True
