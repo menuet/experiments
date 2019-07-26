@@ -9,6 +9,6 @@ add_executable(things
     string.hpp
     )
 exp_setup_common_options(things)
-target_link_libraries(things CONAN_PKG::catch2)
+target_link_libraries(things EXP_THIRDPARTY_CATCH2)
 
 add_test(things "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/things")

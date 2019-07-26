@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
-project (khewil-root)
+project(khewil-root)
 enable_testing()
 
 #set(CMAKE_VERBOSE_MAKEFILE on)

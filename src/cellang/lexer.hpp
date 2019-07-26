@@ -4,8 +4,8 @@
 #include <istream>
 #include <ostream>
 #include <iterator>
-#include <variant>
-#include <string_view>
+#include <platform/variant.hpp>
+#include <platform/string_view.hpp>
 #include <cassert>
 #include <cctype>
 #include <utility>
@@ -26,7 +26,7 @@ namespace cellang { namespace lexer {
         struct NumberTraits
         {
             using CharType = CharT;
-            using TextType = std::basic_string_view<CharT>;
+            using TextType = stdnext::basic_string_view<CharT>;
             static constexpr const CharType* label() { return "Number"; }
         };
 
@@ -34,7 +34,7 @@ namespace cellang { namespace lexer {
         struct StringTraits
         {
             using CharType = CharT;
-            using TextType = std::basic_string_view<CharT>;
+            using TextType = stdnext::basic_string_view<CharT>;
             static constexpr const CharType* label() { return "String"; }
         };
 
@@ -42,7 +42,7 @@ namespace cellang { namespace lexer {
         struct SymbolTraits
         {
             using CharType = CharT;
-            using TextType = std::basic_string_view<CharT>;
+            using TextType = stdnext::basic_string_view<CharT>;
             static constexpr const CharType* label() { return "Symbol"; }
         };
 
@@ -50,7 +50,7 @@ namespace cellang { namespace lexer {
         struct OperatorTraits
         {
             using CharType = CharT;
-            using TextType = std::basic_string_view<CharT>;
+            using TextType = stdnext::basic_string_view<CharT>;
             static constexpr const CharType* label() { return "Operator"; }
         };
 
@@ -58,7 +58,7 @@ namespace cellang { namespace lexer {
         struct PunctuationTraits
         {
             using CharType = CharT;
-            using TextType = std::basic_string_view<CharT>;
+            using TextType = stdnext::basic_string_view<CharT>;
             static constexpr const CharType* label() { return "Punctuation"; }
         };
 
@@ -66,7 +66,7 @@ namespace cellang { namespace lexer {
         struct TokenValue
         {
             using TraitsType = TraitsT<CharT>;
-            using CharType = typename CharT;
+            using CharType = CharT;
             using TextType = typename TraitsType::TextType;
             static constexpr const CharType* label() { return TraitsType::label(); }
             TextType text{};
@@ -104,7 +104,7 @@ namespace cellang { namespace lexer {
     struct Token
     {
         using CharType = CharT;
-        std::variant<Error, Number, String, Symbol, Operator, Punctuation> value{};
+        stdnext::variant<Error, Number, String, Symbol, Operator, Punctuation> value{};
     };
 
     template <typename CharT>
@@ -122,7 +122,7 @@ namespace cellang { namespace lexer {
     template <typename CharT>
     inline std::basic_ostream<CharT>& operator<<(std::basic_ostream<CharT>& os, const Token<CharT>& token)
     {
-        std::visit([&](const auto& value)
+        stdnext::visit([&](const auto& value)
         {
             os << value;
         }, token.value);
@@ -221,7 +221,7 @@ namespace cellang { namespace lexer {
             const auto c = *current_input;
             if (!predicate(c))
                 return ScanResult<CharIteratorT>{false};
-            std::string_view text(&*current_input, 1);
+            stdnext::string_view text(&*current_input, 1);
             return ScanResult<CharIteratorT>{true, Token<CharType>{ TokenValueType{ text } }, skip_spaces(++current_input, last_input)};
         }
 
@@ -264,7 +264,7 @@ namespace cellang { namespace lexer {
                 const auto c = *current_input;
                 if (c == quote)
                 {
-                    std::string_view text(&*string_start, std::distance(string_start, current_input));
+                    stdnext::string_view text(&*string_start, std::distance(string_start, current_input));
                     return ScanResult<CharIteratorT>{true, Token<CharType>{ String{ text } }, skip_spaces(++current_input, last_input)};
                 }
             }
@@ -287,7 +287,7 @@ namespace cellang { namespace lexer {
                     break;
                 ++current_input;
             }
-            std::string_view text(&*sequence_start, std::distance(sequence_start, current_input));
+            stdnext::string_view text(&*sequence_start, std::distance(sequence_start, current_input));
             return ScanResult<CharIteratorT>{true, Token<CharType>{ TokenValueType{ text } }, skip_spaces(current_input, last_input)};
         }
 

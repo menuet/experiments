@@ -1,5 +1,5 @@
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <future>
 #include <experimental/generator>
 #include "resumable_thing.hpp"

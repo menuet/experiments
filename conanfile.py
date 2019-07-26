@@ -8,30 +8,26 @@ class ExperimentsConan(conans.ConanFile):
     url = "<Package recipe repository url here, for issues about the package>"
     description = "<Description of Toto here>"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"use_boost_filesystem": [True, False]}
-    default_options = "use_boost_filesystem=False"
     generators = "cmake"
 
     def requirements(self):
-        self.requires("catch2/2.1.0@bincrafters/stable")
-        self.requires("fmt/4.1.0@bincrafters/stable")
-        if self.settings.os == "Windows":
-            self.requires("sfml/2.5.1@bincrafters/stable")
-        self.requires("boost_optional/1.66.0@bincrafters/stable")
-        if self.options.use_boost_filesystem:
-            self.requires("boost_filesystem/1.66.0@bincrafters/testing")
-        self.requires("boost_process/1.66.0@bincrafters/stable")
-        self.requires("boost_interprocess/1.66.0@bincrafters/stable")
-        self.requires("boost_program_options/1.66.0@bincrafters/stable")
+        self.requires("Catch2/2.9.2@catchorg/stable")
+        self.requires("fmt/5.3.0@bincrafters/stable")
+        self.requires("boost/1.70.0@conan/stable")
+        self.requires("bzip2/1.0.8@conan/stable")
+        # self.requires("sfml/2.5.0@bincrafters/stable")
 
     def configure(self):
-        pass
+        self.options["sfml"].window = True
+        self.options["sfml"].graphics = True
+        self.options["sfml"].network = True
+        self.options["sfml"].audio = True
 
     def build(self):
         cmake = conans.CMake(self)
         cmake.definitions["CMAKE_CONFIGURATION_TYPES"] = str(self.settings.build_type)
         cmake.definitions["CMAKE_VERBOSE_MAKEFILE"] = "TRUE"
-        cmake.definitions["EXP_USE_BOOST_FILESYSTEM"] = str(self.options.use_boost_filesystem).upper()
+        cmake.definitions["EXP_PKG_MGR"] = "conan"
         cmake.configure()
         cmake.build()
 

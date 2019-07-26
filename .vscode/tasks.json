@@ -2,6 +2,28 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "pkg_mgr",
+            "type": "pickString",
+            "description": "Package Manager to use",
+            "options": [
+                "vcpkg",
+                "conan"
+            ],
+            "default": "conan"
+        },
+        {
+            "id": "build_type",
+            "type": "pickString",
+            "description": "Build type to use",
+            "options": [
+                "Debug",
+                "Release"
+            ],
+            "default": "Debug"
+        }
+    ],
     "tasks": [
         {
             "label": "Git Clean All !!!",
@@ -10,63 +32,33 @@
             "problemMatcher": []
         },
         {
-            "label": "Debug - Show configuration",
+            "label": "Show Configuration",
             "type": "shell",
-            "command": "python build.py --build_type Debug",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type}",
             "problemMatcher": []
         },
         {
-            "label": "Debug - Install Third-parties",
+            "label": "Acquire Third-parties",
             "type": "shell",
-            "command": "python build.py --conan_install --build_type Debug",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --acquire",
             "problemMatcher": []
         },
         {
-            "label": "Debug - Build Project",
+            "label": "Build Project",
             "type": "shell",
-            "command": "python build.py --conan_build --build_type Debug",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --build",
             "problemMatcher": []
         },
         {
-            "label": "Debug - Test Project",
+            "label": "Test Project",
             "type": "shell",
-            "command": "python build.py --cmake_test --build_type Debug",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --test",
             "problemMatcher": []
         },
         {
-            "label": "Debug - Everything",
+            "label": "Everything",
             "type": "shell",
-            "command": "python build.py --conan_install --conan_build --cmake_test --build_type Debug",
-            "problemMatcher": []
-        },
-        {
-            "label": "Release - Show configuration",
-            "type": "shell",
-            "command": "python build.py --build_type Release",
-            "problemMatcher": []
-        },
-        {
-            "label": "Release - Install Third-parties",
-            "type": "shell",
-            "command": "python build.py --conan_install --build_type Release",
-            "problemMatcher": []
-        },
-        {
-            "label": "Release - Build Project",
-            "type": "shell",
-            "command": "python build.py --conan_build --build_type Release",
-            "problemMatcher": []
-        },
-        {
-            "label": "Release - Test Project",
-            "type": "shell",
-            "command": "python build.py --cmake_test --build_type Release",
-            "problemMatcher": []
-        },
-        {
-            "label": "Release - Everything",
-            "type": "shell",
-            "command": "python build.py --conan_install --conan_build --cmake_test --build_type Release",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --acquire --build --test",
             "problemMatcher": []
         }
     ]

@@ -1,5 +1,5 @@
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #ifdef ENABLE_LIBCPP_DEBUG
 #define _LIBCPP_DEBUG 1
 #endif

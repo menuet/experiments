@@ -1,7 +1,7 @@
 
 
 #include "lexer.hpp"
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <string_view>
 #include <iostream>
 #include <vector>
@@ -10,7 +10,7 @@ TEST_CASE("lexer", "[lexer]")
 {
     SECTION("number")
     {
-        constexpr std::string_view CELLANG_SAMPLE = "3";
+        constexpr stdnext::string_view CELLANG_SAMPLE = "3";
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
@@ -26,7 +26,7 @@ TEST_CASE("lexer", "[lexer]")
 
     SECTION("line break")
     {
-        constexpr std::string_view CELLANG_SAMPLE = "\n";
+        constexpr stdnext::string_view CELLANG_SAMPLE = "\n";
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
@@ -39,7 +39,7 @@ TEST_CASE("lexer", "[lexer]")
 
     SECTION("Spaces then number then line break")
     {
-        constexpr std::string_view CELLANG_SAMPLE = "  123\n";
+        constexpr stdnext::string_view CELLANG_SAMPLE = "  123\n";
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
@@ -55,7 +55,7 @@ TEST_CASE("lexer", "[lexer]")
 
     SECTION("Parenthesis then semicolon then then line break")
     {
-        constexpr std::string_view CELLANG_SAMPLE = ");\n";
+        constexpr stdnext::string_view CELLANG_SAMPLE = ");\n";
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
@@ -72,7 +72,7 @@ TEST_CASE("lexer", "[lexer]")
 
     SECTION("symbol then unexpected then operator then space")
     {
-        constexpr std::string_view CELLANG_SAMPLE = "ABC $ + ";
+        constexpr stdnext::string_view CELLANG_SAMPLE = "ABC $ + ";
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
@@ -90,7 +90,7 @@ TEST_CASE("lexer", "[lexer]")
 
     SECTION("sample")
     {
-        constexpr std::string_view CELLANG_SAMPLE = R"(
+        constexpr stdnext::string_view CELLANG_SAMPLE = R"(
 x = 3;
 y = x + 2;
 print(y);
@@ -124,7 +124,7 @@ print(y);
 
     SECTION("sample no spaces")
     {
-        constexpr std::string_view CELLANG_SAMPLE = "x=3;y=x+2;print(y);";
+        constexpr stdnext::string_view CELLANG_SAMPLE = "x=3;y=x+2;print(y);";
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
