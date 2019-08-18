@@ -1,12 +1,5 @@
-cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
+
 project(vcard)
-
-if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup()
-endif()
-
-include_directories(..)
 
 add_executable(
     vcard
@@ -14,6 +7,8 @@ add_executable(
     vcard.cpp
     vcard.hpp
     )
+
+target_include_directories(vcard PUBLIC ..)
 
 target_link_libraries(vcard PUBLIC ${CONAN_LIBS})
 

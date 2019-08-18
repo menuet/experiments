@@ -1,5 +1,5 @@
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include "algorithms.v2.hpp"
 #include <algorithm>
 #include <random>

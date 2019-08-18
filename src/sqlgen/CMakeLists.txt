@@ -1,5 +1,5 @@
 
-project (sqlgen)
+project(sqlgen)
 
 add_executable(
     sqlgen.test
@@ -14,6 +14,6 @@ add_executable(
     sqlgen.traits.hpp
     )
 exp_setup_common_options(sqlgen.test)
-target_link_libraries(sqlgen.test CONAN_PKG::catch2)
+target_link_libraries(sqlgen.test EXP_THIRDPARTY_CATCH2)
 
 add_test(sqlgen "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/sqlgen.test")

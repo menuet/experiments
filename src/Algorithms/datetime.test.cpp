@@ -1,5 +1,5 @@
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include "datetime.hpp"
 
 #if EXP_PLATFORM_OS_IS_WINDOWS

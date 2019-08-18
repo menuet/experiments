@@ -1,5 +1,5 @@
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <functional>
 
 static int globalFunction(int i) { return i * i; }

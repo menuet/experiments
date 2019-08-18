@@ -1,4 +1,6 @@
 
+#pragma once
+
 #define EXP_PLATFORM_OS_IS_WINDOWS 0
 #define EXP_PLATFORM_OS_IS_WINDOWS_64 0
 #define EXP_PLATFORM_OS_IS_WINDOWS_32 0

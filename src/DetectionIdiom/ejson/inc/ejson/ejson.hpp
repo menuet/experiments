@@ -3,6 +3,7 @@
 
 #include "json11/json11.hpp"
 #include <string>
+#include <stdexcept>
 
 // DOCUMENTED API
 namespace ejson {

@@ -1,6 +1,6 @@
 
 #include "string.hpp"
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 #if 0
 template <typename T>

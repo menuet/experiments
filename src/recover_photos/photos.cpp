@@ -1,6 +1,7 @@
 
 #include "photos.hpp"
 #include <boost/process.hpp>
+#include <system_error>
 #include <fstream>
 #include <iostream>
 #include <thread>
@@ -225,7 +226,7 @@ void copy_file_in_this_thread(
     const fs::path& source_file,
     const fs::path& target_dir)
 {
-    std::error_code ec;
+    stdnext::error_code ec;
     if (!fs::exists(target_dir))
     {
         std::cout << "Creating target directory: " << target_dir << "\n";
@@ -233,7 +234,7 @@ void copy_file_in_this_thread(
     }
     const auto target_file = target_dir / source_file.filename();
     std::cout << "Copying: " << source_file << " to: " << target_file << "\n";
-    fs::copy_file(source_file, target_file, fs::copy_options::skip_existing, ec);
+    fs::copy_file(source_file, target_file, fs::copy_options_skip_existing, ec);
 }
 
 void copy_files(

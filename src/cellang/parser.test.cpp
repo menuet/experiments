@@ -1,7 +1,7 @@
 
 
 #include "parser.hpp"
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 using ExprHolder = cellang::parser::ExpressionHolder<char>;
 using Expr = cellang::parser::Expression<char>;

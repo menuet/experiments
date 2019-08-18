@@ -10,7 +10,8 @@
             },
             "includePath": [
                 "${default}",
-                "${workspaceFolder}\\src"
+                "${workspaceFolder}\\src",
+                "${workspaceFolder}\\..\\..\\THEIRS\\vcpkg\\installed\\x64-windows\\include"
             ],
             "defines": [
                 "_DEBUG",
