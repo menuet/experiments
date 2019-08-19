@@ -24,11 +24,12 @@
 /// See the class TemporaryHook below.
 /// For an example of usage, see the function SearchHistoryVm::getElementAt.
 #define JUKE_CONTRACT_ASSERT(booleanExpression) \
-    if (booleanExpression); \
+    if (booleanExpression) \
+        ; \
     else \
         juke::contracts::handleFailure(juke::contracts::FailureContext{ \
             __FILE__, \
-            __LINE__, \
+            static_cast<std::size_t>(__LINE__), \
             __func__, \
             JUKE_CONTRACT_DETAIL_STRINGIFY(booleanExpression) \
             })

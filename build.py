@@ -22,12 +22,17 @@ def get_default_build_type():
     return "Debug"
 
 def get_default_toolchain_file():
-    if platform.system() == "Windows":
-        result = subprocess.check_output(["where", "vcpkg"]).decode()
-        result = os.path.dirname(result)
-    else:
-        results = subprocess.check_output(["whereis", "vcpkg"]).decode()
-        result = results.split(" ")[0]
+    try:
+        if platform.system() == "Windows":
+            result = subprocess.check_output(["where", "vcpkg"]).decode()
+            result = os.path.dirname(result)
+        else:
+            results = subprocess.check_output(["whereis", "vcpkg"]).decode()
+            result = results.split(" ")[-1].strip()
+            result = os.path.dirname(result)
+    except:
+        print("Warning: Could not infer vcpkg path - will default to '.'")
+        result = "."
     result = os.path.join(result, "scripts/buildsystems/vcpkg.cmake")
     return result
 
@@ -76,6 +81,8 @@ def acquire(config):
 
 def build(config):
     print_step("Building Project")
+    if not os.path.exists(config.build_dir):
+        os.makedirs(config.build_dir)
     os.chdir(config.build_dir)
     if config.pkg_mgr == "vcpkg":
         subprocess.check_call([
