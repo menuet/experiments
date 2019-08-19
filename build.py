@@ -47,6 +47,7 @@ def get_vcpkg_thirdparties():
         "fmt",
         "boost",
         "sfml",
+        "nlohmann-json",
         ]
 
 def configure(config):
