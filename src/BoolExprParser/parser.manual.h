@@ -19,8 +19,7 @@ class ParseContext
 public:
 
     ParseContext(const char* a_data, size_t a_length)
-        : m_begin(a_data)
-        , m_end(a_data + a_length)
+        : m_end(a_data + a_length)
         , m_current(a_data)
     {
     }
@@ -53,7 +52,6 @@ public:
 
 private:
 
-    const char* m_begin;
     const char* m_end;
     const char* m_current;
 };
@@ -323,6 +321,8 @@ public:
             if (m_right->eval(a_context))
                 return true;
             return false;
+        case OpType_Unknown:
+            break;
         }
         assert(!"m_opType does not have a valid value!!!");
         return false;
@@ -397,6 +397,8 @@ inline bool Term::eval(const EvalContextT& a_context) const
         if (m_expression->eval(a_context))
             return false;
         return true;
+    case OpType_Unknown:
+        break;
     }
     assert(!"m_opType does not have a valid value!!!");
     return false;

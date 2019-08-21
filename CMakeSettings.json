@@ -1,5 +1,4 @@
-{
-  // See https://go.microsoft.com//fwlink//?linkid=834763 for more information about this file.
+﻿{
   "configurations": [
     {
       "name": "Windows-x86_64-Debug",
@@ -10,7 +9,8 @@
       "installRoot": "${workspaceRoot}\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "Windows-x86_64-Release",
@@ -21,7 +21,8 @@
       "installRoot": "${workspaceRoot}\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": []
     },
     {
       "name": "Linux-x86_64-Debug",
@@ -42,7 +43,8 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ]
+      "inheritEnvironments": [ "linux_x64" ],
+      "variables": []
     },
     {
       "name": "Linux-x86_64-Release",
@@ -63,7 +65,29 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ]
+      "inheritEnvironments": [ "linux_x64" ],
+      "variables": []
+    },
+    {
+      "name": "x64-Clang-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_C_COMPIER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe"
+        }
+      ]
     }
   ]
 }

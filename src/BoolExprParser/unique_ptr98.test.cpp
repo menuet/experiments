@@ -44,8 +44,8 @@ namespace ut {
         struct Object
         {
             Object(bool& a_isDestructorCalled)
-                : m_isDestructorCalled(a_isDestructorCalled)
-                , m_isFooCalled(false)
+                : m_isFooCalled(false)
+                , m_isDestructorCalled(a_isDestructorCalled)
             {
             }
 

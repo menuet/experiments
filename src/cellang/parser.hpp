@@ -13,6 +13,8 @@ namespace cellang { namespace parser {
 
         using CharType = CharT;
 
+        virtual ~Expression() = default;
+
         virtual const CharType* label() const = 0;
     };
 

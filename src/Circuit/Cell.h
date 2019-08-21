@@ -80,6 +80,8 @@ private:
                 return l_colorCheckPoint;
             }
             return ColorRoad;
+        case CellType::Grass:
+            break;
         }
         return ColorGrass;
     }

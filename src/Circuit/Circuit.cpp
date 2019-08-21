@@ -4,13 +4,12 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-
-int main(int argc, char* argv [])
+int main(int argc, char *argv[])
 {
-    sf::RenderWindow l_window{ { 1200, 800 }, "Track" };
+    sf::RenderWindow l_window{{1200, 800}, "Track"};
     l_window.setFramerateLimit(60);
 
-    Game l_game{ l_window.getSize() };
+    Game l_game{l_window.getSize()};
 
     EventDispatcher l_eventDispatcher;
 

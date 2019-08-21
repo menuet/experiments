@@ -10,7 +10,7 @@ cache:
   - $HOME/.conan
 
 compiler:
-  # - clang
+  - clang
   - gcc
 
 install:

@@ -87,8 +87,10 @@ TEST_CASE("modified optional", "") {
         { scj::optional<int> opt(987); REQUIRE(*opt == 987); }
         { const scj::optional<int> opt; REQUIRE_THROWS_AS(*opt, TestContractFailure); }
         { const scj::optional<int> opt(987); REQUIRE(*opt == 987); }
+#if ! EXP_PLATFORM_CPL_IS_CLANG
         { scj::optional<int> opt; REQUIRE_THROWS_AS(*std::move(opt), TestContractFailure); }
         { scj::optional<int> opt(987); REQUIRE(*std::move(opt) == 987); }
+#endif
         { const scj::optional<int> opt; REQUIRE_THROWS_AS(*std::move(opt), TestContractFailure); }
         { const scj::optional<int> opt(987); REQUIRE(*std::move(opt) == 987); }
     }

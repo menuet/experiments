@@ -483,8 +483,10 @@ namespace ut {
                 {
                     std::list<int> myOut;
                     const auto myResult = my::copy(vec.begin(), vec.end(), std::back_inserter(myOut));
+                    (void)myResult;
                     std::list<int> stdOut;
                     const auto stdResult = std::copy(vec.begin(), vec.end(), std::back_inserter(stdOut));
+                    (void)stdResult;
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -495,8 +497,10 @@ namespace ut {
                 {
                     std::list<int> myOut;
                     const auto myResult = my::copy_if(vec.begin(), vec.end(), std::back_inserter(myOut), [](int i) { return i % 2 == 0; });
+                    (void)myResult;
                     std::list<int> stdOut;
                     const auto stdResult = std::copy_if(vec.begin(), vec.end(), std::back_inserter(stdOut), [](int i) { return i % 2 == 0; });
+                    (void)stdResult;
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -509,8 +513,10 @@ namespace ut {
                     const auto count = countDistrib(randGen());
                     std::list<int> myOut;
                     const auto myResult = my::copy_n(vec.begin(), count, std::back_inserter(myOut));
+                    (void)myResult;
                     std::list<int> stdOut;
                     const auto stdResult = std::copy_n(vec.begin(), count, std::back_inserter(stdOut));
+                    (void)stdResult;
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -534,9 +540,11 @@ namespace ut {
                     auto myMovedFrom(vec);
                     std::list<int> myOut;
                     const auto myResult = my::move(myMovedFrom.begin(), myMovedFrom.end(), std::back_inserter(myOut));
+                    (void)myResult;
                     auto stdMovedFrom(vec);
                     std::list<int> stdOut;
                     const auto stdResult = std::move(stdMovedFrom.begin(), stdMovedFrom.end(), std::back_inserter(stdOut));
+                    (void)stdResult;
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -614,8 +622,10 @@ namespace ut {
                     {
                         std::vector<int> myOut;
                         const auto myResult = my::transform(vec.begin(), vec.end(), std::back_inserter(myOut), [](int i) { return i*i; });
+                        (void)myResult;
                         std::list<int> stdOut;
                         const auto stdResult = std::transform(vec.begin(), vec.end(), std::back_inserter(stdOut), [](int i) { return i*i; });
+                        (void)stdResult;
                         REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                     }
                     {
@@ -623,8 +633,10 @@ namespace ut {
                         std::transform(vec.begin(), vec.end(), std::back_inserter(vec2), [](int i) {return i * 2; });
                         std::vector<int> myOut;
                         const auto myResult = my::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(myOut), [](int i, int j) { return i + j; });
+                        (void)myResult;
                         std::list<int> stdOut;
                         const auto stdResult = std::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(stdOut), [](int i, int j) { return i + j; });
+                        (void)stdResult;
                         REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                     }
                 }
@@ -678,8 +690,10 @@ namespace ut {
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
                     const auto myResult = my::remove_copy(vec.begin(), vec.end(), std::back_inserter(myVec), value);
+                    (void)myResult;
                     std::vector<int> stdVec;
                     const auto stdResult = std::remove_copy(vec.begin(), vec.end(), std::back_inserter(stdVec), value);
+                    (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
             }
@@ -692,8 +706,10 @@ namespace ut {
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
                     const auto myResult = my::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; });
+                    (void)myResult;
                     std::vector<int> stdVec;
                     const auto stdResult = std::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; });
+                    (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
             }
@@ -734,8 +750,10 @@ namespace ut {
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
                     const auto myResult = my::replace_copy(vec.begin(), vec.end(), std::back_inserter(myVec), value, value + 1);
+                    (void)myResult;
                     std::vector<int> stdVec;
                     const auto stdResult = std::replace_copy(vec.begin(), vec.end(), std::back_inserter(stdVec), value, value + 1);
+                    (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
             }
@@ -748,8 +766,10 @@ namespace ut {
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
                     const auto myResult = my::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; }, value + 1);
+                    (void)myResult;
                     std::vector<int> stdVec;
                     const auto stdResult = std::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; }, value + 1);
+                    (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
             }
@@ -858,9 +878,11 @@ namespace ut {
                 {
                     std::vector<int> myVec;
                     const auto myResult = my::reverse_copy(vec.begin(), vec.end(), std::back_inserter(myVec));
+                    (void)myResult;
 
                     std::vector<int> stdVec;
                     const auto stdResult = std::reverse_copy(vec.begin(), vec.end(), std::back_inserter(stdVec));
+                    (void)stdResult;
 
                     REQUIRE(myVec == stdVec);
                 }
@@ -883,9 +905,11 @@ namespace ut {
                     {
                         auto myVec = vec;
                         const auto myResult = my::rotate(myVec.begin(), myVec.begin() + index, myVec.end());
+                        (void)myResult;
 
                         auto stdVec = vec;
                         const auto stdResult = std::rotate(stdVec.begin(), stdVec.begin() + index, stdVec.end());
+                        (void)stdResult;
 
                         REQUIRE(myVec == stdVec);
                         REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
@@ -902,9 +926,11 @@ namespace ut {
                     {
                         std::vector<int> myVec;
                         const auto myResult = my::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(myVec));
+                        (void)myResult;
 
                         std::vector<int> stdVec;
                         const auto stdResult = std::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(stdVec));
+                        (void)stdResult;
 
                         REQUIRE(myVec == stdVec);
                     }
@@ -942,9 +968,11 @@ namespace ut {
                 {
                     std::vector<int> myVec;
                     const auto myResult = my::unique_copy(vec.begin(), vec.end(), std::back_inserter(myVec));
+                    (void)myResult;
 
                     std::vector<int> stdVec;
                     const auto stdResult = std::unique_copy(vec.begin(), vec.end(), std::back_inserter(stdVec));
+                    (void)stdResult;
 
                     REQUIRE(myVec == stdVec);
                 }

@@ -56,6 +56,10 @@ namespace sqlgen {
                 switch (comparison.m_oper) {
                 case Eq: state.m_os << "IS"; break;
                 case Ne: state.m_os << "IS NOT"; break;
+                case Lt: break; // TODO
+                case Le: break; // TODO
+                case Gt: break; // TODO
+                case Ge: break; // TODO
                 }
                 state.m_os << " NULL";
             }

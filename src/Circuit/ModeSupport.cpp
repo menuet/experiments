@@ -62,6 +62,8 @@ void ModeSupportEditing::onKeyPressed(const sf::RenderWindow& a_window, const sf
         m_currentTool = Tool::Checkpoint;
         setCurrentToolText();
         break;
+    default:
+        break;
     }
 }
 
@@ -82,6 +84,8 @@ void ModeSupportEditing::onMouseButtonPressed(const sf::RenderWindow& a_window, 
             m_currentAction = Action::IsDeleting;
             drawAera(a_event.x, a_event.y);
         }
+        break;
+    default:
         break;
     }
 }
@@ -104,6 +108,8 @@ void ModeSupportEditing::onMouseButtonReleased(const sf::RenderWindow& a_window,
     case sf::Mouse::Button::Right:
         if (m_currentAction == Action::IsDeleting)
             m_currentAction = Action::IsIdle;
+        break;
+    default:
         break;
     }
 }
@@ -134,6 +140,8 @@ void ModeSupportEditing::drawAera(int a_x, int a_y)
         break;
     case Action::IsDeleting:
         l_track.setCellType(a_x, a_y, m_currentActionRadius, CellType::Grass, 0);
+        break;
+    case Action::IsIdle:
         break;
     }
 }
@@ -288,6 +296,8 @@ void ModeSupportPlaying::onKeyPressed(const sf::RenderWindow& a_window, const sf
             return;
         l_car.rotate(false);
         break;
+    default:
+        break;
     }
 }
 
@@ -308,6 +318,8 @@ void ModeSupportPlaying::onMouseButtonPressed(const sf::RenderWindow& a_window, 
         l_car.decGaz();
         playEngine(true);
         break;
+    default:
+        break;
     }
 }
 
@@ -322,7 +334,7 @@ void ModeSupportPlaying::onMouseMoved(const sf::RenderWindow& a_window, const sf
 void ModeSupportPlaying::playEngine(bool a_play)
 {
     const auto& l_car = m_game.getCar();
-    const auto l_gaz = m_game.getCar().getGaz();
+    const auto l_gaz = l_car.getGaz();
     auto& l_engineSound = (l_gaz < m_engineSounds.size()) ? m_engineSounds[l_gaz] : m_engineSounds.back();
     if (a_play)
         l_engineSound.get().play();

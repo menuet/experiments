@@ -30,6 +30,8 @@ public:
         case sf::Event::EventType::MouseMoved:
             a_game.onMouseMoved(a_window, l_event.mouseMove);
             break;
+        default:
+            break;
         }
         return true;
     }
