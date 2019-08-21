@@ -27,13 +27,14 @@ namespace sample {
 
 namespace sqlgen {
 
+#if 0
 constexpr auto SELECT_STATEMENT =
 R"sql(
     SELECT `Person`.`id`, `Person`.`name`, `Person`.`age`
     FROM `Person`
     WHERE `Person`.`name` = ?1 OR `Person`.`age` > ?2 ORDER BY `Person`.`id`
 )sql";
-
+#endif
 
 TEST_CASE("sqlgen", "[where]") {
 

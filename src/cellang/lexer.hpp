@@ -308,7 +308,6 @@ namespace cellang { namespace lexer {
         template <typename CharIteratorT>
         inline ScanResult<CharIteratorT> scan_token(CharIteratorT current_input, CharIteratorT last_input)
         {
-            using CharType = typename std::iterator_traits<CharIteratorT>::value_type;
             current_input = skip_spaces(current_input, last_input);
             if (auto result = scan_end(current_input, last_input); result.recognized)
                 return result;

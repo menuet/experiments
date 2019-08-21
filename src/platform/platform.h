@@ -55,6 +55,10 @@
 #if defined(_MSC_VER)
     #undef EXP_PLATFORM_CPL_IS_MSVC
     #define EXP_PLATFORM_CPL_IS_MSVC 1
+    #if defined(__clang__)
+        #undef EXP_PLATFORM_CPL_IS_CLANG
+        #define EXP_PLATFORM_CPL_IS_CLANG 1
+    #endif
 #elif defined(__clang__)
     #undef EXP_PLATFORM_CPL_IS_CLANG
     #define EXP_PLATFORM_CPL_IS_CLANG 1

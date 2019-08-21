@@ -175,6 +175,7 @@ static void setup_sorting(Sorting sorting, FilesDescriptions& files_descriptions
         });
         break;
     case Sorting::NameAsc:
+    case Sorting::Default:
         std::sort(begin(files_descriptions), end(files_descriptions), [&](const auto& desc1, const auto& desc2)
         {
             if (desc1.is_copied < desc2.is_copied)
@@ -267,6 +268,8 @@ void copy_files(
             return copy_file_in_separate_thread;
         case Mode::Process:
             return copy_file_in_separate_process;
+        case Mode::Slave:
+            break;
         }
         return copy_file_in_this_thread_adapted;
     }();
