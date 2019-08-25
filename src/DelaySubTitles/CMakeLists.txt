@@ -1,6 +1,4 @@
 
-project(DelaySubTitles)
-
 add_executable(delaysubtitles main.cpp delaysubtitles.hpp)
 exp_setup_common_options(delaysubtitles)
-exp_use_filesystem(delaysubtitles)
+target_link_libraries(delaysubtitles PRIVATE platform EXP_THIRDPARTY_STD_FILESYSTEM)

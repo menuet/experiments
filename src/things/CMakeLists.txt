@@ -1,6 +1,4 @@
 
-project(things)
-
 add_executable(things
     main.cpp
     lambda.test.cpp
@@ -9,6 +7,6 @@ add_executable(things
     string.hpp
     )
 exp_setup_common_options(things)
-target_link_libraries(things EXP_THIRDPARTY_CATCH2)
+target_link_libraries(things PRIVATE platform EXP_THIRDPARTY_CATCH2)
 
-add_test(things "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/things")
+add_test(NAME things COMMAND things)

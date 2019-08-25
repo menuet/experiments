@@ -1,6 +1,4 @@
 
-project(kenny_kerr)
-
 add_executable(kenny_kerr
     compatibility.h
 #    employee.cpp
@@ -13,6 +11,6 @@ add_executable(kenny_kerr
     srw_lock.test.cpp
     )
 exp_setup_common_options(kenny_kerr)
-target_link_libraries(kenny_kerr EXP_THIRDPARTY_CATCH2)
+target_link_libraries(kenny_kerr PRIVATE platform EXP_THIRDPARTY_CATCH2)
 
-add_test(kenny_kerr "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/kenny_kerr")
+add_test(NAME kenny_kerr COMMAND kenny_kerr)

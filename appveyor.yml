@@ -17,7 +17,7 @@ install:
 
 build_script:
 - cmd: >-
-    python build.py --pkg_mgr conan --build_type Debug --acquire --build
+    python build.py --pkg_mgr conan --build_type Debug --acquire --configure --build
 
 test_script:
 - cmd: >-

@@ -1,6 +1,4 @@
 
-project(vcard)
-
 add_executable(
     vcard
     main.cpp

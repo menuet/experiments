@@ -1,6 +1,4 @@
 
-project(cellang)
-
 add_executable(cellang
     main.cpp
     lexer.hpp
@@ -10,8 +8,6 @@ add_executable(cellang
     nanorange.hpp
     )
 exp_setup_common_options(cellang)
-exp_use_variant(cellang)
-exp_use_string_view(cellang)
-target_link_libraries(cellang EXP_THIRDPARTY_CATCH2)
+target_link_libraries(cellang PRIVATE platform EXP_THIRDPARTY_STD_VARIANT EXP_THIRDPARTY_STD_STRING_VIEW EXP_THIRDPARTY_CATCH2)
 
-add_test(cellang "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cellang")
+add_test(NAME cellang COMMAND cellang)
