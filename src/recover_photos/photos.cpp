@@ -9,6 +9,7 @@
 #pragma warning(pop)
 #endif
 #include <system_error>
+#include <platform/system_error.hpp>
 #include <fstream>
 #include <iostream>
 #include <thread>

@@ -118,6 +118,9 @@ def get_vcpkg_thirdparties():
         "boost",
         "sfml",
         "nlohmann-json",
+        "sdl2",
+        "sdl2-mixer",
+        "sdl2-ttf",
         ]
 
 def get_cmake_configure_command(config):
