@@ -1,6 +1,4 @@
 
-project(bool_expr_parser)
-
 add_executable(bool_expr_parser
     main.cpp
     parser.manual.h
@@ -9,6 +7,6 @@ add_executable(bool_expr_parser
     unique_ptr98.test.cpp
     )
 exp_setup_common_options(bool_expr_parser)
-target_link_libraries(bool_expr_parser EXP_THIRDPARTY_CATCH2)
+target_link_libraries(bool_expr_parser PRIVATE platform EXP_THIRDPARTY_CATCH2)
 
-add_test(bool_expr_parser "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bool_expr_parser")
+add_test(NAME bool_expr_parser COMMAND bool_expr_parser)

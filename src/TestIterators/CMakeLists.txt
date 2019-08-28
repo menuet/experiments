@@ -1,6 +1,4 @@
 
-project(test_iterators)
-
 add_executable(test_iterators
     Enumerable.h
     EnumerableCollection.h
@@ -11,5 +9,6 @@ add_executable(test_iterators
     TestIterators.cpp
     )
 exp_setup_common_options(test_iterators)
+target_link_libraries(test_iterators PRIVATE platform)
 
-add_test(test_iterators "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_iterators")
+add_test(NAME test_iterators COMMAND test_iterators)

@@ -18,4 +18,4 @@ install:
   - conan user
 
 script:
-  - python build.py --pkg_mgr conan --build_type Debug --acquire --build --test
+  - python build.py --pkg_mgr conan --build_type Debug --acquire --configure --build --test

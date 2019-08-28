@@ -11,7 +11,7 @@
                 "vcpkg",
                 "conan"
             ],
-            "default": "conan"
+            "default": "vcpkg"
         },
         {
             "id": "build_type",
@@ -22,6 +22,16 @@
                 "Release"
             ],
             "default": "Debug"
+        },
+        {
+            "id": "generator",
+            "type": "pickString",
+            "description": "CMake generator to use",
+            "options": [
+                "default",
+                "ninja"
+            ],
+            "default": "default"
         }
     ],
     "tasks": [
@@ -34,31 +44,37 @@
         {
             "label": "Show Configuration",
             "type": "shell",
-            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type}",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --generator ${input:generator}",
             "problemMatcher": []
         },
         {
             "label": "Acquire Third-parties",
             "type": "shell",
-            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --acquire",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --generator ${input:generator} --acquire",
+            "problemMatcher": []
+        },
+        {
+            "label": "Configure Project",
+            "type": "shell",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --generator ${input:generator} --configure",
             "problemMatcher": []
         },
         {
             "label": "Build Project",
             "type": "shell",
-            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --build",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --generator ${input:generator} --build",
             "problemMatcher": []
         },
         {
             "label": "Test Project",
             "type": "shell",
-            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --test",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type --generator ${input:generator} --test",
             "problemMatcher": []
         },
         {
             "label": "Everything",
             "type": "shell",
-            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --acquire --build --test",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --generator ${input:generator} --acquire --configure --build --test",
             "problemMatcher": []
         }
     ]
