@@ -1,7 +1,4 @@
 
-#define DOCTEST_CONFIG_IMPLEMENT
-#define DOCTEST_CONFIG_NO_UNPREFIXED_OPTIONS
-#include <catch/doctest.h>
 #include "vcard.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -10,13 +7,6 @@
 int main(int argc, char** argv)
 {
     namespace po = boost::program_options;
-
-    doctest::Context context(argc, argv);
-
-    int unitTestsResult = context.run();
-
-    if (context.shouldExit())
-        return unitTestsResult;
 
     po::options_description desc("Allowed options");
     desc.add_options()

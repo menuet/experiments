@@ -5,10 +5,5 @@ add_executable(
     vcard.cpp
     vcard.hpp
     )
-
-target_include_directories(vcard PUBLIC ..)
-
-target_link_libraries(vcard PUBLIC ${CONAN_LIBS})
-
-target_compile_definitions(vcard PRIVATE DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES)
-
+exp_setup_common_options(vcard)
+target_link_libraries(vcard PRIVATE platform EXP_THIRDPARTY_STD_FILESYSTEM EXP_THIRDPARTY_BOOST_LIBS)

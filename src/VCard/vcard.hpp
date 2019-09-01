@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <experimental/filesystem>
+#include <platform/filesystem.hpp>
 
 
 namespace vcard {
@@ -41,7 +41,7 @@ namespace vcard {
     public:
 
         using Contacts = std::vector<Contact>;
-        using FilePath = std::experimental::filesystem::path;
+        using FilePath = stdnext::filesystem::path;
 
         void loadFile(ContactFileType fileType, const FilePath& fileName);
 

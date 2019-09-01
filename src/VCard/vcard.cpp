@@ -1,7 +1,6 @@
 
 #include "vcard.hpp"
 #include <iostream>
-#include <catch/doctest.h>
 #pragma warning(disable : 4348) // disable warning C4348: 'boost::spirit::terminal<boost::spirit::tag::lit>::result_helper': redefinition of default parameter: parameter 3
 #pragma warning(disable : 4180) // disable warning C4180: qualifier applied to function type has no meaning; ignored
 #include <boost/spirit/include/qi.hpp>
