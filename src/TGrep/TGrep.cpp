@@ -1,8 +1,23 @@
 
-#include "stdafx.h"
+#include <SDKDDKVer.h>
+
+#include <ppl.h>
+#include <ppltasks.h>
+
+#include <platform/filesystem.hpp>
+#include <utility>
+#include <string>
+#include <vector>
+#include <regex>
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+#include <algorithm>
+#include <fstream>
 
 
-using FilePath = std::tr2::sys::path;
+using FilePath = stdnext::filesystem::path;
 using Regex = std::regex;
 using FileLineMatch = std::pair < std::string, std::string > ;
 using FileLineMatches = std::vector < FileLineMatch > ;
@@ -87,22 +102,23 @@ static concurrency::task<FileLineMatches> searchInFile(
     const Options& a_options
     )
 {
-    auto l_fileName = a_filePath.filename();
+    auto file_path_string = a_filePath.string();
+    auto l_fileName = a_filePath.filename().string();
 	if (!regex_match(l_fileName, a_options.m_fileRegex))
 		return concurrency::task < FileLineMatches > {[]() { return FileLineMatches{}; }};
 
 	if (a_options.m_reportFilesOnly)
-		return concurrency::task < FileLineMatches > {[&]() { return FileLineMatches{ FileLineMatch{ a_filePath, std::string{} } }; }};
+		return concurrency::task < FileLineMatches > {[&]() { return FileLineMatches{ FileLineMatch{ file_path_string, std::string{} } }; }};
 
-    return concurrency::task<FileLineMatches>([a_filePath, &a_options]()
+    return concurrency::task<FileLineMatches>([file_path_string, &a_options]()
     {
         FileLineMatches l_fileLineMatches;
-        std::ifstream l_fileStream(a_filePath);
+        std::ifstream l_fileStream(file_path_string.c_str());
         std::string l_fileLine;
         while (getline(l_fileStream, l_fileLine))
         {
             if (regex_search(l_fileLine, a_options.m_lineRegex))
-                l_fileLineMatches.push_back(FileLineMatch(a_filePath, l_fileLine));
+                l_fileLineMatches.push_back(FileLineMatch(file_path_string, l_fileLine));
         }
         return l_fileLineMatches;
     });
@@ -113,7 +129,7 @@ static concurrency::task<FileLineMatches> searchInDirectory(
     const Options& a_options
     )
 {
-    auto l_fileName = a_directoryPath.filename();
+    auto l_fileName = a_directoryPath.filename().string();
     if (!regex_match(l_fileName, a_options.m_directoryRegex))
         return concurrency::task<FileLineMatches>([]() { return FileLineMatches(); });
 
@@ -125,7 +141,7 @@ static concurrency::task<FileLineMatches> searchInDirectory(
 
 		unsigned int l_dirCount = 0;
 		unsigned int l_fileCount = 0;
-        for (auto l_directoryIter = std::tr2::sys::directory_iterator(a_directoryPath); l_directoryIter != std::tr2::sys::directory_iterator(); ++l_directoryIter)
+        for (auto l_directoryIter = stdnext::filesystem::directory_iterator(a_directoryPath); l_directoryIter != stdnext::filesystem::directory_iterator(); ++l_directoryIter)
         {
             const auto& l_directoryEntry = *l_directoryIter;
 			if (is_regular_file(l_directoryEntry.path()))

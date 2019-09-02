@@ -3,7 +3,7 @@
 
 #include "graphics.hpp"
 #include "raii.hpp"
-#include <SDL_ttf.h>
+#include "sdl_disabled_warnings.h"
 #include <cstdint>
 #include <platform/filesystem.hpp>
 

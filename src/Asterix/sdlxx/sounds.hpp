@@ -2,7 +2,7 @@
 #pragma once
 
 #include "raii.hpp"
-#include <SDL_mixer.h>
+#include "sdl_disabled_warnings.h"
 #include <cstdint>
 #include <platform/filesystem.hpp>
 

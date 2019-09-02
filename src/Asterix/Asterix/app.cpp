@@ -28,6 +28,8 @@ void App::run() noexcept
             case SDL_SCANCODE_RIGHT:
                 m_world.set_key(Keys::Right);
                 break;
+            default:
+                break;
             }
         }),
         sdlxx::on<SDL_KEYUP>([&](const SDL_KeyboardEvent& event) {
@@ -44,6 +46,8 @@ void App::run() noexcept
                 break;
             case SDL_SCANCODE_RIGHT:
                 m_world.unset_key(Keys::Right);
+                break;
+            default:
                 break;
             }
         }));

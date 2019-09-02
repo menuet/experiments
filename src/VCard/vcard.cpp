@@ -1,7 +1,6 @@
 
 #include "vcard.hpp"
 #include <iostream>
-#include <catch/doctest.h>
 #pragma warning(disable : 4348) // disable warning C4348: 'boost::spirit::terminal<boost::spirit::tag::lit>::result_helper': redefinition of default parameter: parameter 3
 #pragma warning(disable : 4180) // disable warning C4180: qualifier applied to function type has no meaning; ignored
 #include <boost/spirit/include/qi.hpp>
@@ -144,7 +143,7 @@ namespace vcard {
         if (semicolonPos != std::string::npos)
             propertyName.resize(semicolonPos);
     }
-
+#if 0
     static void getUnionOfPropertyNames(const Contact& contact, Contact::PropertyNames& propertyNames)
     {
         for (const auto& property : contact.getProperties())
@@ -160,7 +159,7 @@ namespace vcard {
             getUnionOfPropertyNames(contact, propertyNames);
         }
     }
-
+#endif
     void Contact::load(std::istream& file)
     {
         std::string propertyName;
@@ -199,29 +198,33 @@ namespace vcard {
     void Directory::loadFile(ContactFileType fileType, const FilePath& fileName)
     {
         load();
-        //std::ifstream file(fileName);
-        //while (file)
-        //{
-        //    Contact contact;
-        //    contact.load(file);
-        //    m_contacts.push_back(std::move(contact));
-        //}
+#if 0
+        std::ifstream file(fileName);
+        while (file)
+        {
+            Contact contact;
+            contact.load(file);
+            m_contacts.push_back(std::move(contact));
+        }
+#endif
     }
 
     void Directory::saveFile(ContactFileType fileType, const FilePath& fileName) const
     {
-        //std::ofstream file(fileName);
-        //Contact::PropertyNames propertyNames;
-        //getUnionOfPropertyNames(*this, propertyNames);
-        //for (const auto& propertyName : propertyNames)
-        //{
-        //    file << propertyName << ";";
-        //}
-        //file << "\n";
-        //for (const auto& contact : m_contacts)
-        //{
-        //    contact.save(file, propertyNames);
-        //}
+#if 0
+        std::ofstream file(fileName);
+        Contact::PropertyNames propertyNames;
+        getUnionOfPropertyNames(*this, propertyNames);
+        for (const auto& propertyName : propertyNames)
+        {
+            file << propertyName << ";";
+        }
+        file << "\n";
+        for (const auto& contact : m_contacts)
+        {
+            contact.save(file, propertyNames);
+        }
+#endif
     }
 
     const Directory::Contacts& Directory::getContacts() const

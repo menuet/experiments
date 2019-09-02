@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include "sdl_disabled_warnings.h"
 #include <platform/filesystem.hpp>
 
 namespace sdlxx {

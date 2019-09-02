@@ -8,6 +8,7 @@
 #endif
 
 #if defined(__linux)
+#include <ctime>
 #include <sys/timeb.h>
 #else
 #include <ctime>
@@ -28,4 +29,4 @@ LIB1_IMPORT_EXPORT int ftime(struct timeb* pTimeb);
 struct pthread_attr_t {};
 #endif
 
-LIB1_IMPORT_EXPORT int pthread_attr_setstackaddr(pthread_attr_t* pAttr, void* pStackaddr);
+extern "C" LIB1_IMPORT_EXPORT int pthread_attr_setstackaddr(pthread_attr_t* pAttr, void* pStackaddr) throw();

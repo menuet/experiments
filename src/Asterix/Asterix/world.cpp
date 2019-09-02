@@ -20,7 +20,7 @@ class Forest
 {
 public:
     Forest(const sdlxx::Renderer& renderer, sdlxx::Texture&& texture,
-           sdlxx::Font& font) noexcept
+           sdlxx::Font&& font) noexcept
         : m_texture{std::move(texture)}, m_font(std::move(font))
     {
         miam_obelix(renderer);
