@@ -8,6 +8,7 @@
 #endif
 
 #if defined(__linux)
+#include <ctime>
 #include <sys/timeb.h>
 #else
 #include <ctime>

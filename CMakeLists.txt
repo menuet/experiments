@@ -83,6 +83,7 @@ add_subdirectory("src/recover_photos")
 add_subdirectory("src/sqlgen")
 add_subdirectory("src/TestIterators")
 add_subdirectory("src/things")
+add_subdirectory("src/twolibs")
 add_subdirectory("src/VCard")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
