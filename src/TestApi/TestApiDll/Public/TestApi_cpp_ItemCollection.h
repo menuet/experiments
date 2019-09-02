@@ -30,7 +30,7 @@ namespace testapi {
             testapi_Item c_item{ 0 };
             c_item.i = item.getI();
             c_item.s.in.data = item.getS().c_str();
-            c_item.s.in.length = item.getS().length();
+            c_item.s.in.length = static_cast<uint32_t>(item.getS().length());
             testapi_ItemCollection_addItem(m_spCollection.get(), &c_item);
         }
 

@@ -23,7 +23,7 @@ namespace TestOliveCppCli {
                 msclr::interop::marshal_as<std::wstring>(newValue).c_str(),
                 wMessage
                 );
-            message = gcnew System::String(wMessage.c_str(), 0, wMessage.length());
+            message = gcnew System::String(wMessage.c_str(), 0, static_cast<int>(wMessage.length()));
             return result;
         }
 	};

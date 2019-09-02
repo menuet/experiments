@@ -38,7 +38,7 @@ namespace testapi { namespace imp {
             const auto& currentItem = *m_iterCurrent;
             c_item.i = currentItem.getI();
             if (c_item.s.out.setter)
-                c_item.s.out.setter(c_item.s.out.object, currentItem.getS().c_str(), currentItem.getS().length());
+                c_item.s.out.setter(c_item.s.out.object, currentItem.getS().c_str(), static_cast<uint32_t>(currentItem.getS().length()));
         }
 
         bool moveNext()

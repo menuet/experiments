@@ -87,7 +87,7 @@ namespace testapi {
             }
         }
 
-        static void string_setter(void* object, const char* data, size_t length)
+        static void string_setter(void* object, const char* data, uint32_t length)
         {
             assert(object);
             std::string& s = *static_cast<std::string*>(object);
