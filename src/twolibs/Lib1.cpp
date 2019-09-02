@@ -14,7 +14,7 @@ int ftime(struct timeb* pTimeb)
 
 #if !defined(__linux)
 constexpr size_t PTHREAD_STACK_MIN = 1024;
-int pthread_attr_setstack(pthread_attr_t* pAttr, void* pStackaddr, size_t stacksize)
+extern "C" int pthread_attr_setstack(pthread_attr_t* pAttr, void* pStackaddr, size_t stacksize)
 {
     return 0;
 }
@@ -22,7 +22,7 @@ int pthread_attr_setstack(pthread_attr_t* pAttr, void* pStackaddr, size_t stacks
 constexpr size_t PTHREAD_STACK_MIN = 16384;
 #endif
 
-int pthread_attr_setstackaddr(pthread_attr_t* pAttr, void* pStackaddr)
+extern "C" int pthread_attr_setstackaddr(pthread_attr_t* pAttr, void* pStackaddr) throw()
 {
     return pthread_attr_setstack(pAttr, pStackaddr, PTHREAD_STACK_MIN);
 }

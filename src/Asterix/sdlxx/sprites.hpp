@@ -2,7 +2,7 @@
 #pragma once
 
 #include "graphics.hpp"
-#include <boost/outcome/outcome.hpp>
+#include <sdlxx/outcome_disabled_warnings.hpp>
 #include <platform/filesystem.hpp>
 #include <platform/system_error.hpp>
 

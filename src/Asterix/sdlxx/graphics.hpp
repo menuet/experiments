@@ -3,7 +3,7 @@
 
 #include "raii.hpp"
 #include "geometry.hpp"
-#include <SDL.h>
+#include "sdl_disabled_warnings.h"
 #include <platform/filesystem.hpp>
 
 namespace sdlxx {
@@ -100,25 +100,30 @@ namespace sdlxx {
     inline void render_texture(const Renderer& renderer, const Texture& texture,
                                Point dst_position) noexcept
     {
-        Rectangle dst_zone(dst_position, get_size(texture));
-        SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &dst_zone.to_sdl());
+        const auto sdl_dst_zone =
+            Rectangle{dst_position, get_size(texture)}.to_sdl();
+        SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &sdl_dst_zone);
     }
 
     inline void render_texture(const Renderer& renderer, const Texture& texture,
                                const Rectangle& src_zone,
                                Point dst_position) noexcept
     {
-        Rectangle dst_zone(dst_position, get_size(texture));
-        SDL_RenderCopy(renderer.get(), texture.get(), &src_zone.to_sdl(),
-                       &dst_zone.to_sdl());
+        const auto sdl_src_zone = src_zone.to_sdl();
+        const auto sdl_dst_zone =
+            Rectangle{dst_position, get_size(texture)}.to_sdl();
+        SDL_RenderCopy(renderer.get(), texture.get(), &sdl_src_zone,
+                       &sdl_dst_zone);
     }
 
     inline void render_texture(const Renderer& renderer, const Texture& texture,
                                const Rectangle& src_zone,
                                const Rectangle& dst_zone) noexcept
     {
-        SDL_RenderCopy(renderer.get(), texture.get(), &src_zone.to_sdl(),
-                       &dst_zone.to_sdl());
+        const auto sdl_src_zone = src_zone.to_sdl();
+        const auto sdl_dst_zone = dst_zone.to_sdl();
+        SDL_RenderCopy(renderer.get(), texture.get(), &sdl_src_zone,
+                       &sdl_dst_zone);
     }
 
     inline void clear(const Renderer& renderer) noexcept

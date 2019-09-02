@@ -143,7 +143,7 @@ namespace vcard {
         if (semicolonPos != std::string::npos)
             propertyName.resize(semicolonPos);
     }
-
+#if 0
     static void getUnionOfPropertyNames(const Contact& contact, Contact::PropertyNames& propertyNames)
     {
         for (const auto& property : contact.getProperties())
@@ -159,7 +159,7 @@ namespace vcard {
             getUnionOfPropertyNames(contact, propertyNames);
         }
     }
-
+#endif
     void Contact::load(std::istream& file)
     {
         std::string propertyName;
@@ -198,29 +198,33 @@ namespace vcard {
     void Directory::loadFile(ContactFileType fileType, const FilePath& fileName)
     {
         load();
-        //std::ifstream file(fileName);
-        //while (file)
-        //{
-        //    Contact contact;
-        //    contact.load(file);
-        //    m_contacts.push_back(std::move(contact));
-        //}
+#if 0
+        std::ifstream file(fileName);
+        while (file)
+        {
+            Contact contact;
+            contact.load(file);
+            m_contacts.push_back(std::move(contact));
+        }
+#endif
     }
 
     void Directory::saveFile(ContactFileType fileType, const FilePath& fileName) const
     {
-        //std::ofstream file(fileName);
-        //Contact::PropertyNames propertyNames;
-        //getUnionOfPropertyNames(*this, propertyNames);
-        //for (const auto& propertyName : propertyNames)
-        //{
-        //    file << propertyName << ";";
-        //}
-        //file << "\n";
-        //for (const auto& contact : m_contacts)
-        //{
-        //    contact.save(file, propertyNames);
-        //}
+#if 0
+        std::ofstream file(fileName);
+        Contact::PropertyNames propertyNames;
+        getUnionOfPropertyNames(*this, propertyNames);
+        for (const auto& propertyName : propertyNames)
+        {
+            file << propertyName << ";";
+        }
+        file << "\n";
+        for (const auto& contact : m_contacts)
+        {
+            contact.save(file, propertyNames);
+        }
+#endif
     }
 
     const Directory::Contacts& Directory::getContacts() const

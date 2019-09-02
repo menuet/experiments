@@ -1,6 +1,8 @@
 
 add_library(sdlxx INTERFACE)
 target_sources(sdlxx INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/outcome_disabled_warnings.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/sdl_disabled_warnings.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/init.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/geometry.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/raii.hpp"

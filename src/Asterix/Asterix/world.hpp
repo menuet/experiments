@@ -2,7 +2,7 @@
 #pragma once
 
 #include <sdlxx/graphics.hpp>
-#include <boost/outcome/outcome.hpp>
+#include <sdlxx/outcome_disabled_warnings.hpp>
 #include <platform/system_error.hpp>
 
 namespace bout = BOOST_OUTCOME_V2_NAMESPACE;
