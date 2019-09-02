@@ -89,6 +89,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_subdirectory("src/coroutines")
     add_subdirectory("src/KennyKerr")
     add_subdirectory("src/TestModules")
+    add_subdirectory("src/TGrep")
 endif()
 
 if(("${EXP_PKG_MGR}" STREQUAL "vcpkg") AND ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows"))
