@@ -33,7 +33,7 @@ extern "C" {
         message += (oldEqualsNew ? L"egales" : L"differentes");
         *messageData = new wchar_t[message.size() + 1];
         std::memcpy(*messageData, message.data(), (message.size() + 1) * sizeof(wchar_t));
-        *messageSize = message.size();
+        *messageSize = static_cast<uint32_t>(message.size());
         return oldEqualsNew ? 1 : 2;
     }
 
