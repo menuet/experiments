@@ -111,8 +111,8 @@ def get_vcpkg_triplet(config):
     vcpkg_os = config.os.lower()
     return vcpkg_arch + "-" + vcpkg_os
 
-def get_vcpkg_thirdparties():
-    return [
+def get_vcpkg_thirdparties(config):
+    packages = [
         "catch2",
         "fmt",
         "boost",
@@ -122,6 +122,11 @@ def get_vcpkg_thirdparties():
         "sdl2-mixer",
         "sdl2-ttf",
         ]
+    if config.use_llvm_package:
+        packages += [
+            "llvm",
+        ]
+    return packages
 
 def get_cmake_configure_command(config):
     command = [
@@ -166,7 +171,7 @@ def get_package_manager_command(config):
             "vcpkg",
             "install",
             "--triplet", get_vcpkg_triplet(config)
-            ] + get_vcpkg_thirdparties()
+            ] + get_vcpkg_thirdparties(config)
     if config.pkg_mgr == "conan":
         return [
             "conan",
@@ -239,6 +244,7 @@ if __name__ == "__main__":
     parser.add_argument("--arch", help="set the arch", type=str, choices=["x86", "x86_64"], default=get_default_arch())
     parser.add_argument("--build_type", help="set the build type", type=str, choices=["Debug", "Release"], default=get_default_build_type())
     parser.add_argument("--generator", help="set the generator to use", type=str, choices=["default", "ninja"], default="default")
+    parser.add_argument("--use_llvm_package", help="use llvm package (not used by default, because very long to build)", action="store_true")
     config = parser.parse_args()
     initialize(config)
     if config.acquire:
