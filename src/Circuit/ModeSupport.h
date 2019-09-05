@@ -169,9 +169,9 @@ private:
     sf::Text m_currentCheckpointLevelText;
     unsigned int m_currentFaultsCount = 0;
     sf::Text m_currentFaultsCountText;
-    std::chrono::steady_clock::duration m_beforeLastPauseDuration;
-    std::chrono::steady_clock::duration m_afterLastPauseDuration;
-    std::chrono::steady_clock::time_point m_lastPauseTimepoint;
+    std::chrono::steady_clock::duration m_beforeLastPauseDuration{};
+    std::chrono::steady_clock::duration m_afterLastPauseDuration{};
+    std::chrono::steady_clock::time_point m_lastPauseTimepoint{};
     sf::Text m_currenDurationText;
     std::vector<Sound> m_engineSounds;
     Sound m_faultSound;

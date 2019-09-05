@@ -1,0 +1,13 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "rabbits_and_foxes.exe (bin\\rabbits_and_foxes.exe)",
+      "name": "rabbits and foxes.exe (ut)",
+      "args": [ "--unit_tests" ]
+    }
+  ]
+}

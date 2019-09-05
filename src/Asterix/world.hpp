@@ -7,8 +7,9 @@
 
 namespace bout = BOOST_OUTCOME_V2_NAMESPACE;
 
-constexpr sdlxx::Rectangle SCREEN_COORDINATES(sdlxx::Point(100, 100),
-                                              sdlxx::Size(960, 600));
+constexpr sdlxx::Point SCREEN_ORIGIN{SDL_WINDOWPOS_CENTERED,
+                                     SDL_WINDOWPOS_CENTERED};
+constexpr sdlxx::Size SCREEN_SIZE{960, 600};
 
 enum class Keys
 {
@@ -32,7 +33,7 @@ public:
           std::unique_ptr<Obelix>&& obelix,
           std::unique_ptr<Asterix>&& asterix);
 
-    World(World&&);
+    World(World&&) noexcept;
 
     ~World();
 

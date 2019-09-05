@@ -151,7 +151,8 @@ void loopAndMeasureDuration(Engine e, Generator generator)
 
 void test()
 {
-    std::cout.imbue(std::locale(std::cout.getloc(), new ThousandsSeparator));
+    const auto thousands_separator = new ThousandsSeparator;
+    std::cout.imbue(std::locale(std::cout.getloc(), thousands_separator));
 
     constexpr size_t ITEM_COUNT = 10000;
 

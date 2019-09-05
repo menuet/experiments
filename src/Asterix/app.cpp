@@ -69,13 +69,11 @@ void App::run() noexcept
 
 bout::result<App, stdnext::error_code> load_app() noexcept
 {
-    auto window = sdlxx::create_window("Hello World!", SCREEN_COORDINATES,
-                                       SDL_WINDOW_SHOWN);
+    auto window = sdlxx::create_window("Hello World!", SCREEN_SIZE);
     if (!window)
         return stdnext::make_error_code(stdnext::errc::invalid_argument);
 
-    auto renderer = sdlxx::create_renderer(
-        window, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    auto renderer = sdlxx::create_renderer(window);
     if (!renderer)
         return stdnext::make_error_code(stdnext::errc::invalid_argument);
 
