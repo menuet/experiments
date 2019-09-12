@@ -32,7 +32,7 @@ public:
         sdlxx::render_texture(renderer, m_texture);
         sdlxx::render_texture(
             renderer, m_miams_obelix_texture,
-            sdlxx::Point{SCREEN_COORDINATES.size().w() -
+            sdlxx::Point{SCREEN_SIZE.w() -
                              sdlxx::get_size(m_miams_obelix_texture).w() -
                              FONT_SIZE,
                          FONT_SIZE});
@@ -74,9 +74,9 @@ public:
         : m_texture{std::move(texture)}, m_size{sdlxx::get_size(m_texture)}
     {
         std::uniform_int_distribution<> x_distrib(
-            0, SCREEN_COORDINATES.size().w() - m_size.w());
+            0, SCREEN_SIZE.w() - m_size.w());
         std::uniform_int_distribution<> y_distrib(
-            0, SCREEN_COORDINATES.size().h() - m_size.h());
+            0, SCREEN_SIZE.h() - m_size.h());
         for (std::size_t boar_index = 0; boar_index < boars_count; ++boar_index)
             m_boars_locations.push_back(sdlxx::Point{
                 x_distrib(random_generator), y_distrib(random_generator)});
@@ -131,13 +131,13 @@ public:
 
         bool ok_to_move = true;
         if (next_location.x() < 0 ||
-            next_location.x() + m_size.w() > SCREEN_COORDINATES.size().w())
+            next_location.x() + m_size.w() > SCREEN_SIZE.w())
         {
             m_direction = sdlxx::Size(-m_direction.w(), m_direction.h());
             ok_to_move = false;
         }
         if (next_location.y() < 0 ||
-            next_location.y() + m_size.h() > SCREEN_COORDINATES.size().h())
+            next_location.y() + m_size.h() > SCREEN_SIZE.h())
         {
             m_direction = sdlxx::Size(m_direction.w(), -m_direction.h());
             ok_to_move = false;
@@ -163,8 +163,8 @@ private:
     sdlxx::Texture m_texture;
     sdlxx::Chunk m_miam_chunk;
     sdlxx::Size m_size;
-    sdlxx::Point m_location{3 * SCREEN_COORDINATES.size().w() / 4,
-                            3 * SCREEN_COORDINATES.size().h() / 4};
+    sdlxx::Point m_location{3 * SCREEN_SIZE.w() / 4,
+                            3 * SCREEN_SIZE.h() / 4};
     sdlxx::Size m_direction{-1, -1};
 };
 
@@ -203,10 +203,10 @@ public:
                          m_location.y() + direction().h() * ANIMATION_STEP.h());
         if (next_location.x() >= 0 &&
             next_location.x() + sprite_size.w() <=
-                SCREEN_COORDINATES.size().w() &&
+                SCREEN_SIZE.w() &&
             next_location.y() >= 0 &&
             next_location.y() + sprite_size.h() <=
-                SCREEN_COORDINATES.size().h())
+                SCREEN_SIZE.h())
             m_location = next_location;
 
         m_sprite = m_sprite.next();
@@ -243,8 +243,8 @@ private:
     sdlxx::Chunk m_miam_chunk;
     sdlxx::Chunk m_aie_chunk;
     sdlxx::Sprite m_sprite;
-    sdlxx::Point m_location{SCREEN_COORDINATES.size().w() / 4,
-                            SCREEN_COORDINATES.size().h() / 4};
+    sdlxx::Point m_location{SCREEN_SIZE.w() / 4,
+                            SCREEN_SIZE.h() / 4};
     Keys m_keys{Keys::None};
 };
 
@@ -256,7 +256,7 @@ World::World(std::unique_ptr<Forest>&& forest, std::unique_ptr<Boars>&& boars,
 {
 }
 
-World::World(World&&) = default;
+World::World(World&&) noexcept = default;
 
 World::~World() = default;
 

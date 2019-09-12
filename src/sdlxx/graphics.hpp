@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "raii.hpp"
 #include "geometry.hpp"
+#include "raii.hpp"
 #include "sdl_disabled_warnings.h"
 #include <platform/filesystem.hpp>
 
@@ -10,18 +10,25 @@ namespace sdlxx {
 
     using Window = Raii<SDL_Window, &SDL_DestroyWindow>;
 
-    using Renderer =Raii<SDL_Renderer, &SDL_DestroyRenderer>;
+    using Renderer = Raii<SDL_Renderer, &SDL_DestroyRenderer>;
 
     using Surface = Raii<SDL_Surface, &SDL_FreeSurface>;
 
-    using Texture =Raii<SDL_Texture, &SDL_DestroyTexture>;
+    using Texture = Raii<SDL_Texture, &SDL_DestroyTexture>;
 
-    inline Window create_window(const char* title, const Rectangle& coordinates,
+    constexpr Point CenteredWindow{SDL_WINDOWPOS_CENTERED,
+                                   SDL_WINDOWPOS_CENTERED};
+
+    inline Window create_window(const char* title, Size size, Point origin,
                                 std::uint32_t flags) noexcept
     {
-        return Window(SDL_CreateWindow(
-            title, coordinates.origin().x(), coordinates.origin().y(),
-            coordinates.size().w(), coordinates.size().h(), flags));
+        return Window(SDL_CreateWindow(title, origin.x(), origin.y(), size.w(),
+                                       size.h(), flags));
+    }
+
+    inline Window create_window(const char* title, Size size) noexcept
+    {
+        return create_window(title, size, CenteredWindow, SDL_WINDOW_SHOWN);
     }
 
     inline Renderer create_renderer(const Window& window,
@@ -30,16 +37,22 @@ namespace sdlxx {
         return Renderer(SDL_CreateRenderer(window.get(), -1, flags));
     }
 
+    inline Renderer create_renderer(const Window& window) noexcept
+    {
+        return create_renderer(window, SDL_RENDERER_ACCELERATED |
+                                           SDL_RENDERER_PRESENTVSYNC);
+    }
+
     inline Surface
     load_surface(const stdnext::filesystem::path& image_path) noexcept
     {
-        return Surface(SDL_LoadBMP(image_path.string().c_str()));
+        return Surface(IMG_Load(image_path.string().c_str()));
     }
 
     inline Surface load_surface(const stdnext::filesystem::path& image_path,
                                 Color color_key) noexcept
     {
-        Surface surface(SDL_LoadBMP(image_path.string().c_str()));
+        Surface surface(IMG_Load(image_path.string().c_str()));
         if (!surface)
             return surface;
         const auto key = SDL_MapRGB(surface->format, color_key.r(),
@@ -134,6 +147,14 @@ namespace sdlxx {
     inline void present(const Renderer& renderer) noexcept
     {
         SDL_RenderPresent(renderer.get());
+    }
+
+    inline void draw_rectangle(const Renderer& renderer, const Rectangle& rectangle, ColorAlpha color) noexcept
+    {
+        SDL_SetRenderDrawColor(renderer.get(), color.r(), color.g(), color.b(),
+                               color.a());
+        const auto sdl_rect = rectangle.to_sdl();
+        SDL_RenderDrawRect(renderer.get(), &sdl_rect);
     }
 
 } // namespace sdlxx

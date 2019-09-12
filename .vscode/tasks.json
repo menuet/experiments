@@ -68,7 +68,7 @@
         {
             "label": "Test Project",
             "type": "shell",
-            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type --generator ${input:generator} --test",
+            "command": "python build.py --pkg_mgr ${input:pkg_mgr} --build_type ${input:build_type} --generator ${input:generator} --test",
             "problemMatcher": []
         },
         {

@@ -119,6 +119,7 @@ def get_vcpkg_thirdparties(config):
         "sfml",
         "nlohmann-json",
         "sdl2",
+        "sdl2-image",
         "sdl2-mixer",
         "sdl2-ttf",
         ]
@@ -230,7 +231,7 @@ def build(config):
 
 def test(config):
     print_step("Testing Project")
-    cmake_test_command = ["ctest", "-C", config.build_type]
+    cmake_test_command = ["ctest", "-C", config.build_type, "--verbose"]
     log_check_call(cmake_test_command)
 
 if __name__ == "__main__":

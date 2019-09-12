@@ -66,12 +66,12 @@ public:
         load(a_soundFileName);
     }
 
-    Sound(Sound&& a_sound)
+    Sound(Sound&& a_sound) noexcept
         : m_spSound{ std::move(a_sound.m_spSound) }
     {
     }
 
-    Sound& operator=(Sound&& a_sound)
+    Sound& operator=(Sound&& a_sound) noexcept
     {
         m_spSound = std::move(a_sound.m_spSound);
         return *this;

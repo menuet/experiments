@@ -2,13 +2,11 @@
 #pragma once
 
 #include "graphics.hpp"
-#include <sdlxx/outcome_disabled_warnings.hpp>
+#include <optional>
 #include <platform/filesystem.hpp>
 #include <platform/system_error.hpp>
 
 namespace sdlxx {
-
-    namespace bout = BOOST_OUTCOME_V2_NAMESPACE;
 
     class SpriteSheet;
 
@@ -36,7 +34,10 @@ namespace sdlxx {
 
         Sprite next() const noexcept;
 
-        void render(const Renderer& render, Point dst_origin) const noexcept;
+        void render(const Renderer& renderer, Point dst_origin) const noexcept;
+
+        void Sprite::render(const Renderer& renderer, Rectangle dst_zone) const
+            noexcept;
 
     private:
         const SpriteSheet* m_sprite_sheet;
@@ -46,7 +47,7 @@ namespace sdlxx {
     class SpriteSheet
     {
     public:
-        friend bout::result<SpriteSheet, stdnext::error_code>
+        friend std::optional<SpriteSheet>
         load_spritesheet(const Renderer& renderer,
                          const stdnext::filesystem::path& image_path,
                          Color yor_key, Size sprite_size) noexcept;
@@ -84,7 +85,7 @@ namespace sdlxx {
         return Sprite(*m_sprite_sheet, SpriteIndex(x, y));
     }
 
-    inline void Sprite::render(const Renderer& render, Point dst_origin) const
+    inline void Sprite::render(const Renderer& renderer, Point dst_origin) const
         noexcept
     {
         const auto sprite_size = m_sprite_sheet->sprite_size();
@@ -92,26 +93,36 @@ namespace sdlxx {
                                m_index.y() * sprite_size.h());
         const Rectangle src_zone(src_origin, sprite_size);
         const Rectangle dst_zone(dst_origin, sprite_size);
-        render_texture(render, m_sprite_sheet->texture(), src_zone, dst_zone);
+        render_texture(renderer, m_sprite_sheet->texture(), src_zone, dst_zone);
     }
 
-    inline bout::result<SpriteSheet, stdnext::error_code>
+    inline void Sprite::render(const Renderer& renderer, Rectangle dst_zone) const
+        noexcept
+    {
+        const auto sprite_size = m_sprite_sheet->sprite_size();
+        const Point src_origin(m_index.x() * sprite_size.w(),
+                               m_index.y() * sprite_size.h());
+        const Rectangle src_zone(src_origin, sprite_size);
+        render_texture(renderer, m_sprite_sheet->texture(), src_zone, dst_zone);
+    }
+
+    inline std::optional<SpriteSheet>
     load_spritesheet(const Renderer& renderer,
                      const stdnext::filesystem::path& image_path, Color color_key,
                      Size sprite_size) noexcept
     {
         if (sprite_size.w() <= 0 || sprite_size.h() <= 0)
-            return stdnext::make_error_code(stdnext::errc::invalid_argument);
+            return std::nullopt;
         auto sheet_texture = load_texture(renderer, image_path, color_key);
         if (!sheet_texture)
-            return stdnext::make_error_code(stdnext::errc::invalid_argument);
+            return std::nullopt;
         const auto sheet_size = get_size(sheet_texture);
         if (sheet_size.w() < sprite_size.w() ||
             sheet_size.h() < sprite_size.h())
-            return stdnext::make_error_code(stdnext::errc::invalid_argument);
+            return std::nullopt;
         const auto grid_size = Size(sheet_size.w() / sprite_size.w(),
                                     sheet_size.h() / sprite_size.h());
-        return SpriteSheet(std::move(sheet_texture), sprite_size, grid_size);
+        return std::optional<SpriteSheet>(SpriteSheet(std::move(sheet_texture), sprite_size, grid_size));
     }
 
 } // namespace sdlxx
