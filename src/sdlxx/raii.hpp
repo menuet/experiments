@@ -5,17 +5,32 @@
 
 namespace sdlxx {
 
-    namespace detail {
+    template <typename T, void (*F)(T*)>
+    class Raii
+    {
+    public:
+        Raii(T& t) noexcept : m_up(&t) {}
 
-        template <typename T, void (*F)(T*)>
+        Raii(Raii&&) = default;
+        Raii& operator=(Raii&&) = default;
+
+        Raii(const Raii&) = delete;
+        Raii& operator=(const Raii&) = delete;
+
+        friend inline T* to_sdl(const Raii<T, F>& raii) noexcept
+        {
+            return raii.m_up.get();
+        }
+
+    private:
         struct Destroyer
         {
             void operator()(T* t) const noexcept { F(t); }
         };
 
-    } // namespace detail
+        using UP = std::unique_ptr<T, Destroyer>;
 
-    template <typename T, void (*F)(T*)>
-    using Raii = std::unique_ptr<T, detail::Destroyer<T, F>>;
+        UP m_up;
+    };
 
 } // namespace sdlxx

@@ -526,9 +526,9 @@ namespace ut {
                 for (const auto& vec : vecOfVecs)
                 {
                     std::vector<int> myOut(vec.size());
-                    const auto myResult = my::copy_backward(vec.begin(), vec.end(), myOut.end());
+                    /*const auto myResult =*/ my::copy_backward(vec.begin(), vec.end(), myOut.end());
                     std::vector<int> stdOut(vec.size());
-                    const auto stdResult = std::copy_backward(vec.begin(), vec.end(), stdOut.end());
+                    /*const auto stdResult =*/ std::copy_backward(vec.begin(), vec.end(), stdOut.end());
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -555,10 +555,10 @@ namespace ut {
                 {
                     auto myMovedFrom(vec);
                     std::vector<int> myOut(vec.size());
-                    const auto myResult = my::move_backward(myMovedFrom.begin(), myMovedFrom.end(), myOut.end());
+                    /*const auto myResult =*/ my::move_backward(myMovedFrom.begin(), myMovedFrom.end(), myOut.end());
                     auto stdMovedFrom(vec);
                     std::vector<int> stdOut(vec.size());
-                    const auto stdResult = std::move_backward(stdMovedFrom.begin(), stdMovedFrom.end(), stdOut.end());
+                    /*const auto stdResult =*/ std::move_backward(stdMovedFrom.begin(), stdMovedFrom.end(), stdOut.end());
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -1246,8 +1246,9 @@ namespace ut {
                     std::make_heap(myVec.begin(), myVec.begin() + heapSize);
                     std::make_heap(stdVec.begin(), stdVec.begin() + heapSize);
 
-                    const auto myResult = my::is_heap_until(myVec.begin(), myVec.end());
+                    /*const auto myResult =*/ my::is_heap_until(myVec.begin(), myVec.end());
                     const auto stdResult = std::is_heap_until(stdVec.begin(), stdVec.end());
+                    (void)stdResult;
 
                     // TODO: debug
 //                    REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));

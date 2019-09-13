@@ -2,7 +2,6 @@
 #pragma once
 
 #include <sdlxx/graphics.hpp>
-#include <sdlxx/outcome_disabled_warnings.hpp>
 #include <platform/system_error.hpp>
 
 namespace bout = BOOST_OUTCOME_V2_NAMESPACE;
@@ -57,5 +56,5 @@ private:
     bool m_end_of_game{false};
 };
 
-bout::result<World, stdnext::error_code>
+sdlxx::result<World>
 load_world(const sdlxx::Renderer& renderer) noexcept;

@@ -1,21 +1,27 @@
 
 #pragma once
 
-#include "world.hpp"
+#include <sdlxx/error_handling.hpp>
 #include <memory>
 
 class App
 {
 public:
-    App(sdlxx::Window&& window, sdlxx::Renderer&& renderer, World&& world);
+    class Impl;
 
-    void run() noexcept;
+    App(std::unique_ptr<Impl> impl) noexcept;
+
+    App(App&&) noexcept;
+
+    App& operator=(App&&) noexcept;
+
+    ~App() noexcept;
+
+    void run();
 
 private:
-    sdlxx::Window m_window;
-    sdlxx::Renderer m_renderer;
-    World m_world;
+    std::unique_ptr<Impl> m_impl;
 };
 
-bout::result<App, stdnext::error_code>
-load_app() noexcept;
+sdlxx::result<App>
+load_app();

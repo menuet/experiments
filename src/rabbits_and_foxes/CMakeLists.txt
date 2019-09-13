@@ -12,6 +12,8 @@ add_executable(
     solver.cpp
     solver.hpp
     board.test.cpp
+    visual_config.cpp
+    visual_config.hpp
     visual_app.cpp
     visual_app.hpp
     visual_world.cpp

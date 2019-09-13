@@ -46,15 +46,16 @@ namespace sdlxx {
 
         constexpr const Size& size() const noexcept { return m_size; }
 
-        constexpr SDL_Rect to_sdl() const noexcept
-        {
-            return SDL_Rect{m_origin.x(), m_origin.y(), m_size.w(), m_size.h()};
-        }
-
     private:
         Point m_origin;
         Size m_size;
     };
+
+    constexpr SDL_Rect to_sdl(const Rectangle& rectangle) noexcept
+    {
+        return SDL_Rect{rectangle.origin().x(), rectangle.origin().y(),
+                        rectangle.size().w(), rectangle.size().h()};
+    }
 
     class Color
     {
@@ -70,16 +71,16 @@ namespace sdlxx {
 
         constexpr std::uint8_t b() const noexcept { return m_b; }
 
-        constexpr SDL_Color to_sdl() const noexcept
-        {
-            return SDL_Color{m_r, m_g, m_b, 255};
-        }
-
     private:
         std::uint8_t m_r;
         std::uint8_t m_g;
         std::uint8_t m_b;
     };
+
+    constexpr SDL_Color to_sdl(const Color& color) noexcept
+    {
+        return SDL_Color{color.r(), color.g(), color.b(), 255};
+    }
 
     class ColorAlpha : public Color
     {
@@ -97,14 +98,14 @@ namespace sdlxx {
 
         constexpr std::uint8_t a() const noexcept { return m_a; }
 
-        constexpr SDL_Color to_sdl() const noexcept
-        {
-            return SDL_Color{r(), g(), b(), m_a};
-        }
-
     private:
         std::uint8_t m_a;
     };
+
+    constexpr SDL_Color to_sdl(const ColorAlpha& color) noexcept
+    {
+        return SDL_Color{color.r(), color.g(), color.b(), color.a()};
+    }
 
     inline constexpr bool are_colliding(const Rectangle& r1,
                                         const Rectangle& r2) noexcept

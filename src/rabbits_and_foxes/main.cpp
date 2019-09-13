@@ -33,10 +33,10 @@ int main(int argc, char* argv[])
     if (!initializer)
         return -1;
 
-    auto app_opt = raf::visual::load_app();
-    if (!app_opt)
+    auto app_or_err = raf::visual::load_app();
+    if (!app_or_err)
         return -1;
-    auto& app = *app_opt;
+    auto& app = app_or_err.value();
 
     app.run();
 
