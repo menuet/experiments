@@ -2,6 +2,7 @@
 #include "board.hpp"
 #include "solver.hpp"
 #include <catch2/catch.hpp>
+#include <fstream>
 #include <functional>
 #include <nlohmann/json.hpp>
 #include <sstream>
@@ -35,14 +36,23 @@ namespace {
                                      raf::FoxDirection::Backward),
                         }}};
 
-    std::vector<raf::Points> board_27_rabbits_possible_moves{
+    const std::vector<raf::Points> board_27_rabbits_possible_moves{
         {{0, 2}}, // rabbit 1
         {},       // rabbit 2
     };
 
-    std::vector<raf::Points> board_27_foxes_possible_moves{
+    const std::vector<raf::Points> board_27_foxes_possible_moves{
         {{1, 1}}, // fox 1
         {{1, 3}}, // fox 2
+    };
+
+    const raf::SolverMoves board_27_fastest_solution{
+        {&typeid(raf::Rabbit), 0, {0, 2}}, {&typeid(raf::Rabbit), 0, {2, 2}},
+        {&typeid(raf::Fox), 0, {1, 1}},    {&typeid(raf::Rabbit), 1, {0, 1}},
+        {&typeid(raf::Fox), 0, {3, 1}},    {&typeid(raf::Fox), 1, {1, 0}},
+        {&typeid(raf::Rabbit), 1, {2, 1}}, {&typeid(raf::Rabbit), 1, {2, 3}},
+        {&typeid(raf::Fox), 0, {2, 1}},    {&typeid(raf::Rabbit), 1, {2, 0}},
+        {&typeid(raf::Rabbit), 1, {0, 0}},
     };
 
     const raf::Board simple_board{
@@ -129,7 +139,7 @@ TEST_CASE("board's serialization/deserialization")
     REQUIRE(roundtrip_board == board_27);
 }
 
-TEST_CASE("Pieces can move", "[]")
+TEST_CASE("Pieces can move")
 {
     SECTION("horizontal")
     {
@@ -223,4 +233,9 @@ TEST_CASE("Pieces can move", "[]")
     }
 }
 
-TEST_CASE("solver") { const auto solution = raf::solve(simple_board); }
+TEST_CASE("solver")
+{
+    const auto solver_graph = raf::solve(board_27);
+    const auto fastest_solution = solver_graph.fastest_solution();
+    REQUIRE(fastest_solution == board_27_fastest_solution);
+}
