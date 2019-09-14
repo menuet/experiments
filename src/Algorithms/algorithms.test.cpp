@@ -38,9 +38,9 @@ namespace algo {
                         bool result_std = true;
                         for (size_t pos = 0; pos < vec.size() && result_cppref && result_std; ++pos)
                         {
-                            auto point_mine = algo::mine::rotate(begin(vec_mine), begin(vec_mine) + pos, end(vec_mine));
-                            auto point_cppref = algo::cppref::rotate(begin(vec_cppref), begin(vec_cppref) + pos, end(vec_cppref));
-                            auto point_std = std::rotate(begin(vec_std), begin(vec_std) + pos, end(vec_std));
+                            /*auto point_mine =*/ algo::mine::rotate(begin(vec_mine), begin(vec_mine) + pos, end(vec_mine));
+                            /*auto point_cppref =*/ algo::cppref::rotate(begin(vec_cppref), begin(vec_cppref) + pos, end(vec_cppref));
+                            /*auto point_std =*/ std::rotate(begin(vec_std), begin(vec_std) + pos, end(vec_std));
 
                             // TODO: fix returned value
                             // result_cppref = (point_mine - begin(vec_mine)) == (point_cppref - begin(vec_cppref));

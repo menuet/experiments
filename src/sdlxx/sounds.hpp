@@ -1,8 +1,8 @@
 
 #pragma once
 
+#include "error_handling.hpp"
 #include "raii.hpp"
-#include "sdl_disabled_warnings.h"
 #include <cstdint>
 #include <platform/filesystem.hpp>
 
@@ -12,19 +12,20 @@ namespace sdlxx {
 
     using Chunk = Raii<Mix_Chunk, &Mix_FreeChunk>;
 
-    inline Chunk load_wav(const stdnext::filesystem::path& sound_path) noexcept
+    inline result<Chunk>
+    load_wav(const stdnext::filesystem::path& sound_path) noexcept
     {
-        return Chunk{Mix_LoadWAV(sound_path.string().c_str())};
+        const auto sdl_chunk = Mix_LoadWAV(sound_path.string().c_str());
+        if (!sdl_chunk)
+            return stdnext::make_error_code(stdnext::errc::invalid_argument);
+        return Chunk{*sdl_chunk};
     }
 
     inline int play(const Chunk& chunk, int channel_id = -1) noexcept
     {
-        return Mix_PlayChannel(channel_id, chunk.get(), 0);
+        return Mix_PlayChannel(channel_id, to_sdl(chunk), 0);
     }
 
-    inline void pause(int channel_id) noexcept
-    {
-        Mix_Pause(channel_id);
-    }
+    inline void pause(int channel_id) noexcept { Mix_Pause(channel_id); }
 
 } // namespace sdlxx

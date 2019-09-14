@@ -4,12 +4,13 @@
 #include "board.hpp"
 #include "geometry.hpp"
 #include "pieces.hpp"
+#include <map>
 #include <memory>
 #include <optional>
 #include <platform/filesystem.hpp>
 #include <platform/variant.hpp>
+#include <sdlxx/assets.hpp>
 #include <sdlxx/graphics.hpp>
-#include <sdlxx/sprites.hpp>
 #include <vector>
 
 namespace raf {
@@ -23,8 +24,7 @@ namespace raf { namespace visual {
     class World
     {
     public:
-        World(sdlxx::Texture&& board_texture,
-              sdlxx::SpriteSheet&& pieces_sheet);
+        World(sdlxx::Repository<sdlxx::Texture>&& textures);
 
         void play_board(const Config& config, const std::string& board_name);
 
@@ -38,7 +38,7 @@ namespace raf { namespace visual {
         class Piece
         {
         public:
-            sdlxx::SpriteIndex sprite_index;
+            const sdlxx::Texture* texture;
             stdnext::variant<Mushroom, Rabbit, Fox> var_piece;
 
             auto location() const noexcept
@@ -73,18 +73,17 @@ namespace raf { namespace visual {
         struct PlayingBoard
         {
             const Board* board{};
-            sdlxx::Size cell_size{0, 0};
             BoardState state{Rabbits{}, Foxes{}};
             std::vector<Piece> pieces{};
             Piece* selected_piece{};
             bool win{};
         };
 
-        sdlxx::Texture m_board_texture;
-        sdlxx::SpriteSheet m_pieces_sheet;
+        sdlxx::Repository<sdlxx::Texture> m_textures;
+        const sdlxx::Texture* m_board_texture;
         PlayingBoard m_playing_board;
     };
 
-    std::unique_ptr<World> load_world(const sdlxx::Renderer& renderer);
+    sdlxx::result<World> load_world(const sdlxx::Renderer& renderer);
 
 }} // namespace raf::visual

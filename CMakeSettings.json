@@ -48,7 +48,35 @@
       "inheritEnvironments": [ "clang_cl_x64" ],
       "variables": [
         {
-          "name": "CMAKE_C_COMPIER",
+          "name": "CMAKE_C_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_EXPORT_COMPILE_COMMANDS",
+          "value": "TRUE",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "vs-vcpkg-Windows-x86_64-clang-Release-ninja",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_C_COMPILER",
           "value": "C:\\Program Files\\LLVM\\bin\\clang-cl.exe",
           "type": "STRING"
         },
@@ -68,6 +96,28 @@
       "name": "vs-vcpkg-WSL-x86_64-gcc-Debug-make",
       "generator": "Unix Makefiles",
       "configurationType": "Debug",
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "/usr/local/bin/cmake",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "variables": [
+        {
+          "name": "CMAKE_EXPORT_COMPILE_COMMANDS",
+          "value": "TRUE",
+          "type": "BOOL"
+        }
+      ],
+      "cmakeToolchain": "/mnt/d/DEV/PERSO/EXPERIMENTS/THEIRS/vcpkg-linux/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "vs-vcpkg-WSL-x86_64-gcc-Release-make",
+      "generator": "Unix Makefiles",
+      "configurationType": "Release",
       "buildRoot": "${workspaceRoot}\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeExecutable": "/usr/local/bin/cmake",

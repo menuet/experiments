@@ -2,6 +2,7 @@
 add_library(platform INTERFACE)
 target_sources(platform INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/platform.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/format.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/filesystem.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/system_error.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/string_view.hpp"

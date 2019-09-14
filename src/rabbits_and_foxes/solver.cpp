@@ -43,7 +43,7 @@ namespace raf {
             }
         }
     }
-
+#if 0
     static void solve_recursively(SolverStateNode& state_node,
                                   SolverSolution& solution,
                                   const BoardLandscape& landscape)
@@ -61,7 +61,7 @@ namespace raf {
         for (const auto& child_state_node : state_node.children())
             solve_recursively(*child_state_node.node, solution, landscape);
     }
-
+#endif
     static void solve_non_recursively(SolverStateNode& root_state_node,
                                       SolverSolution& solution,
                                       const BoardLandscape& landscape)

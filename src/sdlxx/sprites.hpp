@@ -2,13 +2,8 @@
 #pragma once
 
 #include "graphics.hpp"
-#include <optional>
-#include <platform/filesystem.hpp>
-#include <platform/system_error.hpp>
 
 namespace sdlxx {
-
-    class SpriteSheet;
 
     class SpriteIndex
     {
@@ -24,30 +19,10 @@ namespace sdlxx {
         int m_y;
     };
 
-    class Sprite
-    {
-    public:
-        Sprite(const SpriteSheet& sprite_sheet, SpriteIndex index)
-            : m_sprite_sheet(&sprite_sheet), m_index(index)
-        {
-        }
-
-        Sprite next() const noexcept;
-
-        void render(const Renderer& renderer, Point dst_origin) const noexcept;
-
-        void Sprite::render(const Renderer& renderer, Rectangle dst_zone) const
-            noexcept;
-
-    private:
-        const SpriteSheet* m_sprite_sheet;
-        SpriteIndex m_index;
-    };
-
     class SpriteSheet
     {
     public:
-        friend std::optional<SpriteSheet>
+        friend result<SpriteSheet>
         load_spritesheet(const Renderer& renderer,
                          const stdnext::filesystem::path& image_path,
                          Color yor_key, Size sprite_size) noexcept;
@@ -70,11 +45,11 @@ namespace sdlxx {
         Size m_grid_size;
     };
 
-    inline Sprite Sprite::next() const noexcept
+    inline SpriteIndex next(const SpriteSheet& sprite_sheet, SpriteIndex sprite_index) noexcept
     {
-        const auto grid_size = m_sprite_sheet->grid_size();
-        auto x = m_index.x() + 1;
-        auto y = m_index.y();
+        const auto grid_size = sprite_sheet.grid_size();
+        auto x = sprite_index.x() + 1;
+        auto y = sprite_index.y();
         if (x >= grid_size.w())
         {
             x = 0;
@@ -82,47 +57,49 @@ namespace sdlxx {
         }
         if (y >= grid_size.h())
             y = 0;
-        return Sprite(*m_sprite_sheet, SpriteIndex(x, y));
+        return SpriteIndex{x, y};
     }
 
-    inline void Sprite::render(const Renderer& renderer, Point dst_origin) const
-        noexcept
+    inline void render_sprite(const Renderer& renderer,
+                              const SpriteSheet& sprite_sheet,
+                              SpriteIndex sprite_index,
+                              Point dst_origin) noexcept
     {
-        const auto sprite_size = m_sprite_sheet->sprite_size();
-        const Point src_origin(m_index.x() * sprite_size.w(),
-                               m_index.y() * sprite_size.h());
+        const auto sprite_size = sprite_sheet.sprite_size();
+        const Point src_origin(sprite_index.x() * sprite_size.w(),
+                               sprite_index.y() * sprite_size.h());
         const Rectangle src_zone(src_origin, sprite_size);
         const Rectangle dst_zone(dst_origin, sprite_size);
-        render_texture(renderer, m_sprite_sheet->texture(), src_zone, dst_zone);
+        render_texture(renderer, sprite_sheet.texture(), src_zone, dst_zone);
     }
 
-    inline void Sprite::render(const Renderer& renderer, Rectangle dst_zone) const
-        noexcept
+    inline void render_sprite(const Renderer& renderer,
+                              const SpriteSheet& sprite_sheet,
+                              SpriteIndex sprite_index,
+                              Rectangle dst_zone) noexcept
     {
-        const auto sprite_size = m_sprite_sheet->sprite_size();
-        const Point src_origin(m_index.x() * sprite_size.w(),
-                               m_index.y() * sprite_size.h());
+        const auto sprite_size = sprite_sheet.sprite_size();
+        const Point src_origin(sprite_index.x() * sprite_size.w(),
+                               sprite_index.y() * sprite_size.h());
         const Rectangle src_zone(src_origin, sprite_size);
-        render_texture(renderer, m_sprite_sheet->texture(), src_zone, dst_zone);
+        render_texture(renderer, sprite_sheet.texture(), src_zone, dst_zone);
     }
 
-    inline std::optional<SpriteSheet>
+    inline result<SpriteSheet>
     load_spritesheet(const Renderer& renderer,
                      const stdnext::filesystem::path& image_path, Color color_key,
                      Size sprite_size) noexcept
     {
         if (sprite_size.w() <= 0 || sprite_size.h() <= 0)
-            return std::nullopt;
-        auto sheet_texture = load_texture(renderer, image_path, color_key);
-        if (!sheet_texture)
-            return std::nullopt;
+            return stdnext::make_error_code(stdnext::errc::invalid_argument);
+        BOOST_OUTCOME_TRY(sheet_texture, load_texture(renderer, image_path, color_key));
         const auto sheet_size = get_size(sheet_texture);
         if (sheet_size.w() < sprite_size.w() ||
             sheet_size.h() < sprite_size.h())
-            return std::nullopt;
+            return stdnext::make_error_code(stdnext::errc::invalid_argument);
         const auto grid_size = Size(sheet_size.w() / sprite_size.w(),
                                     sheet_size.h() / sprite_size.h());
-        return std::optional<SpriteSheet>(SpriteSheet(std::move(sheet_texture), sprite_size, grid_size));
+        return SpriteSheet{std::move(sheet_texture), sprite_size, grid_size};
     }
 
 } // namespace sdlxx

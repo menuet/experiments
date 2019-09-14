@@ -73,6 +73,7 @@ function(exp_setup_common_options target_name)
         "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR
         ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows"))
         target_compile_definitions("${target_name}" PRIVATE _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS _WIN32_WINNT=0x0A00 BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+        target_compile_options("${target_name}" PRIVATE /permissive-)
     else()
         target_link_libraries("${target_name}" PRIVATE pthread)
     endif()

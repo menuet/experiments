@@ -16,8 +16,6 @@ namespace algo {
         {
             assert(n_first != last);
 
-            const auto begin = first;
-            const auto end = last;
             ForwardIt next = n_first;
             while (first != next) {
                 std::iter_swap(first++, next++);

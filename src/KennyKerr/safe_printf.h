@@ -325,8 +325,21 @@ namespace pasc { namespace detail {
         return !isValid(parseSpecifier(formatView));
     }
 
+    template <size_t BufferSizeV>
+    inline bool buffer_check_adjust_size(char (&buffer)[BufferSizeV],
+                                         size_t requiredBufferSize)
+    {
+        return requiredBufferSize <= BufferSizeV;
+    }
+
+    template <size_t BufferSizeV>
+    inline char* buffer_get_data(char (&buffer)[BufferSizeV])
+    {
+        return buffer;
+    }
+
     template< typename BufferT, typename... ArgsT >
-    inline int sprintf_check_adjust_buffer_size(BufferT& buffer, const char* format, const ArgsT... args)
+    inline int sprintf_check_adjust_buffer_size(BufferT& buffer, const char* format, const ArgsT&... args)
     {
 #pragma warning(push)
 #pragma warning(disable : 4996) // warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
@@ -339,18 +352,6 @@ namespace pasc { namespace detail {
 #pragma warning(pop)
     }
 
-    template< size_t BufferSizeV >
-    inline bool buffer_check_adjust_size(char(&buffer)[BufferSizeV], size_t requiredBufferSize)
-    {
-        return requiredBufferSize <= BufferSizeV;
-    }
-
-    template< size_t BufferSizeV >
-    inline char* buffer_get_data(char(&buffer)[BufferSizeV])
-    {
-        return buffer;
-    }
-
 } } // namespace pasc::detail
 
 
@@ -361,7 +362,7 @@ namespace pasc {
     {
         if (!detail::check_printf_args(format, args...))
             return -1;
-        return detail::sprintf_check_adjust_buffer_size(buffer, format, args...);
+        return pasc::detail::sprintf_check_adjust_buffer_size(buffer, format, args...);
     }
 
     template< typename... ArgsT >

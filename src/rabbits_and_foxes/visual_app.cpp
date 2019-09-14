@@ -1,100 +1,83 @@
 
 #include "visual_app.hpp"
-#include "board_json.hpp"
+#include "visual_config.hpp"
 #include "visual_world.hpp"
-#include <fstream>
-#include <nlohmann/json.hpp>
 #include <sdlxx/assets.hpp>
 #include <sdlxx/events.hpp>
+#include <sdlxx/graphics.hpp>
 
 namespace raf { namespace visual {
 
-    using json = nlohmann::json;
-
-    inline void to_json(json& j, const Config& c)
+    class App::Impl
     {
-        j = json{"boards", c.boards};
-    }
-
-    inline void from_json(const json& j, Config& c)
-    {
-        j.at("boards").get_to(c.boards);
-    }
-
-    static std::optional<Config>
-    load_config(const stdnext::filesystem::path& config_file_path)
-    {
-        std::ifstream config_is(config_file_path.string().c_str());
-        try
+    public:
+        Impl(Config&& config, sdlxx::Window&& window,
+             sdlxx::Renderer&& renderer, World&& world)
+            : m_config(std::move(config)), m_window(std::move(window)),
+              m_renderer(std::move(renderer)), m_world(std::move(world))
         {
-            if (!config_is)
-                return std::nullopt;
-            const auto config_as_json = json::parse(config_is);
-            auto config = config_as_json.get<Config>();
-            return config;
         }
-        catch (std::exception&)
+
+        void run()
         {
-            return std::nullopt;
-        }
-    }
-
-    App::App(Config&& config, sdlxx::Window&& window,
-             sdlxx::Renderer&& renderer,
-             std::unique_ptr<World>&& world)
-        : m_config(std::move(config)), m_window(std::move(window)), m_renderer(std::move(renderer)),
-          m_world(std::move(world))
-    {
-    }
-
-    App::~App() = default;
-
-    void App::run()
-    {
-        const auto event_poller = sdlxx::make_event_poller(
-            sdlxx::on<SDL_QUIT>([](const auto&) {}),
-            sdlxx::on<SDL_MOUSEBUTTONDOWN>(
-                [this](const SDL_MouseButtonEvent& event) {
-                    m_world->on_click(m_config, {event.x, event.y});
-                }));
+            const auto event_poller = sdlxx::make_event_poller(
+                sdlxx::on<SDL_QUIT>([](const auto&) {}),
+                sdlxx::on<SDL_MOUSEBUTTONDOWN>(
+                    [this](const SDL_MouseButtonEvent& event) {
+                        m_world.on_click(m_config, {event.x, event.y});
+                    }));
 
             for (;;)
             {
                 if (event_poller.poll_events() == sdlxx::PollResult::Quit)
                     break;
 
-                m_world->update(m_config, m_renderer);
+                m_world.update(m_config, m_renderer);
 
                 sdlxx::clear(m_renderer);
 
-                m_world->render(m_config, m_renderer);
+                m_world.render(m_config, m_renderer);
 
                 sdlxx::present(m_renderer);
             }
-    }
+        }
 
-    std::optional<App>
-    load_app()
+    private:
+        Config m_config;
+        sdlxx::Window m_window;
+        sdlxx::Renderer m_renderer;
+        World m_world;
+    };
+
+    App::App(std::unique_ptr<Impl> impl) noexcept : m_impl(std::move(impl)) {}
+
+    App::App(App&&) noexcept = default;
+
+    App& App::operator=(App&&) noexcept = default;
+
+    App::~App() noexcept = default;
+
+    void App::run() { m_impl->run(); }
+
+    sdlxx::result<App> load_app()
     {
-            auto config_opt = load_config(sdlxx::get_asset_path("config.json"));
-            if (!config_opt)
-                return std::nullopt;
+        BOOST_OUTCOME_TRY(config,
+                          load_config(sdlxx::get_asset_path("config.json")));
 
-            auto window = sdlxx::create_window("RABBITS AND FOXES", SCREEN_SIZE);
-            if (!window)
-                return std::nullopt;
+        BOOST_OUTCOME_TRY(window, sdlxx::create_window("RABBITS AND FOXES",
+                                                       config.board_size));
 
-            auto renderer = sdlxx::create_renderer(window);
-            if (!renderer)
-                return std::nullopt;
+        BOOST_OUTCOME_TRY(renderer, sdlxx::create_renderer(window));
 
-            auto world = load_world(renderer);
-            if (!world)
-                return std::nullopt;
-            world->play_board(*config_opt, "27");
+        BOOST_OUTCOME_TRY(world, load_world(renderer));
 
-            return std::make_optional<App>(std::move(*config_opt),
-                std::move(window), std::move(renderer), std::move(world));
+        world.play_board(config, "27");
+
+        auto app_impl =
+            std::make_unique<App::Impl>(std::move(config), std::move(window),
+                                        std::move(renderer), std::move(world));
+
+        return App{std::move(app_impl)};
     }
 
 }} // namespace raf::visual
