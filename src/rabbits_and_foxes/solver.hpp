@@ -4,7 +4,7 @@
 #include "board.hpp"
 #include <memory>
 
-namespace raf {
+namespace raf { namespace raf_v1 {
 
     namespace solver_v1 {
 
@@ -88,7 +88,7 @@ namespace raf {
 
     } // namespace solver_v1
 
-    inline namespace solver_v2 {
+    namespace solver_v2 {
 
         class SolverMove
         {
@@ -102,7 +102,8 @@ namespace raf {
                                const SolverMove& rhs) noexcept
         {
             return *lhs.piece_type == *rhs.piece_type &&
-                   lhs.piece_index == rhs.piece_index && lhs.location == rhs.location;
+                   lhs.piece_index == rhs.piece_index &&
+                   lhs.location == rhs.location;
         }
 
         inline bool operator!=(const SolverMove& lhs,
@@ -138,4 +139,53 @@ namespace raf {
 
     } // namespace solver_v2
 
-} // namespace raf
+}} // namespace raf::raf_v1
+
+namespace raf { namespace raf_v2 {
+
+    class SolverMove
+    {
+    public:
+        std::size_t piece_index{};
+        Point location;
+    };
+
+    inline bool operator==(const SolverMove& lhs,
+                           const SolverMove& rhs) noexcept
+    {
+        return lhs.piece_index == rhs.piece_index &&
+               lhs.location == rhs.location;
+    }
+
+    inline bool operator!=(const SolverMove& lhs,
+                           const SolverMove& rhs) noexcept
+    {
+        return !(lhs == rhs);
+    }
+
+    using SolverMoves = std::vector<SolverMove>;
+
+    class SolverGraph
+    {
+    public:
+        class Impl;
+
+        explicit SolverGraph(std::unique_ptr<Impl>&& impl);
+
+        SolverGraph(SolverGraph&&);
+
+        ~SolverGraph();
+
+        SolverGraph& operator=(SolverGraph&&);
+
+        void dump(std::ostream& os) const;
+
+        SolverMoves fastest_solution() const;
+
+    private:
+        std::unique_ptr<Impl> m_impl;
+    };
+
+    SolverGraph solve(const Board& board);
+
+}} // namespace raf::raf_v2

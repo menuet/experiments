@@ -8,7 +8,7 @@
 #include <platform/filesystem.hpp>
 #include <vector>
 
-namespace raf {
+namespace raf { namespace raf_v1 {
 
     class BoardLandscape
     {
@@ -129,7 +129,8 @@ namespace raf {
         BoardState m_state;
     };
 
-    static_assert(std::is_nothrow_move_constructible_v<Board>, "Board may throw while move-constructing :-( !!!");
+    static_assert(std::is_nothrow_move_constructible_v<Board>,
+                  "Board may throw while move-constructing :-( !!!");
 
     inline bool operator==(const Board& lhs, const Board& rhs) noexcept
     {
@@ -146,4 +147,62 @@ namespace raf {
     std::optional<Board>
     load_board(const stdnext::filesystem::path& board_file_path);
 
-} // namespace raf
+}} // namespace raf::raf_v1
+
+namespace raf { namespace raf_v2 {
+
+    class Board
+    {
+    public:
+        Board(Size size, const PiecesAndLocations& pieces_and_locations);
+
+        Size size() const noexcept { return m_size; }
+
+        const Pieces& pieces() const noexcept { return m_pieces; }
+
+        const Points& initial_locations() const noexcept
+        {
+            return m_initial_locations;
+        }
+
+        PiecesAndLocations pieces_and_initial_locations() const;
+
+        bool save(std::ostream& board_os) const;
+
+        bool save(const stdnext::filesystem::path& board_file_path) const;
+
+        bool can_move_piece(const Points& pieces_locations,
+                            std::size_t piece_index, Point piece_location) const
+            noexcept;
+
+        Points possible_moves(const Points& pieces_locations,
+                              std::size_t piece_index) const;
+
+        bool all_rabbits_in_hole(const Points& pieces_locations) const;
+
+        bool is_valid() const;
+
+    private:
+        Size m_size;
+        Pieces m_pieces;
+        Points m_initial_locations;
+    };
+
+    inline bool operator==(const Board& lhs, const Board& rhs) noexcept
+    {
+        return lhs.size() == rhs.size() && lhs.pieces() == rhs.pieces() &&
+               lhs.pieces_and_initial_locations() ==
+                   rhs.pieces_and_initial_locations();
+    }
+
+    inline bool operator!=(const Board& lhs, const Board& rhs) noexcept
+    {
+        return !(lhs == rhs);
+    }
+
+    std::optional<Board> load_board(std::istream& board_is);
+
+    std::optional<Board>
+    load_board(const stdnext::filesystem::path& board_file_path);
+
+}} // namespace raf::raf_v2

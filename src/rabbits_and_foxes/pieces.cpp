@@ -1,10 +1,12 @@
 
 #include "pieces.hpp"
 #include "board.hpp"
+#include "pieces_ranges.hpp"
 #include <cassert>
 #include <cmath>
+#include <platform/ranges.hpp>
 
-namespace raf {
+namespace raf { namespace raf_v1 {
 
     static std::optional<Size> compute_step(Point src, Point dst,
                                             int min_offset) noexcept
@@ -187,4 +189,194 @@ namespace raf {
         return possible_moves;
     }
 
-} // namespace raf
+}} // namespace raf::raf_v1
+
+namespace raf { namespace raf_v2 {
+
+    static const auto is_above_something =
+        [](const Rectangle& piece_rectangle, auto pieces_infos) noexcept
+    {
+        return stdnext::ranges::any_of(
+            pieces_infos, [&](const auto& piece_info) {
+                return are_intersecting(rect_of(piece_info), piece_rectangle);
+            });
+    };
+
+    static const auto add_possible_move_for_rabbit = [](
+        Rectangle piece_rectangle, Size step, const Rectangle& board_rectangle,
+        const auto& pieces, Points& possible_moves) noexcept
+    {
+        piece_rectangle = {piece_rectangle.location() + step,
+                           piece_rectangle.size()};
+        if (!is_included(piece_rectangle, board_rectangle))
+            return;
+        if (!is_above_something(piece_rectangle, pieces))
+            return;
+        do
+        {
+            piece_rectangle = {piece_rectangle.location() + step,
+                               piece_rectangle.size()};
+            if (!is_included(piece_rectangle, board_rectangle))
+                return;
+        } while (is_above_something(piece_rectangle, pieces));
+        possible_moves.push_back(piece_rectangle.location());
+    };
+
+    static const auto add_possible_move_for_fox = [](
+        Rectangle piece_rectangle, Size step, const Rectangle& board_rectangle,
+        const auto& pieces, Points& possible_moves) noexcept
+    {
+        piece_rectangle = {piece_rectangle.location() + step,
+                           piece_rectangle.size()};
+        if (!is_included(piece_rectangle, board_rectangle))
+            return;
+        if (is_above_something(piece_rectangle, pieces))
+            return;
+        possible_moves.push_back(piece_rectangle.location());
+    };
+
+    bool RabbitFacet::can_move(const Board& board,
+                               const Points& pieces_locations,
+                               std::size_t piece_index,
+                               Point piece_location) const
+    {
+        const Rectangle board_rectangle{{0, 0}, board.size()};
+        const auto piece_size = this->size();
+
+        if (!is_included(Rectangle{piece_location, piece_size},
+                         board_rectangle))
+            return false;
+
+        auto intermediate_location = pieces_locations[piece_index];
+        const auto offset = piece_location - intermediate_location;
+        Size step{};
+        if (offset.w != 0)
+        {
+            if (offset.h != 0)
+                return false;
+            if (std::abs(offset.w) < 2)
+                return false;
+            step = {offset.w > 0 ? 1 : -1, 0};
+        }
+        else
+        {
+            if (offset.h == 0)
+                return false;
+            if (std::abs(offset.h) < 2)
+                return false;
+            step = {0, offset.h > 0 ? 1 : -1};
+        }
+
+        auto pieces = merge_pieces_infos(board.pieces(), pieces_locations) |
+                      remove_holes() | remove_this_piece(piece_index);
+
+        // All intermediate locations must contain a rabbit or a fox or a
+        // mushroom
+        for (intermediate_location = intermediate_location + step;
+             intermediate_location != piece_location;
+             intermediate_location = intermediate_location + step)
+        {
+            auto pieces_above =
+                pieces |
+                intersecting_with(Rectangle{intermediate_location, piece_size});
+            if (pieces_above.empty())
+                return false;
+        }
+
+        // Final location must NOT contain a rabbit or a fox or a mushroom
+        auto pieces_above =
+            pieces |
+            intersecting_with(Rectangle{intermediate_location, piece_size});
+        if (!pieces_above.empty())
+            return false;
+
+        return true;
+    }
+
+    bool FoxFacet::can_move(const Board& board, const Points& pieces_locations,
+                            std::size_t piece_index, Point piece_location) const
+    {
+        const Rectangle board_rectangle{{0, 0}, board.size()};
+        const auto piece_size = this->size();
+
+        if (!is_included(Rectangle{piece_location, piece_size},
+                         board_rectangle))
+            return false;
+
+        const auto& initial_location = pieces_locations[piece_index];
+        const auto offset = piece_location - initial_location;
+        if (offset.w == 1)
+        {
+            if (offset.h != 0)
+                return false;
+            if (orientation() != Orientation::Horizontal)
+                return false;
+        }
+        else if (offset.h != 0)
+        {
+            if (offset.w != 0)
+                return false;
+            if (orientation() != Orientation::Vertical)
+                return false;
+        }
+
+        // Final location must NOT contain a rabbit or a fox or a mushroom
+        auto pieces_above =
+            merge_pieces_infos(board.pieces(), pieces_locations) |
+            remove_holes() | remove_this_piece(piece_index) |
+            intersecting_with(Rectangle{piece_location, piece_size});
+        if (!pieces_above.empty())
+            return false;
+
+        return true;
+    }
+
+    Points RabbitFacet::possible_moves(const Board& board,
+                                       const Points& pieces_locations,
+                                       std::size_t piece_index) const
+    {
+        const Rectangle board_rectangle{{0, 0}, board.size()};
+        const Rectangle piece_rectangle{pieces_locations[piece_index],
+                                        this->size()};
+
+        const auto pieces =
+            merge_pieces_infos(board.pieces(), pieces_locations) |
+            remove_holes() | remove_this_piece(piece_index);
+
+        Points locations;
+
+        const auto possible_steps = Sizes{{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (const auto& step : possible_steps)
+        {
+            add_possible_move_for_rabbit(piece_rectangle, step, board_rectangle,
+                                         pieces, locations);
+        }
+        return locations;
+    }
+
+    Points FoxFacet::possible_moves(const Board& board,
+                                    const Points& pieces_locations,
+                                    std::size_t piece_index) const
+    {
+        const Rectangle board_rectangle{{0, 0}, board.size()};
+        const Rectangle piece_rectangle{pieces_locations[piece_index],
+                                        this->size()};
+
+        const auto pieces =
+            merge_pieces_infos(board.pieces(), pieces_locations) |
+            remove_holes() | remove_this_piece(piece_index);
+
+        Points locations;
+
+        const auto possible_steps = m_orientation == Orientation::Horizontal
+                                        ? Sizes{{-1, 0}, {1, 0}}
+                                        : Sizes{{0, -1}, {0, 1}};
+        for (const auto& step : possible_steps)
+        {
+            add_possible_move_for_fox(piece_rectangle, step, board_rectangle,
+                                      pieces, locations);
+        }
+        return locations;
+    }
+
+}} // namespace raf::raf_v2

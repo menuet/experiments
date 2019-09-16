@@ -8,6 +8,16 @@
 
 namespace raf { namespace visual {
 
+    // #define USE_OLD_V1
+
+#ifdef USE_OLD_V1
+    using namespace raf::raf_v1::visual;
+    constexpr auto config_file_name = "config_v1.json";
+#else
+    using namespace raf::raf_v2::visual;
+    constexpr auto config_file_name = "config_v2.json";
+#endif
+
     class App::Impl
     {
     public:
@@ -62,7 +72,7 @@ namespace raf { namespace visual {
     sdlxx::result<App> load_app()
     {
         BOOST_OUTCOME_TRY(config,
-                          load_config(sdlxx::get_asset_path("config.json")));
+                          load_config(sdlxx::get_asset_path(config_file_name)));
 
         BOOST_OUTCOME_TRY(window, sdlxx::create_window("RABBITS AND FOXES",
                                                        config.board_size));

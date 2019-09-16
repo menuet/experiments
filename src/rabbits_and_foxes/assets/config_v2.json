@@ -1,0 +1,90 @@
+{
+  "board_size": {
+    "w": 640,
+    "h": 640
+  },
+  "border_size": {
+    "w": 40,
+    "h": 30
+  },
+  "cell_size": {
+    "w": 115,
+    "h": 115
+  },
+  "boards": {
+    "27": {
+      "pieces": [
+        {
+          "type": "Hole",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "type": "Hole",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "type": "Hole",
+          "x": 2,
+          "y": 2
+        },
+        {
+          "type": "Hole",
+          "x": 4,
+          "y": 0
+        },
+        {
+          "type": "Hole",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "type": "Mushroom",
+          "x": 4,
+          "y": 0
+        },
+        {
+          "type": "Mushroom",
+          "x": 0,
+          "y": 3
+        },
+        {
+          "type": "Mushroom",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "color": "Grey",
+          "type": "Rabbit",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "color": "Brown",
+          "type": "Rabbit",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "direction": "Forward",
+          "orientation": "Horizontal",
+          "type": "Fox",
+          "x": 0,
+          "y": 1
+        },
+        {
+          "direction": "Backward",
+          "orientation": "Vertical",
+          "type": "Fox",
+          "x": 1,
+          "y": 2
+        }
+      ],
+      "size": {
+        "h": 5,
+        "w": 5
+      }
+    }
+  }
+}

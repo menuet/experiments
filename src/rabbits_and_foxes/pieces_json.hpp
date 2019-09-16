@@ -6,7 +6,7 @@
 
 using json = nlohmann::json;
 
-namespace raf {
+namespace raf { namespace raf_v1 {
 
     inline void to_json(json& j, RabbitColor p)
     {
@@ -110,7 +110,7 @@ namespace raf {
     template <typename PieceT>
     inline PieceT json_to_piece(const json& j)
     {
-        const auto location = j.at("location").get<raf::Point>();
+        const auto location = j.at("location").get<raf::raf_v1::Point>();
         return PieceT{location};
     }
 
@@ -152,63 +152,266 @@ namespace raf {
         j["direction"] = piece.direction();
     }
 
-} // namespace raf
+}} // namespace raf::raf_v1
+
+namespace raf { namespace raf_v2 {
+
+    inline void to_json(json& j, Piece::Type p)
+    {
+        switch (p)
+        {
+        case Piece::Type::Hole:
+            j = "Hole";
+            break;
+        case Piece::Type::Mushroom:
+            j = "Mushroom";
+            break;
+        case Piece::Type::Rabbit:
+            j = "Rabbit";
+            break;
+        case Piece::Type::Fox:
+            j = "Fox";
+            break;
+        }
+    }
+
+    inline void from_json(const json& j, Piece::Type& p)
+    {
+        const auto text = j.get<std::string>();
+        if (text == "Hole")
+            p = Piece::Type::Hole;
+        else if (text == "Mushroom")
+            p = Piece::Type::Mushroom;
+        else if (text == "Rabbit")
+            p = Piece::Type::Rabbit;
+        else if (text == "Fox")
+            p = Piece::Type::Fox;
+        else
+            throw std::runtime_error("Unknown piece type");
+    }
+
+    inline void to_json(json& j, RabbitFacet::Color p)
+    {
+        switch (p)
+        {
+        case RabbitFacet::Color::Grey:
+            j = "Grey";
+            break;
+        case RabbitFacet::Color::White:
+            j = "White";
+            break;
+        case RabbitFacet::Color::Brown:
+            j = "Brown";
+            break;
+        }
+    }
+
+    inline void from_json(const json& j, RabbitFacet::Color& p)
+    {
+        const auto text = j.get<std::string>();
+        if (text == "Grey")
+            p = RabbitFacet::Color::Grey;
+        else if (text == "White")
+            p = RabbitFacet::Color::White;
+        else if (text == "Brown")
+            p = RabbitFacet::Color::Brown;
+        else
+            throw std::runtime_error("Unknown rabbit color");
+    }
+
+    inline void to_json(json& j, FoxFacet::Orientation p)
+    {
+        switch (p)
+        {
+        case FoxFacet::Orientation::Horizontal:
+            j = "Horizontal";
+            break;
+        case FoxFacet::Orientation::Vertical:
+            j = "Vertical";
+            break;
+        }
+    }
+
+    inline void from_json(const json& j, FoxFacet::Orientation& p)
+    {
+        const auto text = j.get<std::string>();
+        if (text == "Horizontal")
+            p = FoxFacet::Orientation::Horizontal;
+        else if (text == "Vertical")
+            p = FoxFacet::Orientation::Vertical;
+        else
+            throw std::runtime_error("Unknown fox orientation");
+    }
+
+    inline void to_json(json& j, FoxFacet::Direction p)
+    {
+        switch (p)
+        {
+        case FoxFacet::Direction::Forward:
+            j = "Forward";
+            break;
+        case FoxFacet::Direction::Backward:
+            j = "Backward";
+            break;
+        }
+    }
+
+    inline void from_json(const json& j, FoxFacet::Direction& p)
+    {
+        const auto text = j.get<std::string>();
+        if (text == "Forward")
+            p = FoxFacet::Direction::Forward;
+        else if (text == "Backward")
+            p = FoxFacet::Direction::Backward;
+        else
+            throw std::runtime_error("Unknown fox direction");
+    }
+
+    template <typename T>
+    T json_to(const json& j);
+
+    template <>
+    inline HoleFacet json_to<HoleFacet>(const json& j)
+    {
+        return HoleFacet{};
+    }
+
+    template <>
+    inline MushroomFacet json_to<MushroomFacet>(const json& j)
+    {
+        return MushroomFacet{};
+    }
+
+    template <>
+    inline RabbitFacet json_to<RabbitFacet>(const json& j)
+    {
+        const auto color = j.at("color").get<RabbitFacet::Color>();
+        return RabbitFacet{color};
+    }
+
+    template <>
+    inline FoxFacet json_to<FoxFacet>(const json& j)
+    {
+        const auto orientation =
+            j.at("orientation").get<FoxFacet::Orientation>();
+        const auto direction = j.at("direction").get<FoxFacet::Direction>();
+        return FoxFacet{orientation, direction};
+    }
+
+    template <>
+    inline PieceAndLocation json_to<PieceAndLocation>(const json& j)
+    {
+        const auto type = j.at("type").get<Piece::Type>();
+        const auto location = j.get<Point>();
+        switch (type)
+        {
+        case Piece::Type::Hole:
+            return {Piece{json_to<HoleFacet>(j)}, location};
+        case Piece::Type::Mushroom:
+            return {Piece{json_to<MushroomFacet>(j)}, location};
+        case Piece::Type::Rabbit:
+            return {Piece{json_to<RabbitFacet>(j)}, location};
+        case Piece::Type::Fox:
+        default:
+            return {Piece{json_to<FoxFacet>(j)}, location};
+        }
+    }
+
+    inline void json_from(json& j, const HoleFacet&) {}
+
+    inline void json_from(json& j, const MushroomFacet&) {}
+
+    inline void json_from(json& j, const RabbitFacet& facet)
+    {
+        j["color"] = facet.color();
+    }
+
+    inline void json_from(json& j, const FoxFacet& facet)
+    {
+        j["orientation"] = facet.orientation();
+        j["direction"] = facet.direction();
+    }
+
+    inline void json_from(json& j, const PieceAndLocation& piece_location)
+    {
+        j["type"] = piece_location.first.type();
+        piece_location.first.visit(
+            [&](const auto& facet) { return json_from(j, facet); });
+        j["x"] = piece_location.second.x;
+        j["y"] = piece_location.second.y;
+    }
+
+}} // namespace raf::raf_v2
 
 namespace nlohmann {
 
     template <>
-    struct adl_serializer<raf::Hole>
+    struct adl_serializer<raf::raf_v1::Hole>
     {
-        static raf::Hole from_json(const json& j)
+        static raf::raf_v1::Hole from_json(const json& j)
         {
-            return raf::json_to_piece<raf::Hole>(j);
+            return raf::raf_v1::json_to_piece<raf::raf_v1::Hole>(j);
         }
 
-        static void to_json(json& j, const raf::Hole& piece)
+        static void to_json(json& j, const raf::raf_v1::Hole& piece)
         {
-            return raf::piece_to_json(j, piece);
+            return raf::raf_v1::piece_to_json(j, piece);
         }
     };
 
     template <>
-    struct adl_serializer<raf::Mushroom>
+    struct adl_serializer<raf::raf_v1::Mushroom>
     {
-        static raf::Mushroom from_json(const json& j)
+        static raf::raf_v1::Mushroom from_json(const json& j)
         {
-            return raf::json_to_piece<raf::Mushroom>(j);
+            return raf::raf_v1::json_to_piece<raf::raf_v1::Mushroom>(j);
         }
 
-        static void to_json(json& j, const raf::Mushroom& piece)
+        static void to_json(json& j, const raf::raf_v1::Mushroom& piece)
         {
-            return raf::piece_to_json(j, piece);
+            return raf::raf_v1::piece_to_json(j, piece);
         }
     };
 
     template <>
-    struct adl_serializer<raf::Rabbit>
+    struct adl_serializer<raf::raf_v1::Rabbit>
     {
-        static raf::Rabbit from_json(const json& j)
+        static raf::raf_v1::Rabbit from_json(const json& j)
         {
-            return raf::json_to_piece<raf::Rabbit>(j);
+            return raf::raf_v1::json_to_piece<raf::raf_v1::Rabbit>(j);
         }
 
-        static void to_json(json& j, const raf::Rabbit& piece)
+        static void to_json(json& j, const raf::raf_v1::Rabbit& piece)
         {
-            return raf::piece_to_json(j, piece);
+            return raf::raf_v1::piece_to_json(j, piece);
         }
     };
 
     template <>
-    struct adl_serializer<raf::Fox>
+    struct adl_serializer<raf::raf_v1::Fox>
     {
-        static raf::Fox from_json(const json& j)
+        static raf::raf_v1::Fox from_json(const json& j)
         {
-            return raf::json_to_piece<raf::Fox>(j);
+            return raf::raf_v1::json_to_piece<raf::raf_v1::Fox>(j);
         }
 
-        static void to_json(json& j, const raf::Fox& piece)
+        static void to_json(json& j, const raf::raf_v1::Fox& piece)
         {
-            return raf::piece_to_json(j, piece);
+            return raf::raf_v1::piece_to_json(j, piece);
+        }
+    };
+
+    template <>
+    struct adl_serializer<raf::raf_v2::PieceAndLocation>
+    {
+        static raf::raf_v2::PieceAndLocation from_json(const json& j)
+        {
+            return raf::raf_v2::json_to<raf::raf_v2::PieceAndLocation>(j);
+        }
+
+        static void to_json(json& j, const raf::raf_v2::PieceAndLocation& piece)
+        {
+            return raf::raf_v2::json_from(j, piece);
         }
     };
 

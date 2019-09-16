@@ -122,6 +122,7 @@ def get_vcpkg_thirdparties(config):
         "sdl2-image",
         "sdl2-mixer",
         "sdl2-ttf",
+        "range-v3",
         ]
     if config.use_llvm_package:
         packages += [

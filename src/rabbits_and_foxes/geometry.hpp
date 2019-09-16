@@ -3,10 +3,7 @@
 
 #include <vector>
 
-namespace raf {
-
-    class BoardLandscape;
-    class BoardState;
+namespace raf { namespace raf_v1 {
 
     class Point
     {
@@ -117,4 +114,15 @@ namespace raf {
 
     using Rectangles = std::vector<Rectangle>;
 
-} // namespace raf
+}} // namespace raf::raf_v1
+
+namespace raf { namespace raf_v2 {
+
+    using raf_v1::Point;
+    using raf_v1::Points;
+    using raf_v1::Rectangle;
+    using raf_v1::Rectangles;
+    using raf_v1::Size;
+    using raf_v1::Sizes;
+
+}} // namespace raf::raf_v2
