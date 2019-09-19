@@ -19,6 +19,8 @@ add_executable(
     visual_app.hpp
     visual_world.cpp
     visual_world.hpp
+    visual_views.cpp
+    visual_views.hpp
     )
 exp_setup_common_options(rabbits_and_foxes)
 target_link_libraries(rabbits_and_foxes PRIVATE platform sdlxx EXP_THIRDPARTY_CATCH2 EXP_THIRDPARTY_JSON EXP_THIRDPARTY_STD_VARIANT EXP_THIRDPARTY_STD_RANGES)

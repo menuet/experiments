@@ -29,7 +29,8 @@ int main(int argc, char* argv[])
         return unit_tests_result;
     }
 
-    const sdlxx::Initializer initializer{sdlxx::MainLib{}, sdlxx::ImageLib{}};
+    const sdlxx::Initializer initializer{sdlxx::MainLib{}, sdlxx::ImageLib{},
+                                         sdlxx::TextLib{}};
     if (!initializer)
         return -1;
 

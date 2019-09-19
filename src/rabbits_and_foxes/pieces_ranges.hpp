@@ -9,7 +9,7 @@ namespace raf { namespace raf_v2 {
 
     using PieceInfo = std::tuple<Piece, Point, std::size_t>;
 
-    static auto piece_of(const PieceInfo& piece_info) noexcept
+    inline auto piece_of(const PieceInfo& piece_info) noexcept
     {
         return std::get<0>(piece_info);
     }
@@ -19,12 +19,12 @@ namespace raf { namespace raf_v2 {
         return std::get<1>(piece_info);
     };
 
-    static auto index_of(const PieceInfo& piece_info) noexcept
+    inline auto index_of(const PieceInfo& piece_info) noexcept
     {
         return std::get<2>(piece_info);
     }
 
-    static auto is_of_type(Piece::Type piece_type) noexcept
+    inline auto is_of_type(Piece::Type piece_type) noexcept
     {
         return [=](const PieceInfo& piece_info) {
             return std::get<0>(piece_info).type() == piece_type;
@@ -51,7 +51,7 @@ namespace raf { namespace raf_v2 {
         return true;
     };
 
-    static auto has_this_index(std::size_t index) noexcept
+    inline auto has_this_index(std::size_t index) noexcept
     {
         return [index](const PieceInfo& piece_info) noexcept
         {
@@ -59,7 +59,7 @@ namespace raf { namespace raf_v2 {
         };
     }
 
-    static auto merge_pieces_infos(const Pieces& pieces,
+    inline auto merge_pieces_infos(const Pieces& pieces,
                                    const Points& pieces_locations)
     {
         return stdnext::ranges::views::zip(
@@ -67,40 +67,40 @@ namespace raf { namespace raf_v2 {
             stdnext::ranges::views::ints(0, stdnext::ranges::unreachable));
     }
 
-    static auto remove_holes()
+    inline auto remove_holes()
     {
         return stdnext::ranges::views::filter(
             std::not_fn(is_of_type(Piece::Type::Hole)));
     }
 
-    static auto keep_holes_only()
+    inline auto keep_holes_only()
     {
         return stdnext::ranges::views::filter(is_of_type(Piece::Type::Hole));
     }
 
-    static auto keep_rabbits_only()
+    inline auto keep_rabbits_only()
     {
         return stdnext::ranges::views::filter(is_of_type(Piece::Type::Rabbit));
     }
 
-    static auto keep_foxes_only()
+    inline auto keep_foxes_only()
     {
         return stdnext::ranges::views::filter(is_of_type(Piece::Type::Fox));
     }
 
-    static auto keep_mushrooms_only()
+    inline auto keep_mushrooms_only()
     {
         return stdnext::ranges::views::filter(
             is_of_type(Piece::Type::Mushroom));
     }
 
-    static auto remove_this_piece(std::size_t piece_index)
+    inline auto remove_this_piece(std::size_t piece_index)
     {
         return stdnext::ranges::views::filter(
             std::not_fn(has_this_index(piece_index)));
     }
 
-    static auto intersecting_with(const Rectangle& piece_rectangle)
+    inline auto intersecting_with(const Rectangle& piece_rectangle)
     {
         return stdnext::ranges::views::filter([=](const auto& piece_info) {
             return are_intersecting(rect_of(piece_info), piece_rectangle);

@@ -540,8 +540,9 @@ namespace raf { namespace raf_v2 {
                                     const Board& board,
                                     PendingNodes& pending_nodes)
         {
-            std::size_t piece_index = 0;
-            for (const auto& piece : board.pieces())
+            const auto pieces_count = board.pieces().size();
+            for (std::size_t piece_index = 0; piece_index != pieces_count;
+                 ++piece_index)
             {
                 const auto possible_moves =
                     board.possible_moves(current_node.locations, piece_index);
@@ -559,7 +560,6 @@ namespace raf { namespace raf_v2 {
                     if (new_node)
                         pending_nodes.push_back(new_node);
                 }
-                ++piece_index;
             }
         }
 
