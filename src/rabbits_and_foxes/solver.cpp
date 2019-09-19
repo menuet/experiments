@@ -5,7 +5,7 @@
 #include <deque>
 #include <iostream>
 
-namespace raf {
+namespace raf { namespace raf_v1 {
 
     namespace solver_v1 {
 
@@ -274,16 +274,16 @@ namespace raf {
 
                 while (!pending_nodes.empty())
                 {
-                    auto& current_node = *pending_nodes.front();
+                    auto current_node = pending_nodes.front();
                     pending_nodes.pop_front();
 
                     try_add_adjacent_nodes(
-                        nodes, transitions, current_node, landscape,
-                        current_node.m_state.rabbits(), pending_nodes);
+                        nodes, transitions, *current_node, landscape,
+                        current_node->m_state.rabbits(), pending_nodes);
 
                     try_add_adjacent_nodes(
-                        nodes, transitions, current_node, landscape,
-                        current_node.m_state.foxes(), pending_nodes);
+                        nodes, transitions, *current_node, landscape,
+                        current_node->m_state.foxes(), pending_nodes);
                 }
             }
 
@@ -299,12 +299,12 @@ namespace raf {
 
                 while (!pending_nodes.empty())
                 {
-                    auto& current_node = *pending_nodes.front();
+                    auto current_node = pending_nodes.front();
                     pending_nodes.pop_front();
 
-                    for (const auto transition : current_node.m_transitions)
+                    for (const auto transition : current_node->m_transitions)
                     {
-                        auto& other_node = transition->m_from == &current_node
+                        auto& other_node = transition->m_from == current_node
                                                ? *transition->m_to
                                                : *transition->m_from;
 
@@ -314,7 +314,7 @@ namespace raf {
 
                         other_node.m_distance_from_start =
                             std::min(other_node.m_distance_from_start,
-                                     current_node.m_distance_from_start + 1);
+                                     current_node->m_distance_from_start + 1);
                     }
                 }
 
@@ -432,10 +432,12 @@ namespace raf {
                     const auto location = [&] {
                         if (*transition_node.first->m_piece_type ==
                             typeid(Rabbit))
-                            return transition_node.second->m_state.rabbits()
-                                [transition_node.first->m_piece_index].location();
+                            return transition_node.second->m_state
+                                .rabbits()[transition_node.first->m_piece_index]
+                                .location();
                         return transition_node.second->m_state
-                            .foxes()[transition_node.first->m_piece_index].location();
+                            .foxes()[transition_node.first->m_piece_index]
+                            .location();
                     }();
                     return SolverMove{transition_node.first->m_piece_type,
                                       transition_node.first->m_piece_index,
@@ -456,4 +458,281 @@ namespace raf {
 
     } // namespace solver_v2
 
-} // namespace raf
+}} // namespace raf::raf_v1
+
+namespace raf { namespace raf_v2 {
+
+    namespace {
+
+        struct SolverTransition;
+
+        struct SolverNode
+        {
+            SolverNode(Points locations, bool is_solution)
+                : locations{std::move(locations)}, is_solution{is_solution}
+            {
+            }
+
+            Points locations;
+            bool is_solution{};
+            unsigned distance_from_start{std::numeric_limits<unsigned>::max()};
+            std::vector<SolverTransition*> transitions;
+        };
+
+        struct SolverTransition
+        {
+            SolverNode* from{};
+            SolverNode* to{};
+            std::size_t piece_index{};
+        };
+
+    } // namespace
+
+    using SolverNodes = std::vector<std::unique_ptr<SolverNode>>;
+    using SolverTransitions = std::vector<std::unique_ptr<SolverTransition>>;
+    using TransitionsNodes =
+        std::deque<std::pair<const SolverTransition*, const SolverNode*>>;
+    using PendingNodes = std::deque<SolverNode*>;
+
+    class SolverGraph::Impl
+    {
+    public:
+        SolverNodes nodes{};
+        SolverTransitions transitions{};
+        TransitionsNodes fastest_solution{};
+    };
+
+    namespace {
+
+        Points solution{{0, 0}, {0, 4}, {2, 2}, {4, 0}, {4, 4}, {4, 0},
+                        {0, 3}, {0, 4}, {0, 0}, {2, 2}, {2, 1}, {1, 0}};
+
+        SolverNode* try_add_node(SolverNodes& nodes,
+                                 SolverTransitions& transitions,
+                                 SolverNode& from_node, std::size_t piece_index,
+                                 Points&& locations, bool is_solution)
+        {
+            const auto already_existing_node =
+                std::any_of(nodes.begin(), nodes.end(), [&](const auto& node) {
+                    return node->locations == locations;
+                });
+            if (already_existing_node)
+                return nullptr;
+
+            nodes.push_back(std::make_unique<SolverNode>(std::move(locations),
+                                                         is_solution));
+            auto& to_node = *nodes.back().get();
+
+            transitions.push_back(std::make_unique<SolverTransition>());
+            auto& transition = *transitions.back().get();
+            transition.from = &from_node;
+            from_node.transitions.push_back(&transition);
+            transition.to = &to_node;
+            to_node.transitions.push_back(&transition);
+            transition.piece_index = piece_index;
+
+            return &to_node;
+        }
+
+        void try_add_adjacent_nodes(SolverNodes& nodes,
+                                    SolverTransitions& transitions,
+                                    SolverNode& current_node,
+                                    const Board& board,
+                                    PendingNodes& pending_nodes)
+        {
+            std::size_t piece_index = 0;
+            for (const auto& piece : board.pieces())
+            {
+                const auto possible_moves =
+                    board.possible_moves(current_node.locations, piece_index);
+
+                for (const auto& possible_move : possible_moves)
+                {
+                    auto locations = current_node.locations;
+                    locations[piece_index] = possible_move;
+                    auto is_solution = board.all_rabbits_in_hole(locations);
+                    if (locations == solution)
+                        is_solution = true;
+                    const auto new_node = try_add_node(
+                        nodes, transitions, current_node, piece_index,
+                        std::move(locations), is_solution);
+                    if (new_node)
+                        pending_nodes.push_back(new_node);
+                }
+                ++piece_index;
+            }
+        }
+
+        void discover_all_nodes(SolverNodes& nodes,
+                                SolverTransitions& transitions,
+                                const Board& board)
+        {
+            const auto is_solution =
+                board.all_rabbits_in_hole(board.initial_locations());
+            nodes.push_back(std::make_unique<SolverNode>(
+                board.initial_locations(), is_solution));
+
+            PendingNodes pending_nodes;
+            pending_nodes.push_back(nodes.front().get());
+
+            while (!pending_nodes.empty())
+            {
+                auto current_node = pending_nodes.front();
+                pending_nodes.pop_front();
+
+                try_add_adjacent_nodes(nodes, transitions, *current_node, board,
+                                       pending_nodes);
+            }
+        }
+
+        TransitionsNodes compute_distances_from_start(SolverNodes& nodes)
+        {
+            assert(!nodes.empty());
+
+            const auto start_node = nodes.front().get();
+            start_node->distance_from_start = 0;
+
+            PendingNodes pending_nodes;
+            pending_nodes.push_back(start_node);
+
+            while (!pending_nodes.empty())
+            {
+                auto current_node = pending_nodes.front();
+                pending_nodes.pop_front();
+
+                for (const auto transition : current_node->transitions)
+                {
+                    auto& other_node = transition->from == current_node
+                                           ? *transition->to
+                                           : *transition->from;
+
+                    if (other_node.distance_from_start ==
+                        std::numeric_limits<unsigned>::max())
+                        pending_nodes.push_back(&other_node);
+
+                    other_node.distance_from_start =
+                        std::min(other_node.distance_from_start,
+                                 current_node->distance_from_start + 1);
+                }
+            }
+
+            std::sort(nodes.begin(), nodes.end(),
+                      [](const auto& node1, const auto& node2) {
+                          return node1->distance_from_start <
+                                 node2->distance_from_start;
+                      });
+
+            TransitionsNodes fastest_solution;
+
+            const auto iter_fastest_solution_last_node =
+                std::find_if(nodes.begin(), nodes.end(), [](const auto& node) {
+                    return node->is_solution;
+                });
+            if (iter_fastest_solution_last_node != nodes.end())
+            {
+                auto current_node = (*iter_fastest_solution_last_node).get();
+                for (auto distance = current_node->distance_from_start;
+                     distance > 0; --distance)
+                {
+                    const auto iter_transition = std::find_if(
+                        current_node->transitions.begin(),
+                        current_node->transitions.end(),
+                        [&](const auto& transition) {
+                            const auto other_node =
+                                transition->from == current_node
+                                    ? transition->to
+                                    : transition->from;
+                            return other_node->distance_from_start + 1 ==
+                                   current_node->distance_from_start;
+                        });
+                    assert(iter_transition != current_node->transitions.end());
+                    const auto transition = *iter_transition;
+                    fastest_solution.push_front(
+                        std::make_pair(transition, current_node));
+                    current_node = transition->from == current_node
+                                       ? transition->to
+                                       : transition->from;
+                }
+                assert(current_node == nodes.front().get());
+            }
+
+            return fastest_solution;
+        }
+
+        void dump_transition(std::ostream& os,
+                             const SolverTransition& transition)
+        {
+            os << "i:" << transition.piece_index;
+        }
+
+        void dump_node(std::ostream& os, const SolverNode& node)
+        {
+            os << "d:" << node.distance_from_start;
+            os << ", s:" << node.is_solution;
+            os << ", locs:";
+            for (const auto& location : node.locations)
+                os << "(" << location.x << "," << location.y << "),";
+        }
+
+    } // namespace
+
+    SolverGraph::SolverGraph(std::unique_ptr<Impl>&& impl)
+        : m_impl{std::move(impl)}
+    {
+    }
+
+    SolverGraph::SolverGraph(SolverGraph&&) = default;
+
+    SolverGraph::~SolverGraph() = default;
+
+    SolverGraph& SolverGraph::operator=(SolverGraph&&) = default;
+
+    void SolverGraph::dump(std::ostream& os) const
+    {
+        os << "nodes:" << m_impl->nodes.size() << "\n";
+        for (const auto& node : m_impl->nodes)
+        {
+            dump_node(os, *node);
+            os << "\n";
+        }
+        if (m_impl->fastest_solution.empty())
+            os << "solution: none\n";
+        else
+        {
+            os << "solution: " << m_impl->fastest_solution.size() << "\n";
+            for (const auto& transition_node : m_impl->fastest_solution)
+            {
+                if (transition_node.first)
+                {
+                    dump_transition(os, *transition_node.first);
+                    os << "\n";
+                }
+                dump_node(os, *transition_node.second);
+                os << "\n";
+            }
+        }
+    }
+
+    SolverMoves SolverGraph::fastest_solution() const
+    {
+        SolverMoves moves;
+        std::transform(
+            m_impl->fastest_solution.begin(), m_impl->fastest_solution.end(),
+            std::back_inserter(moves), [](const auto& transition_node) {
+                return SolverMove{
+                    transition_node.first->piece_index,
+                    transition_node.second
+                        ->locations[transition_node.first->piece_index]};
+            });
+        return moves;
+    }
+
+    SolverGraph solve(const Board& board)
+    {
+        auto impl = std::make_unique<SolverGraph::Impl>();
+        discover_all_nodes(impl->nodes, impl->transitions, board);
+        impl->fastest_solution = compute_distances_from_start(impl->nodes);
+        return SolverGraph{std::move(impl)};
+    }
+
+}} // namespace raf::raf_v2

@@ -13,11 +13,7 @@
 #include <sdlxx/graphics.hpp>
 #include <vector>
 
-namespace raf {
-    class Board;
-}
-
-namespace raf { namespace visual {
+namespace raf { namespace raf_v1 { namespace visual {
 
     class Config;
 
@@ -86,4 +82,46 @@ namespace raf { namespace visual {
 
     sdlxx::result<World> load_world(const sdlxx::Renderer& renderer);
 
-}} // namespace raf::visual
+}}} // namespace raf::raf_v1::visual
+
+namespace raf { namespace raf_v2 { namespace visual {
+
+    class Config;
+
+    class World
+    {
+    public:
+        World(sdlxx::Repository<sdlxx::Texture>&& textures);
+
+        void play_board(const Config& config, const std::string& board_name);
+
+        void on_click(const Config& config, sdlxx::Point mouse_location);
+
+        void update(const Config& config, sdlxx::Renderer& renderer);
+
+        void render(const Config& config, sdlxx::Renderer& renderer) const;
+
+        struct VisualPiece
+        {
+            const sdlxx::Texture* texture{};
+            std::size_t piece_index{};
+        };
+
+        struct PlayingBoard
+        {
+            const Board* board{};
+            Points locations{};
+            std::vector<VisualPiece> visual_pieces{};
+            VisualPiece* selected_visual_piece{};
+            bool win{};
+        };
+
+    private:
+        sdlxx::Repository<sdlxx::Texture> m_textures;
+        const sdlxx::Texture* m_board_texture;
+        PlayingBoard m_playing_board;
+    };
+
+    sdlxx::result<World> load_world(const sdlxx::Renderer& renderer);
+
+}}} // namespace raf::raf_v2::visual

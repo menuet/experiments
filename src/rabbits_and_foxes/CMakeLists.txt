@@ -8,6 +8,7 @@ add_executable(
     pieces.cpp
     pieces.hpp
     pieces_json.hpp
+    pieces_ranges.hpp
     geometry.hpp
     solver.cpp
     solver.hpp
@@ -20,7 +21,7 @@ add_executable(
     visual_world.hpp
     )
 exp_setup_common_options(rabbits_and_foxes)
-target_link_libraries(rabbits_and_foxes PRIVATE platform sdlxx EXP_THIRDPARTY_CATCH2 EXP_THIRDPARTY_JSON EXP_THIRDPARTY_STD_VARIANT)
+target_link_libraries(rabbits_and_foxes PRIVATE platform sdlxx EXP_THIRDPARTY_CATCH2 EXP_THIRDPARTY_JSON EXP_THIRDPARTY_STD_VARIANT EXP_THIRDPARTY_STD_RANGES)
 
 add_custom_command(
     TARGET rabbits_and_foxes

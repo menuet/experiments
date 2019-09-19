@@ -8,7 +8,7 @@
 #include <sdlxx/geometry.hpp>
 #include <string>
 
-namespace raf { namespace visual {
+namespace raf { namespace raf_v1 { namespace visual {
 
     class Config
     {
@@ -83,4 +83,50 @@ namespace raf { namespace visual {
             (location.y() - config.border_size.h()) / config.cell_size.h()};
     }
 
-}} // namespace raf::visual
+}}} // namespace raf::raf_v1::visual
+
+namespace raf { namespace raf_v2 { namespace visual {
+
+    class Config
+    {
+    public:
+        sdlxx::Size board_size;
+        sdlxx::Size border_size;
+        sdlxx::Size cell_size;
+        std::map<std::string, Board> boards;
+    };
+
+    sdlxx::result<Config>
+    load_config(const stdnext::filesystem::path& config_file_path);
+
+    inline auto logical_to_screen(const Point& location,
+                                  const Config& config) noexcept
+    {
+        return sdlxx::Point{
+            location.x * config.cell_size.w() + config.border_size.w(),
+            location.y * config.cell_size.h() + config.border_size.h()};
+    }
+
+    inline auto logical_to_screen(const Size& size,
+                                  const Config& config) noexcept
+    {
+        return sdlxx::Size{size.w * config.cell_size.w(),
+                           size.h * config.cell_size.h()};
+    }
+
+    inline auto logical_to_screen(const Rectangle& rectangle,
+                                  const Config& config) noexcept
+    {
+        return sdlxx::Rectangle{logical_to_screen(rectangle.location(), config),
+                                logical_to_screen(rectangle.size(), config)};
+    }
+
+    inline auto screen_to_logical(const sdlxx::Point& location,
+                                  const Config& config) noexcept
+    {
+        return raf_v2::Point{
+            (location.x() - config.border_size.w()) / config.cell_size.w(),
+            (location.y() - config.border_size.h()) / config.cell_size.h()};
+    }
+
+}}} // namespace raf::raf_v2::visual
