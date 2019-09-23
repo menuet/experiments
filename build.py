@@ -79,15 +79,16 @@ def get_default_build_type():
     return "Debug"
 
 def get_cmake_toolchain_settings(config):
+    settings = []
+    if config.os == "Windows" and config.generator != "ninja":
+        settings += [
+            "-A", "x64" if config.arch == "x86_64" else "Win32",
+        ]
     if config.toolchain_file != "":
-        return [
+        settings += [
             "-DCMAKE_TOOLCHAIN_FILE=" + config.toolchain_file,
             ]
-    if config.os != "Windows" or config.generator == "ninja":
-        return []
-    return [
-        "-A", "x64" if config.arch == "x86_64" else "Win32",
-    ]
+    return settings
 
 def get_default_toolchain_file(config):
     if config.pkg_mgr != "vcpkg":
@@ -115,7 +116,6 @@ def get_vcpkg_thirdparties(config):
     packages = [
         "catch2",
         "fmt",
-        "boost",
         "sfml",
         "nlohmann-json",
         "sdl2",
@@ -123,6 +123,10 @@ def get_vcpkg_thirdparties(config):
         "sdl2-mixer",
         "sdl2-ttf",
         "range-v3",
+        ]
+    if not "APPVEYOR" in os.environ:
+        packages += [
+            "boost",
         ]
     if config.use_llvm_package:
         packages += [
@@ -144,6 +148,13 @@ def get_cmake_configure_command(config):
         command += [
             "-DVCPKG_TARGET_TRIPLET=" + get_vcpkg_triplet(config),
             ]
+        if "APPVEYOR" in os.environ:
+            boost_root = "C:/Libraries/boost_1_69_0"
+            command += [
+                "-DBOOST_ROOT={}".format(boost_root),
+                "-DBOOST_INCLUDEDIR={}/boost".format(boost_root),
+                "-DBOOST_LIBRARYDIR={}/lib64-msvc-14.0".format(boost_root),
+                ]
     if config.generator == "ninja":
         if config.os == "Windows":
             latest_vc_path = get_latest_vc_path()

@@ -5,20 +5,12 @@ max_jobs: 1
 image: Visual Studio 2017
 
 cache:
-  - '%USERPROFILE%\.conan -> appveyor.yml'
-
-install:
-- cmd: >-
-    set PATH=%PATH%;%PYTHON%/Scripts/
-
-    pip.exe install conan>=1
-
-    conan user
+  - c:\tools\vcpkg\installed -> appveyor.yml
 
 build_script:
 - cmd: >-
-    python build.py --pkg_mgr conan --build_type Debug --acquire --configure --build
+    python build.py --pkg_mgr vcpkg --build_type Debug --acquire --configure --build
 
 test_script:
 - cmd: >-
-    python build.py --pkg_mgr conan --build_type Debug --test
+    python build.py --pkg_mgr vcpkg --build_type Debug --test
