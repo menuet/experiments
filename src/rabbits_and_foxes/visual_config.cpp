@@ -52,8 +52,8 @@ namespace nlohmann {
                 j.at("board_size").get<sdlxx::Size>(),
                 j.at("border_size").get<sdlxx::Size>(),
                 j.at("cell_size").get<sdlxx::Size>(),
-                j.at("boards")
-                    .get<std::map<std::string, raf::raf_v2::Board>>()};
+                j.at("offsets").get<raf::raf_v2::visual::Offsets>(),
+                j.at("boards").get<raf::raf_v2::visual::Boards>()};
         }
 
         static void to_json(json& j, const raf::raf_v2::visual::Config& config)
@@ -61,6 +61,7 @@ namespace nlohmann {
             j["board_size"] = config.board_size;
             j["border_size"] = config.border_size;
             j["cell_size"] = config.cell_size;
+            j["offsets"] = config.offsets;
             j["boards"] = config.boards;
         }
     };
@@ -69,7 +70,7 @@ namespace nlohmann {
 
 namespace raf { namespace raf_v1 { namespace visual {
 
-    sdlxx::result<Config>
+    sdlxx::result<std::unique_ptr<Config>>
     load_config(const stdnext::filesystem::path& config_file_path)
     {
         std::ifstream config_is(config_file_path.string().c_str());
@@ -80,7 +81,7 @@ namespace raf { namespace raf_v1 { namespace visual {
                     stdnext::errc::invalid_argument);
             const auto config_as_json = json::parse(config_is);
             auto config = config_as_json.get<Config>();
-            return config;
+            return std::make_unique<Config>(std::move(config));
         }
         catch (std::exception&)
         {
@@ -92,7 +93,7 @@ namespace raf { namespace raf_v1 { namespace visual {
 
 namespace raf { namespace raf_v2 { namespace visual {
 
-    sdlxx::result<Config>
+    sdlxx::result<std::unique_ptr<Config>>
     load_config(const stdnext::filesystem::path& config_file_path)
     {
         std::ifstream config_is(config_file_path.string().c_str());
@@ -103,12 +104,30 @@ namespace raf { namespace raf_v2 { namespace visual {
                     stdnext::errc::invalid_argument);
             const auto config_as_json = json::parse(config_is);
             auto config = config_as_json.get<Config>();
-            return config;
+            return std::make_unique<Config>(std::move(config));
         }
         catch (std::exception&)
         {
             return stdnext::make_error_code(stdnext::errc::invalid_argument);
         }
+    }
+
+    sdlxx::result<std::unique_ptr<Assets>>
+    load_assets(const sdlxx::Renderer& renderer,
+                const stdnext::filesystem::path& assets_file_path)
+    {
+        BOOST_OUTCOME_TRY(textures, sdlxx::load_assets<sdlxx::Texture>(
+                                        assets_file_path, ".png", renderer));
+
+        const auto board_texture = textures.find_asset("board");
+        if (!board_texture)
+            return stdnext::make_error_code(stdnext::errc::invalid_argument);
+
+        BOOST_OUTCOME_TRY(
+            font, sdlxx::load_font(assets_file_path / "leadcoat.ttf", 50));
+
+        return std::make_unique<Assets>(std::move(textures), *board_texture,
+                                        std::move(font));
     }
 
 }}} // namespace raf::raf_v2::visual

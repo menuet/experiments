@@ -3,9 +3,12 @@
 
 #include "board.hpp"
 #include <map>
+#include <memory>
 #include <platform/filesystem.hpp>
+#include <sdlxx/assets.hpp>
 #include <sdlxx/error_handling.hpp>
 #include <sdlxx/geometry.hpp>
+#include <sdlxx/texts.hpp>
 #include <string>
 
 namespace raf { namespace raf_v1 { namespace visual {
@@ -19,7 +22,7 @@ namespace raf { namespace raf_v1 { namespace visual {
         std::map<std::string, Board> boards;
     };
 
-    sdlxx::result<Config>
+    sdlxx::result<std::unique_ptr<Config>>
     load_config(const stdnext::filesystem::path& config_file_path);
 
     namespace detail {
@@ -87,16 +90,20 @@ namespace raf { namespace raf_v1 { namespace visual {
 
 namespace raf { namespace raf_v2 { namespace visual {
 
+    using Offsets = std::map<std::string, sdlxx::Size>;
+    using Boards = std::map<std::string, Board>;
+
     class Config
     {
     public:
         sdlxx::Size board_size;
         sdlxx::Size border_size;
         sdlxx::Size cell_size;
-        std::map<std::string, Board> boards;
+        Offsets offsets;
+        Boards boards;
     };
 
-    sdlxx::result<Config>
+    sdlxx::result<std::unique_ptr<Config>>
     load_config(const stdnext::filesystem::path& config_file_path);
 
     inline auto logical_to_screen(const Point& location,
@@ -128,5 +135,24 @@ namespace raf { namespace raf_v2 { namespace visual {
             (location.x() - config.border_size.w()) / config.cell_size.w(),
             (location.y() - config.border_size.h()) / config.cell_size.h()};
     }
+
+    class Assets
+    {
+    public:
+        Assets(sdlxx::Repository<sdlxx::Texture>&& textures,
+               const sdlxx::Texture& board_texture, sdlxx::Font&& font)
+            : textures(std::move(textures)), board_texture(&board_texture),
+              font(std::move(font))
+        {
+        }
+
+        sdlxx::Repository<sdlxx::Texture> textures;
+        const sdlxx::Texture* board_texture;
+        sdlxx::Font font;
+    };
+
+    sdlxx::result<std::unique_ptr<Assets>>
+    load_assets(const sdlxx::Renderer& renderer,
+                const stdnext::filesystem::path& assets_file_path);
 
 }}} // namespace raf::raf_v2::visual

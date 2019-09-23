@@ -2,16 +2,10 @@
 #pragma once
 
 #include "board.hpp"
-#include "geometry.hpp"
 #include "pieces.hpp"
+#include "visual_views.hpp"
 #include <map>
 #include <memory>
-#include <optional>
-#include <platform/filesystem.hpp>
-#include <platform/variant.hpp>
-#include <sdlxx/assets.hpp>
-#include <sdlxx/graphics.hpp>
-#include <vector>
 
 namespace raf { namespace raf_v1 { namespace visual {
 
@@ -24,7 +18,13 @@ namespace raf { namespace raf_v1 { namespace visual {
 
         void play_board(const Config& config, const std::string& board_name);
 
-        void on_click(const Config& config, sdlxx::Point mouse_location);
+        void on_click(const Config& config, const sdlxx::Renderer& renderer,
+                      Uint8 button, sdlxx::Point mouse_location);
+
+        void on_key(const Config& config, const sdlxx::Renderer& renderer,
+                    const SDL_Keysym& keysym)
+        {
+        }
 
         void update(const Config& config, sdlxx::Renderer& renderer);
 
@@ -80,7 +80,8 @@ namespace raf { namespace raf_v1 { namespace visual {
         PlayingBoard m_playing_board;
     };
 
-    sdlxx::result<World> load_world(const sdlxx::Renderer& renderer);
+    sdlxx::result<World> load_world(const Config& config,
+                                    const sdlxx::Renderer& renderer);
 
 }}} // namespace raf::raf_v1::visual
 
@@ -91,37 +92,26 @@ namespace raf { namespace raf_v2 { namespace visual {
     class World
     {
     public:
-        World(sdlxx::Repository<sdlxx::Texture>&& textures);
+        World(const Config& config, const sdlxx::Renderer& renderer,
+              std::unique_ptr<Assets>&& assets);
 
-        void play_board(const Config& config, const std::string& board_name);
+        void on_click(const Config& config, const sdlxx::Renderer& renderer,
+                      Uint8 button, sdlxx::Point mouse_location);
 
-        void on_click(const Config& config, sdlxx::Point mouse_location);
+        void on_key(const Config& config, const sdlxx::Renderer& renderer,
+                    const SDL_Keysym& keysym);
 
-        void update(const Config& config, sdlxx::Renderer& renderer);
+        void update(const Config& config, const sdlxx::Renderer& renderer);
 
-        void render(const Config& config, sdlxx::Renderer& renderer) const;
-
-        struct VisualPiece
-        {
-            const sdlxx::Texture* texture{};
-            std::size_t piece_index{};
-        };
-
-        struct PlayingBoard
-        {
-            const Board* board{};
-            Points locations{};
-            std::vector<VisualPiece> visual_pieces{};
-            VisualPiece* selected_visual_piece{};
-            bool win{};
-        };
+        void render(const Config& config,
+                    const sdlxx::Renderer& renderer) const;
 
     private:
-        sdlxx::Repository<sdlxx::Texture> m_textures;
-        const sdlxx::Texture* m_board_texture;
-        PlayingBoard m_playing_board;
+        std::unique_ptr<Assets> m_assets;
+        views::View m_view;
     };
 
-    sdlxx::result<World> load_world(const sdlxx::Renderer& renderer);
+    sdlxx::result<World> load_world(const Config& config,
+                                    const sdlxx::Renderer& renderer);
 
 }}} // namespace raf::raf_v2::visual
