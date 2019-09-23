@@ -115,7 +115,6 @@ def get_vcpkg_thirdparties(config):
     packages = [
         "catch2",
         "fmt",
-        "boost",
         "sfml",
         "nlohmann-json",
         "sdl2",
@@ -123,6 +122,19 @@ def get_vcpkg_thirdparties(config):
         "sdl2-mixer",
         "sdl2-ttf",
         "range-v3",
+        ]
+    if config.os == "Windows":
+        packages += [
+            "boost-asio",
+            "boost-filesystem",
+            "boost-outcome",
+            "boost-process",
+            "boost-program-options",
+            "boost-spirit",
+        ]
+    else:
+        packages += [
+            "boost",
         ]
     if config.use_llvm_package:
         packages += [

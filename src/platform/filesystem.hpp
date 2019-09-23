@@ -18,7 +18,7 @@ namespace stdnext { namespace filesystem {
 #include <filesystem>
 
 namespace stdnext { namespace filesystem {
-    using namespace std::experimental::filesystem;
+    using namespace std::filesystem;
     constexpr auto copy_options_skip_existing = copy_options::skip_existing;
 } }
 
