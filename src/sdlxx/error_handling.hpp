@@ -8,6 +8,10 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpotentially-evaluated-expression"
 #pragma GCC diagnostic ignored "-Wdelete-non-abstract-non-virtual-dtor"
+#elif EXP_PLATFORM_CPL_IS_MSVC
+#pragma warning(push)
+#pragma warning(disable : 5104) // disable warning C5104: found 'L#y' in macro
+                                // replacement list, did you mean 'L""#y'?
 #endif
 
 #include <boost/outcome/outcome.hpp>
@@ -15,6 +19,8 @@
 
 #if EXP_PLATFORM_CPL_IS_CLANG
 #pragma GCC diagnostic pop
+#elif EXP_PLATFORM_CPL_IS_MSVC
+#pragma warning(pop)
 #endif
 
 namespace sdlxx {
