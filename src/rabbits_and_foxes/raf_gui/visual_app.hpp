@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "visual_config.hpp"
 #include <memory>
 #include <sdlxx/error_handling.hpp>
 
@@ -25,6 +26,6 @@ namespace raf { namespace visual {
         std::unique_ptr<Impl> m_impl;
     };
 
-    sdlxx::result<App> load_app();
+    sdlxx::result<App> load_app(const Config& config);
 
 }} // namespace raf::visual

@@ -1,21 +1,15 @@
 
-#include <platform/platform.h>
-#include <catch2/catch.hpp>
-#include <future>
-#include <experimental/generator>
 #include "resumable_thing.hpp"
+#include <catch2/catch.hpp>
+#include <experimental/generator>
+#include <future>
 #include <iostream>
 
-#if EXP_PLATFORM_CPL_IS_MSVC && !EXP_PLATFORM_CPL_IS_CLANG
-#if _MSC_VER >= 1900 && _MSC_VER < 1924
-
 namespace {
+
     std::future<int> produce_future()
     {
-        auto result = std::async([]
-        {
-            return 30;
-        });
+        auto result = std::async([] { return 30; });
         return result;
     }
 
@@ -34,7 +28,8 @@ namespace {
     resumable_thing_void counter()
     {
         std::cout << "counter: called\n";
-        for (unsigned i = 1;; ++i) {
+        for (unsigned i = 1;; ++i)
+        {
             co_await stdnext::suspend_always{};
             std::cout << "counter: resumed (" << i << ")\n";
         }
@@ -53,16 +48,19 @@ namespace {
         for (int i = 0;; ++i)
             co_yield i;
     }
-}
+
+} // namespace
 
 TEST_CASE("Coroutines", "[]")
 {
-    SECTION("future") {
+    SECTION("future")
+    {
         auto result = await_then_produce_future();
         REQUIRE(result.get() == 30);
     }
 
-    SECTION("generator") {
+    SECTION("generator")
+    {
         auto gen = produce_ints();
         auto iter = gen.begin();
         REQUIRE(*iter == 0);
@@ -72,8 +70,10 @@ TEST_CASE("Coroutines", "[]")
         REQUIRE(*iter == 2);
     }
 
-    SECTION("resumable_thing_void") {
-        SECTION("return void") {
+    SECTION("resumable_thing_void")
+    {
+        SECTION("return void")
+        {
             std::cout << "test: calling counter\n";
             auto c = counter();
             std::cout << "test: resuming counter (1)\n";
@@ -82,7 +82,8 @@ TEST_CASE("Coroutines", "[]")
             c.resume();
             std::cout << "test: done\n";
         }
-        SECTION("return value") {
+        SECTION("return value")
+        {
             std::cout << "test: calling get_value\n";
             auto v = get_value();
             std::cout << "test: resuming get_value\n";
@@ -93,7 +94,8 @@ TEST_CASE("Coroutines", "[]")
         }
     }
 
-    SECTION("generator home-made") {
+    SECTION("generator home-made")
+    {
         auto gen = produce_ints_homemade();
         auto iter = gen.begin();
         REQUIRE(*iter == 0);
@@ -103,6 +105,3 @@ TEST_CASE("Coroutines", "[]")
         REQUIRE(*iter == 2);
     }
 }
-
-#endif
-#endif

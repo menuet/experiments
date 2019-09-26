@@ -124,6 +124,9 @@ def get_vcpkg_thirdparties(config):
         "sdl2-ttf",
         "range-v3",
         "opencv",
+        "restinio",
+        "http-parser",
+        "spdlog",
         ]
     if not "APPVEYOR" in os.environ:
         packages += [

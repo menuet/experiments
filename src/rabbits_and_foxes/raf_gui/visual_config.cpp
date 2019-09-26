@@ -44,11 +44,30 @@ namespace nlohmann {
     };
 
     template <>
+    struct adl_serializer<raf::raf_v2::visual::Config::Server>
+    {
+        static raf::raf_v2::visual::Config::Server from_json(const json& j)
+        {
+            return raf::raf_v2::visual::Config::Server{
+                j.at("address").get<std::string>(),
+                j.at("port").get<std::string>()};
+        }
+
+        static void to_json(json& j,
+                            const raf::raf_v2::visual::Config::Server& server)
+        {
+            j["address"] = server.address;
+            j["port"] = server.port;
+        }
+    };
+
+    template <>
     struct adl_serializer<raf::raf_v2::visual::Config>
     {
         static raf::raf_v2::visual::Config from_json(const json& j)
         {
             return raf::raf_v2::visual::Config{
+                j.at("server").get<raf::raf_v2::visual::Config::Server>(),
                 j.at("board_size").get<sdlxx::Size>(),
                 j.at("border_size").get<sdlxx::Size>(),
                 j.at("cell_size").get<sdlxx::Size>(),
@@ -58,6 +77,7 @@ namespace nlohmann {
 
         static void to_json(json& j, const raf::raf_v2::visual::Config& config)
         {
+            j["server"] = config.server;
             j["board_size"] = config.board_size;
             j["border_size"] = config.border_size;
             j["cell_size"] = config.cell_size;
@@ -70,7 +90,7 @@ namespace nlohmann {
 
 namespace raf { namespace raf_v1 { namespace visual {
 
-    sdlxx::result<std::unique_ptr<Config>>
+    sdlxx::result<Config>
     load_config(const stdnext::filesystem::path& config_file_path)
     {
         std::ifstream config_is(config_file_path.string().c_str());
@@ -80,8 +100,7 @@ namespace raf { namespace raf_v1 { namespace visual {
                 return stdnext::make_error_code(
                     stdnext::errc::invalid_argument);
             const auto config_as_json = json::parse(config_is);
-            auto config = config_as_json.get<Config>();
-            return std::make_unique<Config>(std::move(config));
+            return config_as_json.get<Config>();
         }
         catch (std::exception&)
         {
@@ -93,7 +112,7 @@ namespace raf { namespace raf_v1 { namespace visual {
 
 namespace raf { namespace raf_v2 { namespace visual {
 
-    sdlxx::result<std::unique_ptr<Config>>
+    sdlxx::result<Config>
     load_config(const stdnext::filesystem::path& config_file_path)
     {
         std::ifstream config_is(config_file_path.string().c_str());
@@ -103,8 +122,7 @@ namespace raf { namespace raf_v2 { namespace visual {
                 return stdnext::make_error_code(
                     stdnext::errc::invalid_argument);
             const auto config_as_json = json::parse(config_is);
-            auto config = config_as_json.get<Config>();
-            return std::make_unique<Config>(std::move(config));
+            return config_as_json.get<Config>();
         }
         catch (std::exception&)
         {
