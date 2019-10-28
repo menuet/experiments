@@ -7,6 +7,7 @@ add_executable(
     datetime.hpp datetime.test.cpp
     brainrefresh.hpp brainrefresh.test.cpp
     cci/c1.hpp cci/c1.test.cpp
+    cci/c2.hpp cci/c2.test.cpp
 )
 exp_setup_common_options(algorithms.test)
 target_link_libraries(algorithms.test PRIVATE platform EXP_THIRDPARTY_CATCH2)
