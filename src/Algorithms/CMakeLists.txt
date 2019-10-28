@@ -9,6 +9,7 @@ add_executable(
     cci/c1.hpp cci/c1.test.cpp
     cci/c2.hpp cci/c2.test.cpp
     cci/c3.hpp cci/c3.test.cpp
+    cci/c4.hpp cci/c4.test.cpp
 )
 exp_setup_common_options(algorithms.test)
 target_link_libraries(algorithms.test PRIVATE platform EXP_THIRDPARTY_CATCH2)
