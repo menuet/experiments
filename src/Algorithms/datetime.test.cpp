@@ -255,6 +255,7 @@ namespace datetime {
                     AND_WHEN("We transform it back to point")
                     {
                         const auto currentPointDatetimeBack = datetime_cast<PointDatetime>(currentCalendarDatetime);
+                        (void)currentPointDatetimeBack;
                         THEN("we get the same point")
                         {
                             // FIXME: Does not work with Winter time shift
