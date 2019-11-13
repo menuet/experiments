@@ -26,10 +26,10 @@ namespace stdnext {
 
 #include <variant>
 namespace stdnext {
-    using std::variant;
-    using std::visit;
     using std::get;
     using std::get_if;
+    using std::variant;
+    using std::visit;
 } // namespace stdnext
 
 #endif
@@ -43,9 +43,11 @@ namespace stdnext {
     };
 
     template <class... Ts>
-    inline overloaded<std::remove_cv_t<Ts>...> make_overloaded(Ts&... ts)
+    inline overloaded<std::remove_cv_t<std::remove_reference_t<Ts>>...>
+    make_overloaded(Ts&&... ts)
     {
-        return overloaded<std::remove_cv_t<Ts>...>{std::forward<Ts>(ts)...};
+        return overloaded<std::remove_cv_t<std::remove_reference_t<Ts>>...>{
+            std::forward<Ts>(ts)...};
     }
 
 } // namespace stdnext

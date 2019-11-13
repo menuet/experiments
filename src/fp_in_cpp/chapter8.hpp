@@ -4,9 +4,11 @@
 #include <algorithm>
 #include <atomic>
 #include <cassert>
+#include <cstdint>
 #include <iterator>
 #include <memory>
 #include <numeric>
+#include <platform/variant.hpp>
 #include <tuple>
 #include <vector>
 
@@ -590,5 +592,504 @@ namespace fp_in_cpp { namespace v2 {
 
         detail::ListNodeSharedPtr<T> m_head{};
     };
+
+    using TrieSize = std::uint32_t;
+
+    template <typename T, TrieSize ChunkBitsCountV>
+    class Trie;
+
+    namespace detail {
+
+        template <typename T, TrieSize ChunkBitsCountV>
+        class TrieNode;
+
+        template <typename T, TrieSize ChunkBitsCountV>
+        using TrieNodePtr = std::shared_ptr<TrieNode<T, ChunkBitsCountV>>;
+
+        template <typename T, TrieSize ChunkBitsCountV>
+        class TrieNode
+        {
+        public:
+            using size_type = TrieSize;
+
+            static constexpr auto ChunkBitsCount = ChunkBitsCountV;
+            static constexpr size_type ChunkSize = 1U << ChunkBitsCountV;
+            static constexpr size_type ChunkBitsMask = ChunkSize - 1;
+
+            TrieNode(const T& value) : m_var{Leaf(1, value)} {}
+
+            TrieNode(TrieNodePtr<T, ChunkBitsCountV> child)
+                : m_var{Trunk(1, std::move(child))}
+            {
+            }
+
+            TrieNodePtr<T, ChunkBitsCountV> shared_child(size_type index) const
+            {
+                const auto trunk = stdnext::get_if<Trunk>(&m_var);
+                if (!trunk)
+                    return nullptr;
+                assert(index < trunk->size());
+                return (*trunk)[index];
+            }
+
+            TrieNode* child(size_type index) const
+            {
+                return shared_child(index).get();
+            }
+
+            const T* value(size_type index) const
+            {
+                const auto leaf = stdnext::get_if<Leaf>(&m_var);
+                if (!leaf)
+                    return nullptr;
+                assert(index < leaf->size());
+                return &((*leaf)[index]);
+            }
+
+            size_type size() const
+            {
+                return static_cast<size_type>(std::visit(
+                    [](const auto& vec) { return vec.size(); }, m_var));
+            }
+
+            void push_back(const T& value)
+            {
+                const auto leaf = stdnext::get_if<Leaf>(&m_var);
+                if (!leaf)
+                    return;
+                leaf->push_back(value);
+            }
+
+            void push_back(TrieNodePtr<T, ChunkBitsCountV> child)
+            {
+                const auto trunk = stdnext::get_if<Trunk>(&m_var);
+                if (!trunk)
+                    return;
+                trunk->push_back(std::move(child));
+            }
+
+            void pop_back()
+            {
+                std::visit(
+                    [](auto& vec) {
+                        assert(!vec.empty());
+                        vec.pop_back();
+                    },
+                    m_var);
+            }
+
+            void update(size_type index, const T& value)
+            {
+                const auto leaf = stdnext::get_if<Leaf>(&m_var);
+                if (!leaf)
+                    return;
+                assert(index < leaf->size());
+                (*leaf)[index] = value;
+            }
+
+            void update(size_type index, TrieNodePtr<T, ChunkBitsCountV> child)
+            {
+                const auto trunk = stdnext::get_if<Trunk>(&m_var);
+                if (!trunk)
+                    return;
+                assert(index < trunk->size());
+                (*trunk)[index] = std::move(child);
+            }
+
+        private:
+            using Trunk = std::vector<TrieNodePtr<T, ChunkBitsCountV>>;
+            using Leaf = std::vector<T>;
+
+            stdnext::variant<Trunk, Leaf> m_var{};
+        };
+
+        template <typename T, TrieSize ChunkBitsCountV>
+        class TrieNodeIterator
+        {
+            friend class Trie<T, ChunkBitsCountV>;
+
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = T;
+            using difference_type = std::ptrdiff_t;
+            using pointer = const T*;
+            using reference = const T&;
+
+            TrieNodeIterator() = default;
+
+            TrieNodeIterator& operator++()
+            {
+                ++m_index;
+                return *this;
+            }
+
+            TrieNodeIterator operator++(int)
+            {
+                TrieNodeIterator it = *this;
+                ++(*this);
+                return it;
+            }
+
+            bool operator==(TrieNodeIterator other) const
+            {
+                return m_trie == other.m_trie && m_index == other.m_index;
+            }
+
+            bool operator!=(TrieNodeIterator other) const
+            {
+                return !(*this == other);
+            }
+
+            const T& operator*() const;
+
+        private:
+            TrieNodeIterator(const Trie<T, ChunkBitsCountV>& trie,
+                             TrieSize index)
+                : m_trie{&trie}, m_index{index}
+            {
+            }
+
+            const Trie<T, ChunkBitsCountV>* m_trie{};
+            TrieSize m_index{};
+        };
+
+    } // namespace detail
+
+    template <typename T, TrieSize ChunkBitsCountV = 2>
+    class Trie
+    {
+        friend class detail::TrieNodeIterator<T, ChunkBitsCountV>;
+
+    public:
+        static_assert(ChunkBitsCountV > 0 && ChunkBitsCountV < 6);
+
+        using value_type = T;
+        using const_reference = const T&;
+        using const_iterator = detail::TrieNodeIterator<T, ChunkBitsCountV>;
+        using size_type = TrieSize;
+
+        static constexpr auto ChunkBitsCount = ChunkBitsCountV;
+        static constexpr size_type ChunkSize = 1U << ChunkBitsCountV;
+        static constexpr size_type ChunkBitsMask = ChunkSize - 1;
+
+        Trie() = default;
+
+        template <
+            typename InputIter,
+            typename = std::enable_if<
+                std::is_same_v<
+                    typename std::iterator_traits<InputIter>::iterator_category,
+                    std::input_iterator_tag> &&
+                std::is_convertible_v<
+                    typename std::iterator_traits<InputIter>::value_type, T>>>
+        Trie(InputIter first, InputIter last)
+        {
+            std::for_each(first, last, [this](const auto& value) {
+                mutable_push_back(value);
+            });
+        }
+
+        Trie(std::initializer_list<T> il) : Trie(std::begin(il), std::end(il))
+        {
+        }
+
+        auto empty() const { return m_size == 0; }
+
+        auto size() const { return m_size; }
+
+        auto levels() const { return m_levels; }
+
+        auto begin() const { return const_iterator(*this, 0U); }
+
+        auto end() const { return const_iterator(*this, m_size); }
+
+        Trie push_back(const T& value) const
+        {
+            if (!m_root)
+                return Trie{make_leaf_node(value)};
+
+            const auto path = get_path(m_size - 1);
+
+            assert(path.size() == m_levels);
+            auto riter = path.rbegin();
+            assert(riter != path.rend());
+            const auto leaf = riter->first;
+            assert(leaf);
+
+            if (leaf->size() < ChunkSize)
+            {
+                auto new_node = copy_node(*leaf);
+                new_node->push_back(value);
+
+                for (++riter; riter != path.rend(); ++riter)
+                {
+                    const auto old_parent = riter->first;
+                    auto new_parent = copy_node(*old_parent);
+                    new_parent->pop_back();
+                    new_parent->push_back(std::move(new_node));
+                    new_node = std::move(new_parent);
+                }
+
+                return Trie{new_node, m_size + 1, m_levels};
+            }
+
+            auto new_node = make_leaf_node(value);
+
+            for (++riter; riter != path.rend(); ++riter)
+            {
+                const auto old_parent = riter->first;
+                if (old_parent->size() < ChunkSize)
+                    break;
+                new_node = make_trunk_node(std::move(new_node));
+            }
+
+            if (riter == path.rend())
+            {
+                auto root = make_trunk_node(m_root);
+                root->push_back(std::move(new_node));
+                return Trie{std::move(root), m_size + 1, m_levels + 1};
+            }
+
+            const auto old_parent = riter->first;
+            assert(old_parent->size() < ChunkSize);
+            auto new_parent = copy_node(*old_parent);
+            new_parent->push_back(std::move(new_node));
+            new_node = std::move(new_parent);
+
+            for (++riter; riter != path.rend(); ++riter)
+            {
+                const auto old_parent = riter->first;
+                auto new_parent = copy_node(*old_parent);
+                new_parent->pop_back();
+                new_parent->push_back(std::move(new_node));
+                new_node = std::move(new_parent);
+            }
+
+            return Trie{new_node, m_size + 1, m_levels};
+        }
+
+        const T& at(size_type index) const
+        {
+            const auto [leaf, index_in_leaf] = get_leaf(index);
+            assert(leaf);
+            const auto value = leaf->value(index_in_leaf);
+            assert(value);
+            return *value;
+        }
+
+        Trie update(size_type index, const T& value) const
+        {
+            const auto path = get_path(index);
+
+            assert(path.size() == m_levels);
+            auto riter = path.rbegin();
+            assert(riter != path.rend());
+            const auto leaf = riter->first;
+            assert(leaf);
+
+            auto new_node = copy_node(*leaf);
+            new_node->update(riter->second, value);
+
+            for (++riter; riter != path.rend(); ++riter)
+            {
+                const auto old_parent = riter->first;
+                auto new_parent = copy_node(*old_parent);
+                new_parent->update(riter->second, std::move(new_node));
+                new_node = std::move(new_parent);
+            }
+
+            return Trie{new_node, m_size, m_levels};
+        }
+
+        Trie pop_back() const
+        {
+            const auto path = get_path(m_size - 1);
+
+            assert(path.size() == m_levels);
+            auto riter = path.rbegin();
+            assert(riter != path.rend());
+            const auto leaf = riter->first;
+            assert(leaf);
+
+            if (leaf->size() > 1)
+            {
+                auto new_node = copy_node(*leaf);
+                new_node->pop_back();
+
+                for (++riter; riter != path.rend(); ++riter)
+                {
+                    const auto old_parent = riter->first;
+                    auto new_parent = copy_node(*old_parent);
+                    new_parent->pop_back();
+                    new_parent->push_back(std::move(new_node));
+                    new_node = std::move(new_parent);
+                }
+
+                return Trie{new_node, m_size - 1, m_levels};
+            }
+
+            for (++riter; riter != path.rend(); ++riter)
+            {
+                const auto old_parent = riter->first;
+                if (old_parent->size() > 1)
+                    break;
+            }
+
+            if (riter == path.rend())
+            {
+                assert(m_size == 1);
+                assert(m_levels == 1);
+                return Trie{};
+            }
+
+            const auto old_parent = riter->first;
+            assert(old_parent->size() > 1);
+            if (old_parent == m_root.get() && old_parent->size() == 2)
+            {
+                const auto new_root = m_root->shared_child(0);
+                return Trie{new_root, m_size - 1, m_levels - 1};
+            }
+
+            auto new_node = copy_node(*old_parent);
+            new_node->pop_back();
+
+            for (++riter; riter != path.rend(); ++riter)
+            {
+                const auto old_parent = riter->first;
+                auto new_parent = copy_node(*old_parent);
+                new_parent->pop_back();
+                new_parent->push_back(std::move(new_node));
+                new_node = std::move(new_parent);
+            }
+
+            return Trie{new_node, m_size - 1, m_levels};
+        }
+
+    private:
+        using Node = detail::TrieNode<T, ChunkBitsCountV>;
+        using NodePtr = detail::TrieNodePtr<T, ChunkBitsCountV>;
+
+        Trie(NodePtr root) : m_root{std::move(root)}, m_size{1}, m_levels{1} {}
+
+        Trie(NodePtr root, size_type size, size_type levels)
+            : m_root{std::move(root)}, m_size{size}, m_levels{levels}
+        {
+        }
+
+        void mutable_push_back(const T& value)
+        {
+            if (!m_root)
+            {
+                m_root = make_leaf_node(value);
+                m_size = 1U;
+                m_levels = 1U;
+                return;
+            }
+
+            const auto path = get_path(m_size - 1);
+            assert(path.size() == m_levels);
+            auto riter = path.rbegin();
+            assert(riter != path.rend());
+            const auto leaf = riter->first;
+            assert(leaf);
+
+            if (leaf->size() < ChunkSize)
+            {
+                leaf->push_back(value);
+                ++m_size;
+                return;
+            }
+
+            auto new_node = make_leaf_node(value);
+
+            for (++riter; riter != path.rend(); ++riter)
+            {
+                const auto parent = riter->first;
+                if (parent->size() < ChunkSize)
+                {
+                    parent->push_back(new_node);
+                    ++m_size;
+                    return;
+                }
+                new_node = make_trunk_node(new_node);
+            }
+
+            m_root = make_trunk_node(m_root);
+            m_root->push_back(new_node);
+            ++m_size;
+            ++m_levels;
+        }
+
+        static auto copy_node(const Node& leaf)
+        {
+            return std::make_shared<Node>(leaf);
+        }
+
+        static auto make_leaf_node(const T& value)
+        {
+            return std::make_shared<Node>(value);
+        }
+
+        static auto make_trunk_node(NodePtr child)
+        {
+            return std::make_shared<Node>(std::move(child));
+        }
+
+        auto get_leaf(size_type index) const
+        {
+            assert(m_levels > 0);
+            assert(index < m_size);
+            auto node = m_root.get();
+            assert(node);
+            for (auto level = m_levels - 1; level > 0; --level)
+            {
+                const auto child_index =
+                    (index >> (level * ChunkBitsCount)) & ChunkBitsMask;
+                node = node->child(child_index);
+                assert(node);
+            }
+            const auto child_index = index & ChunkBitsMask;
+            return std::pair{node, child_index};
+        }
+
+        auto get_path(size_type index) const
+        {
+            assert(m_root);
+            assert(m_levels > 0);
+            assert(index < m_size);
+
+            std::vector<std::pair<Node*, size_type>> path;
+            path.reserve(m_levels);
+            auto node = m_root.get();
+            for (auto level = m_levels - 1; level > 0; --level)
+            {
+                const auto child_index =
+                    (index >> (level * ChunkBitsCount)) & ChunkBitsMask;
+                assert(node);
+                path.push_back({node, child_index});
+                node = node->child(child_index);
+                assert(node);
+            }
+            const auto child_index = index & ChunkBitsMask;
+            assert(node);
+            path.push_back({node, child_index});
+            return path;
+        }
+
+        NodePtr m_root{};
+        size_type m_size{};
+        size_type m_levels{};
+    };
+
+    namespace detail {
+
+        template <typename T, TrieSize ChunkBitsCountV>
+        const T& TrieNodeIterator<T, ChunkBitsCountV>::operator*() const
+        {
+            assert(m_trie);
+            return m_trie->at(m_index);
+        }
+
+    } // namespace detail
 
 }} // namespace fp_in_cpp::v2
