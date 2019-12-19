@@ -1,12 +1,20 @@
 
 #include "photos.hpp"
+#if EXP_PLATFORM_CPL_IS_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable" // warning : unused variable 'cnt' [-Wunused-variable]
+#endif
 #if EXP_PLATFORM_CPL_IS_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4244)
+#pragma warning(disable : 4267) // warning C4267: 'argument': conversion from 'size_t' to 'boost::winapi::ULONG_', possible loss of data
 #endif
 #include <boost/process.hpp>
 #if EXP_PLATFORM_CPL_IS_MSVC
 #pragma warning(pop)
+#endif
+#if EXP_PLATFORM_CPL_IS_CLANG
+#pragma clang diagnostic pop
 #endif
 #include <system_error>
 #include <platform/system_error.hpp>

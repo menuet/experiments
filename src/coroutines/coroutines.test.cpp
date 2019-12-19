@@ -1,10 +1,13 @@
 
+#include <platform/platform.h>
 #include <catch2/catch.hpp>
 #include <future>
 #include <experimental/generator>
 #include "resumable_thing.hpp"
 #include <iostream>
 
+#if EXP_PLATFORM_CPL_IS_MSVC && !EXP_PLATFORM_CPL_IS_CLANG
+#if _MSC_VER >= 1900 && _MSC_VER < 1924
 
 namespace {
     std::future<int> produce_future()
@@ -100,3 +103,6 @@ TEST_CASE("Coroutines", "[]")
         REQUIRE(*iter == 2);
     }
 }
+
+#endif
+#endif

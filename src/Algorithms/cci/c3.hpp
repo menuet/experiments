@@ -136,7 +136,7 @@ namespace cci { namespace c3 {
         T pop_at(std::size_t stack_index)
         {
             assert(!is_empty());
-            const auto stacks_size = m_stacks.size();
+            [[maybe_unused]] const auto stacks_size = m_stacks.size();
             assert(stack_index < stacks_size);
             auto& stack = m_stacks[stack_index];
             assert(stack.second > 0);

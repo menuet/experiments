@@ -73,7 +73,7 @@ def get_default_os():
     return platform.system()
 
 def get_default_arch():
-    return "x86_64"
+    return "x64"
 
 def get_default_build_type():
     return "Debug"
@@ -82,7 +82,7 @@ def get_cmake_toolchain_settings(config):
     settings = []
     if config.os == "Windows" and config.generator != "ninja":
         settings += [
-            "-A", "x64" if config.arch == "x86_64" else "Win32",
+            "-A", "Win32" if config.arch == "x86" else config.arch,
         ]
     if config.toolchain_file != "":
         settings += [
@@ -108,7 +108,7 @@ def get_default_toolchain_file(config):
     return result
 
 def get_vcpkg_triplet(config):
-    vcpkg_arch = "x64" if config.arch == "x86_64" else config.arch
+    vcpkg_arch = config.arch
     vcpkg_os = config.os.lower()
     return vcpkg_arch + "-" + vcpkg_os
 
@@ -123,6 +123,7 @@ def get_vcpkg_thirdparties(config):
         "sdl2-mixer",
         "sdl2-ttf",
         "range-v3",
+        "opencv",
         ]
     if not "APPVEYOR" in os.environ:
         packages += [
@@ -191,7 +192,7 @@ def get_package_manager_command(config):
             "install",
             "--build=missing",
             "-s", "os={}".format(config.os),
-            "-s", "arch={}".format(config.arch),
+            "-s", "arch={}".format("x86_64" if config.arch == "x64" else config.arch),
             "-s", "build_type={}".format(config.build_type),
             config.this_dir
             ]
@@ -200,7 +201,13 @@ def get_package_manager_command(config):
 def initialize(config):
     print_step("Initializing")
     config.this_dir = os.path.dirname(os.path.realpath(__file__))
-    config.build_dir = os.path.join(config.this_dir, "build", "py-{}-{}-{}-{}-{}".format(config.pkg_mgr, config.os, config.arch, config.build_type, config.generator))
+    config.build_dir = os.path.join(config.this_dir, "out", "build", "py-{}-{}-{}-{}-{}-{}".format(
+        config.pkg_mgr,
+        config.generator,
+        ("win" if config.os == "Windows" else "lin"),
+        config.arch,
+        ("vc" if config.os == "Windows" else "gcc"),
+        ("dbg" if config.build_type == "Debug" else "rel")))
     config.toolchain_file = get_default_toolchain_file(config)
 
     print("Package Manager: {}".format(config.pkg_mgr))
@@ -254,7 +261,7 @@ if __name__ == "__main__":
     parser.add_argument("--test", help="test with ctest", action="store_true")
     parser.add_argument("--pkg_mgr", help="set the package manager to use", type=str, choices=["vcpkg", "conan"], default=get_default_pkg_mgr())
     parser.add_argument("--os", help="set the os", type=str, choices=["Linux", "Windows"], default=get_default_os())
-    parser.add_argument("--arch", help="set the arch", type=str, choices=["x86", "x86_64"], default=get_default_arch())
+    parser.add_argument("--arch", help="set the arch", type=str, choices=["x86", "x64"], default=get_default_arch())
     parser.add_argument("--build_type", help="set the build type", type=str, choices=["Debug", "Release"], default=get_default_build_type())
     parser.add_argument("--generator", help="set the generator to use", type=str, choices=["default", "ninja"], default="default")
     parser.add_argument("--use_llvm_package", help="use llvm package (not used by default, because very long to build)", action="store_true")

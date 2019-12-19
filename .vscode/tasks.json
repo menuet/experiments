@@ -31,7 +31,7 @@
                 "default",
                 "ninja"
             ],
-            "default": "default"
+            "default": "ninja"
         }
     ],
     "tasks": [

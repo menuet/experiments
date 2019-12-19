@@ -1,51 +1,57 @@
 ﻿{
   "configurations": [
     {
-      "name": "vs-vcpkg-Windows-x86_64-vc-Debug-ninja",
+      "name": "vs-vcpkg-ninja-win-x64-vc-dbg",
       "generator": "Ninja",
       "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${workspaceRoot}\\build\\${name}",
-      "installRoot": "${workspaceRoot}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CMAKE_EXPORT_COMPILE_COMMANDS",
-          "value": "TRUE",
-          "type": "BOOL"
-        }
-      ]
-    },
-    {
-      "name": "vs-vcpkg-Windows-x86_64-vc-Release-ninja",
-      "generator": "Ninja",
-      "configurationType": "Release",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${workspaceRoot}\\build\\${name}",
-      "installRoot": "${workspaceRoot}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "-v",
-      "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CMAKE_EXPORT_COMPILE_COMMANDS",
-          "value": "TRUE",
-          "type": "BOOL"
-        }
-      ]
-    },
-    {
-      "name": "vs-vcpkg-Windows-x86_64-clang-Debug-ninja",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "inheritEnvironments": [
+        "msvc_x64_x64"
+      ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "clang_cl_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_EXPORT_COMPILE_COMMANDS",
+          "value": "TRUE",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "vs-vcpkg-ninja-win-x64-vc-rel",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [
+        "msvc_x64_x64"
+      ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CMAKE_EXPORT_COMPILE_COMMANDS",
+          "value": "TRUE",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "vs-vcpkg-ninja-win-x64-clang-dbg",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [
+        "clang_cl_x64"
+      ],
       "variables": [
         {
           "name": "CMAKE_C_COMPILER",
@@ -65,15 +71,17 @@
       ]
     },
     {
-      "name": "vs-vcpkg-Windows-x86_64-clang-Release-ninja",
+      "name": "vs-vcpkg-ninja-win-x64-clang-rel",
       "generator": "Ninja",
       "configurationType": "Release",
-      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "clang_cl_x64" ],
+      "inheritEnvironments": [
+        "clang_cl_x64"
+      ],
       "variables": [
         {
           "name": "CMAKE_C_COMPILER",
@@ -93,16 +101,18 @@
       ]
     },
     {
-      "name": "vs-vcpkg-WSL-x86_64-gcc-Debug-make",
+      "name": "vs-vcpkg-make-wsl-x64-gcc-dbg",
       "generator": "Unix Makefiles",
       "configurationType": "Debug",
-      "buildRoot": "${workspaceRoot}\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "buildRoot": "${projectDir}/out/build/${name}",
+      "installRoot": "${projectDir}/out/install/${name}",
       "cmakeExecutable": "/usr/local/bin/cmake",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ],
+      "inheritEnvironments": [
+        "linux_x64"
+      ],
       "wslPath": "${defaultWSLPath}",
       "addressSanitizerRuntimeFlags": "detect_leaks=0",
       "variables": [
@@ -112,19 +122,21 @@
           "type": "BOOL"
         }
       ],
-      "cmakeToolchain": "/mnt/d/DEV/PERSO/EXPERIMENTS/THEIRS/vcpkg-linux/scripts/buildsystems/vcpkg.cmake"
+      "cmakeToolchain": "/home/pascal/DEV/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
     {
-      "name": "vs-vcpkg-WSL-x86_64-gcc-Release-make",
+      "name": "vs-vcpkg-make-wsl-x64-gcc-rel",
       "generator": "Unix Makefiles",
       "configurationType": "Release",
-      "buildRoot": "${workspaceRoot}\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "buildRoot": "${projectDir}/out/build/${name}",
+      "installRoot": "${projectDir}/out/install/${name}",
       "cmakeExecutable": "/usr/local/bin/cmake",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ],
+      "inheritEnvironments": [
+        "linux_x64"
+      ],
       "wslPath": "${defaultWSLPath}",
       "addressSanitizerRuntimeFlags": "detect_leaks=0",
       "variables": [
@@ -134,7 +146,7 @@
           "type": "BOOL"
         }
       ],
-      "cmakeToolchain": "/mnt/d/DEV/PERSO/EXPERIMENTS/THEIRS/vcpkg-linux/scripts/buildsystems/vcpkg.cmake"
+      "cmakeToolchain": "/home/pascal/DEV/vcpkg/scripts/buildsystems/vcpkg.cmake"
     }
   ]
 }

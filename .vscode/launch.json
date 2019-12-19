@@ -1,16 +1,16 @@
 {
-        "version": "0.2.0",
-        "configurations": [
-            {
-                "name": "(Windows) Launch",
-                "type": "cppvsdbg",
-                "request": "launch",
-                "program": "${workspaceRoot}/build/Windows-x86_64-Debug/bin/things.exe",
-                "args": [],
-                "stopAtEntry": false,
-                "cwd": "${workspaceRoot}",
-                "environment": [],
-                "externalConsole": true
-            }
-        ]
-    }
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/out/build/py-vcpkg-ninja-win-x64-vc-dbg/bin/things.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true
+        }
+    ]
+}

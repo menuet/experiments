@@ -81,5 +81,7 @@
         "xtr1common": "cpp",
         "xtree": "cpp"
     },
-    "python.linting.pylintEnabled": false
+    "python.linting.pylintEnabled": false,
+    "cmake.configureOnOpen": false,
+    "editor.formatOnSave": true
 }
