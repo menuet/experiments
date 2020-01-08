@@ -1,4 +1,5 @@
 
+#include "http_client.hpp"
 #include "visual_app.hpp"
 #include "visual_config.hpp"
 #include "visual_world.hpp"
@@ -8,23 +9,21 @@
 
 namespace raf { namespace visual {
 
-    //#define USE_OLD_V1
-
 #ifdef USE_OLD_V1
-    using namespace raf::raf_v1::visual;
-    constexpr auto config_file_name = "config_v1.json";
+    using raf_v1::visual::World;
 #else
-    using namespace raf::raf_v2::visual;
-    constexpr auto config_file_name = "config_v2.json";
+    using raf_v2::visual::World;
 #endif
 
     class App::Impl
     {
     public:
-        Impl(std::unique_ptr<Config>&& config, sdlxx::Window&& window,
+        Impl(const Config& config, sdlxx::Window&& window,
              sdlxx::Renderer&& renderer, World&& world)
-            : m_config(std::move(config)), m_window(std::move(window)),
-              m_renderer(std::move(renderer)), m_world(std::move(world))
+            : m_config(config),
+              m_http_client(m_config.server.address, m_config.server.port),
+              m_window(std::move(window)), m_renderer(std::move(renderer)),
+              m_world(std::move(world))
         {
         }
 
@@ -34,11 +33,11 @@ namespace raf { namespace visual {
                 sdlxx::on<SDL_QUIT>([](const auto&) {}),
                 sdlxx::on<SDL_MOUSEBUTTONDOWN>(
                     [this](const SDL_MouseButtonEvent& event) {
-                        m_world.on_click(*m_config, m_renderer, event.button,
+                        m_world.on_click(m_config, m_renderer, event.button,
                                          {event.x, event.y});
                     }),
                 sdlxx::on<SDL_KEYDOWN>([this](const SDL_KeyboardEvent& event) {
-                    m_world.on_key(*m_config, m_renderer, event.keysym);
+                    m_world.on_key(m_config, m_renderer, event.keysym);
                 }));
 
             for (;;)
@@ -46,18 +45,19 @@ namespace raf { namespace visual {
                 if (event_poller.poll_events() == sdlxx::PollResult::Quit)
                     break;
 
-                m_world.update(*m_config, m_renderer);
+                m_world.update(m_config, m_renderer);
 
                 sdlxx::clear(m_renderer);
 
-                m_world.render(*m_config, m_renderer);
+                m_world.render(m_config, m_renderer);
 
                 sdlxx::present(m_renderer);
             }
         }
 
     private:
-        std::unique_ptr<Config> m_config;
+        const Config& m_config;
+        HttpClient m_http_client;
         sdlxx::Window m_window;
         sdlxx::Renderer m_renderer;
         World m_world;
@@ -73,20 +73,17 @@ namespace raf { namespace visual {
 
     void App::run() { m_impl->run(); }
 
-    sdlxx::result<App> load_app()
+    sdlxx::result<App> load_app(const Config& config)
     {
-        BOOST_OUTCOME_TRY(config,
-                          load_config(sdlxx::get_asset_path(config_file_name)));
-
         BOOST_OUTCOME_TRY(window, sdlxx::create_window("RABBITS AND FOXES",
-                                                       config->board_size));
+                                                       config.board_size));
 
         BOOST_OUTCOME_TRY(renderer, sdlxx::create_renderer(window));
 
-        BOOST_OUTCOME_TRY(world, load_world(*config, renderer));
+        BOOST_OUTCOME_TRY(world, load_world(config, renderer));
 
         auto app_impl =
-            std::make_unique<App::Impl>(std::move(config), std::move(window),
+            std::make_unique<App::Impl>(config, std::move(window),
                                         std::move(renderer), std::move(world));
 
         return App{std::move(app_impl)};

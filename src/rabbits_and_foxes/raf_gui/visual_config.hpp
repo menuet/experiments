@@ -22,7 +22,7 @@ namespace raf { namespace raf_v1 { namespace visual {
         std::map<std::string, Board> boards;
     };
 
-    sdlxx::result<std::unique_ptr<Config>>
+    sdlxx::result<Config>
     load_config(const stdnext::filesystem::path& config_file_path);
 
     namespace detail {
@@ -96,6 +96,13 @@ namespace raf { namespace raf_v2 { namespace visual {
     class Config
     {
     public:
+        struct Server
+        {
+            std::string address;
+            std::string port;
+        };
+
+        Server server;
         sdlxx::Size board_size;
         sdlxx::Size border_size;
         sdlxx::Size cell_size;
@@ -103,7 +110,7 @@ namespace raf { namespace raf_v2 { namespace visual {
         Boards boards;
     };
 
-    sdlxx::result<std::unique_ptr<Config>>
+    sdlxx::result<Config>
     load_config(const stdnext::filesystem::path& config_file_path);
 
     inline auto logical_to_screen(const Point& location,
@@ -156,3 +163,18 @@ namespace raf { namespace raf_v2 { namespace visual {
                 const stdnext::filesystem::path& assets_file_path);
 
 }}} // namespace raf::raf_v2::visual
+
+namespace raf { namespace visual {
+    //#define USE_OLD_V1
+
+#ifdef USE_OLD_V1
+    using raf_v1::visual::Config;
+    using raf_v1::visual::load_config;
+    constexpr auto config_file_name = "config_v1.json";
+#else
+    using raf_v2::visual::Config;
+    using raf_v2::visual::load_config;
+    constexpr auto config_file_name = "config_v2.json";
+#endif
+
+}} // namespace raf::visual

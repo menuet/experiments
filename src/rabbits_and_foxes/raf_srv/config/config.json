@@ -1,0 +1,30 @@
+{
+  "levels": [
+    {
+      "name": "Starter",
+      "boards": [
+        {
+          "name": "01",
+          "file": "boards/board_01.json"
+        },
+        {
+          "name": "02",
+          "file": "boards/board_02.json"
+        },
+        {
+          "name": "03",
+          "file": "boards/board_03.json"
+        }
+      ]
+    },
+    {
+      "name": "Expert",
+      "boards": [
+        {
+          "name": "27",
+          "file": "boards/board_27.json"
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,8 @@
 {
+  "server": {
+    "address": "localhost",
+    "port": "8080"
+  },
   "board_size": {
     "w": 640,
     "h": 640

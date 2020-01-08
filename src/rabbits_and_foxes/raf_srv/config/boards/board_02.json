@@ -1,0 +1,60 @@
+{
+  "pieces": [
+    {
+      "type": "Hole",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "type": "Hole",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "type": "Hole",
+      "x": 2,
+      "y": 2
+    },
+    {
+      "type": "Hole",
+      "x": 4,
+      "y": 0
+    },
+    {
+      "type": "Hole",
+      "x": 4,
+      "y": 4
+    },
+    {
+      "type": "Mushroom",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "type": "Mushroom",
+      "x": 4,
+      "y": 1
+    },
+    {
+      "type": "Mushroom",
+      "x": 3,
+      "y": 2
+    },
+    {
+      "color": "White",
+      "type": "Rabbit",
+      "x": 4,
+      "y": 0
+    },
+    {
+      "color": "Brown",
+      "type": "Rabbit",
+      "x": 2,
+      "y": 0
+    }
+  ],
+  "size": {
+    "h": 5,
+    "w": 5
+  }
+}
