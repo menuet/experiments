@@ -58,8 +58,7 @@ namespace p0443r12 { namespace execution_detail {
             }
             catch (...)
             {
-                // FIXME : std::forward<RR>(r) ?
-                //                    execution::set_error(r, std::current_exception());
+                execution::set_error(std::forward<RR>(r), std::current_exception());
             }
         }
 
@@ -105,10 +104,10 @@ namespace p0443r12 { namespace execution_detail {
 
     // clang-format off
     template <typename E, typename F>
-    requires(execution::sender_to<E> && execution::sender_to<as_receiver<F>>)
+    requires(execution::sender_to<std::remove_cvref_t<E>, as_receiver<std::remove_cvref_t<F>>>)
     constexpr auto execute(E&& e, F&& f)
     {
-        return false;
+        return execution::submit(std::forward<E>(e), as_receiver<F>(std::forward<F>(f)));
     }
 
     // template <typename E, execution::receiver R>

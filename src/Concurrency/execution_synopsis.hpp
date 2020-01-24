@@ -101,13 +101,13 @@ namespace p0443r12 { namespace execution {
     template <class T, class... An>
     concept receiver_of = receiver<T> && requires(T&& t, An&&... an)
     {
-        execution::set_value((T &&) t, (An &&) an...);
+        execution::set_value(static_cast<T&&>(t), static_cast<An&&>(an)...);
     };
 
     template <class S, class R>
     concept sender_to_impl = requires(S&& s, R&& r)
     {
-        execution::submit((S &&) s, (R &&) r);
+        execution::submit(static_cast<S&&>(s), static_cast<R&&>(r));
     };
 
     template <class S>

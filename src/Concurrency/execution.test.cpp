@@ -106,6 +106,32 @@ namespace custom {
 
     static_assert(p0443r12::execution::executor_of<ExecutorWithoutMember, std::function<void()>>);
 
+    struct SenderWithMember
+    {
+        template <typename R>
+        void submit(R&& r)
+        {
+            submitted = true;
+        }
+
+        bool submitted{};
+    };
+
+    static_assert(p0443r12::execution::sender<SenderWithMember>);
+
+    struct SenderWithoutMember
+    {
+        SenderWithMember* s{};
+    };
+
+    template <typename R>
+    void submit(SenderWithoutMember s, R&& r)
+    {
+        s.s->submitted = true;
+    }
+
+    static_assert(p0443r12::execution::sender<SenderWithoutMember>);
+
 } // namespace custom
 
 TEST_CASE("p0443r12", "")
@@ -223,5 +249,39 @@ TEST_CASE("p0443r12", "")
 
             REQUIRE(executed);
         }
+    }
+
+    SECTION("sender")
+    {
+        SECTION("with member")
+        {
+            custom::SenderWithMember s{};
+            custom::ReceiverWithMembers r{};
+
+            pex::submit(s, r);
+
+            REQUIRE(s.submitted);
+        }
+
+        SECTION("without member")
+        {
+            custom::SenderWithMember sw{};
+            custom::SenderWithoutMember s{&sw};
+            custom::ReceiverWithMembers r{};
+
+            pex::submit(s, r);
+
+            REQUIRE(sw.submitted);
+        }
+
+        //SECTION("as if executor")
+        //{
+        //    custom::SenderWithMember s{};
+        //    bool executed = false;
+
+        //    pex::execute(s, [&] { executed = true; });
+
+        //    REQUIRE(executed);
+        //}
     }
 }
