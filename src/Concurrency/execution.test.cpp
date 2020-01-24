@@ -1,6 +1,7 @@
 
-#include "executors.hpp"
+#include "execution.hpp"
 #include <catch2/catch.hpp>
+#include <compare>
 
 namespace custom {
 
@@ -78,6 +79,32 @@ namespace custom {
     };
 
     static_assert(p0443r12::execution::receiver_of<ReceiverWithMembers_OfInt, int>);
+
+    struct ExecutorWithMember
+    {
+        auto operator<=>(const ExecutorWithMember&) const = default;
+
+        template <typename F>
+        void execute(F&& f) const
+        {
+            std::invoke(std::forward<F>(f));
+        }
+    };
+
+    static_assert(p0443r12::execution::executor_of<ExecutorWithMember, std::function<void()>>);
+
+    struct ExecutorWithoutMember
+    {
+        auto operator<=>(const ExecutorWithoutMember&) const = default;
+    };
+
+    template <typename F>
+    void execute(ExecutorWithoutMember, F&& f)
+    {
+        std::invoke(std::forward<F>(f));
+    }
+
+    static_assert(p0443r12::execution::executor_of<ExecutorWithoutMember, std::function<void()>>);
 
 } // namespace custom
 
@@ -172,6 +199,29 @@ TEST_CASE("p0443r12", "")
                 pex::set_value(r, 42);
                 REQUIRE(r.i == 42);
             }
+        }
+    }
+
+    SECTION("executor")
+    {
+        SECTION("with member")
+        {
+            custom::ExecutorWithMember e{};
+            bool executed = false;
+
+            pex::execute(e, [&] { executed = true; });
+
+            REQUIRE(executed);
+        }
+
+        SECTION("without member")
+        {
+            custom::ExecutorWithoutMember e{};
+            bool executed = false;
+
+            pex::execute(e, [&] { executed = true; });
+
+            REQUIRE(executed);
         }
     }
 }

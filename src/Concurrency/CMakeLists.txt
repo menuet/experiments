@@ -1,7 +1,7 @@
 
 add_executable(concurrency concurrency_threadpool.hpp concurrency.hpp concurrency.test.cpp main.cpp)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    target_sources(concurrency PRIVATE executors.hpp executors.test.cpp)
+    target_sources(concurrency PRIVATE execution.hpp execution.test.cpp)
 endif()
 exp_setup_common_options(concurrency)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
