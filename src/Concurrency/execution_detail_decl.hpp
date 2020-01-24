@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include <concepts>
 
 namespace p0443r12 { namespace execution { namespace detail {
 
@@ -81,8 +82,11 @@ namespace p0443r12 { namespace execution { namespace detail {
 
     struct invocable_archetype
     {
-        // TODO
+        template <typename... Args>
+        void operator()(Args&&...) const;
     };
+
+    static_assert(std::invocable<invocable_archetype>);
 
     struct receiver_invocation_error : std::runtime_error, std::nested_exception
     {

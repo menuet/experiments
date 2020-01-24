@@ -85,16 +85,37 @@ namespace p0443r12 { namespace execution { namespace detail {
             detail_niebloids::submit(static_cast<S&&>(s), static_cast<R&&>(r));
         };
 
+    template <class S, class R>
+    concept pseudo_sender_to_impl =
+        requires(S&& s, R&& r) {
+            s.submit(static_cast<R&&>(r));
+        }
+        ||
+        requires(S&& s, R&& r) {
+            submit(static_cast<S&&>(s), static_cast<R&&>(r));
+        };
+
     template <class S>
     concept sender =
         std::move_constructible<std::remove_cvref_t<S>> &&
         sender_to_impl<S, sink_receiver>;
+
+    template <class S>
+    concept pseudo_sender =
+        std::move_constructible<std::remove_cvref_t<S>> &&
+        pseudo_sender_to_impl<S, sink_receiver>;
 
     template <class S, class R>
     concept sender_to =
         sender<S> &&
         receiver<R> &&
         sender_to_impl<S, R>;
+
+    template <typename S, typename R>
+    concept pseudo_sender_to =
+        pseudo_sender<S> &&
+        receiver<R> &&
+        pseudo_sender_to_impl<S, R>;
 
     template <template <template <class...> class Tuple, template <class...> class Variant> class>
     struct has_value_types; // exposition only
@@ -112,28 +133,68 @@ namespace p0443r12 { namespace execution { namespace detail {
     };
 
     template <class S>
-    concept typed_sender = sender<S>&& has_sender_types<sender_traits<S>>;
+    concept typed_sender =
+        sender<S> &&
+        has_sender_types<sender_traits<S>>;
 
     template <class S>
     concept scheduler =
-        std::copy_constructible<std::remove_cvref_t<S>>&& std::equality_comparable<std::remove_cvref_t<S>>&& requires(
-            S&& s)
-    {
-        detail_niebloids::schedule((S &&) s);
-    }; // && sender<invoke_result_t<detail_niebloids::schedule, S>>
+        std::copy_constructible<std::remove_cvref_t<S>> &&
+        std::equality_comparable<std::remove_cvref_t<S>> &&
+        requires(S&& s)
+        {
+            detail_niebloids::schedule((S &&) s);
+        }; // && sender<invoke_result_t<detail_niebloids::schedule, S>>
 
     template <class E, class F>
-    concept executor_of_impl = std::invocable<F>&& std::is_nothrow_copy_constructible_v<
-        E>&& std::is_nothrow_destructible_v<E>&& std::equality_comparable<E>&& requires(const E& e, F&& f)
-    {
-        detail_niebloids::execute(e, static_cast<F&&>(f));
-    };
+    concept executor_of_impl =
+        std::invocable<F> &&
+        std::is_nothrow_copy_constructible_v<E> &&
+        std::is_nothrow_destructible_v<E> &&
+        std::equality_comparable<E> &&
+        requires(const E& e, F&& f)
+        {
+            detail_niebloids::execute(e, static_cast<F&&>(f));
+        };
+
+    template <class E, class F>
+    concept pseudo_executor_of_impl =
+        std::invocable<F> &&
+        std::is_nothrow_copy_constructible_v<E> &&
+        std::is_nothrow_destructible_v<E> &&
+        std::equality_comparable<E> &&
+        (
+        requires(const E& e, F&& f)
+        {
+            e.execute(static_cast<F&&>(f));
+        } ||
+        requires(const E& e, F&& f)
+        {
+            execute(e, static_cast<F&&>(f));
+        }
+        );
 
     template <class E>
-    concept executor = executor_of_impl<E, invocable_archetype>;
+    concept executor =
+        executor_of_impl<E, invocable_archetype>;
+
+    template <class E>
+    concept pseudo_executor =
+//        std::is_nothrow_copy_constructible_v<E> &&
+//        std::is_nothrow_destructible_v<E> &&
+//        std::equality_comparable<E>
+////        &&
+////        true;
+        pseudo_executor_of_impl<E, invocable_archetype>;
+        ;
 
     template <class E, class F>
-    concept executor_of = executor_of_impl<E, F>;
+    concept executor_of =
+        executor_of_impl<E, F>;
+
+    template <typename E, typename F>
+    concept pseudo_executor_of =
+        pseudo_executor_of_impl<E, F>;
 
     // clang-format on
 
