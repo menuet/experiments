@@ -14,7 +14,7 @@ namespace p0443r12 { namespace execution { namespace detail {
         using invocable_type = std::remove_cvref_t<F>;
         invocable_type f_;
 
-        static_assert(receiver_of<as_receiver>);
+//        static_assert(receiver_of<as_receiver>);
 
     public:
         explicit as_receiver(invocable_type&& f) : f_(std::move_if_noexcept(f))
@@ -32,7 +32,7 @@ namespace p0443r12 { namespace execution { namespace detail {
             std::invoke(f_);
         }
 
-        void set_error(std::exception_ptr) noexcept
+        void set_error(std::exception_ptr) /*TYPO*/ noexcept
         {
             std::terminate();
         }
@@ -102,23 +102,11 @@ namespace p0443r12 { namespace execution { namespace detail {
         }
     };
 
-    // template <typename E, typename F>
-    // constexpr auto execute(E&& e, F&& f) -> decltype(std::forward<E>(e).execute(std::forward<F>(f)))
-    //{
-    //    return std::forward<E>(e).execute(std::forward<F>(f));
-    //}
-
     // clang-format off
 
     template <typename E, typename F>
-    concept executor_with_member =
+    concept pseudo_executor_with_member_execute =
         std::invocable<F>
-        &&
-        std::is_nothrow_copy_constructible_v<E>
-        &&
-        std::is_nothrow_destructible_v<E>
-        &&
-        std::equality_comparable<E>
         &&
         requires(const E& e, F&& f) {
             e.execute(static_cast<F&&>(f));
@@ -126,18 +114,31 @@ namespace p0443r12 { namespace execution { namespace detail {
         ;
 
     template <typename E, typename F>
-    requires(executor_with_member<E, std::remove_cvref_t<F>>)
+    requires(pseudo_executor_with_member_execute<E, std::remove_cvref_t<F>>)
     constexpr auto execute(const E& e, F&& f)
     {
         return e.execute(std::forward<F>(f));
     }
 
-    //template <typename E, typename F>
-    //requires(sender_to<std::remove_cvref_t<E>, as_receiver<std::remove_cvref_t<F>>>)
-    //constexpr auto execute(E&& e, F&& f)
-    //{
-    //    return execution_detail_niebloids::submit(std::forward<E>(e), as_receiver<F>(std::forward<F>(f)));
-    //}
+    template <typename S, typename R>
+    concept pseudo_sender_to =
+        receiver<R>
+        &&
+        requires(S&& s, R&& r) {
+            s.submit(static_cast<R&&>(r));
+        }
+        ||
+        requires(S&& s, R&& r) {
+            submit(static_cast<S&&>(s), static_cast<R&&>(r));
+        }
+        ;
+
+    template <typename S, typename F>
+    requires(pseudo_sender_to<std::remove_cvref_t<S>, as_receiver<std::remove_cvref_t<F>>>)
+    constexpr auto execute(S&& s, F&& f)
+    {
+        return detail_niebloids::submit(std::forward<S>(s), as_receiver<F>(std::forward<F>(f)));
+    }
 
     // clang-format on
 
@@ -162,12 +163,19 @@ namespace p0443r12 { namespace execution { namespace detail {
     //    return execution_detail_niebloids::execute(std::forward<E>(e), as_invocable<R>(std::forward<R>(r)));
     //}
 
+    // clang-format on
+
     template <typename S, typename R>
-    constexpr auto submit_t::operator()(S&& s, R&& r) const
+    requires(receiver<R> && (pseudo_sender_to<S, R> || pseudo_executor_with_member_execute<S, R>))
+    constexpr auto submit_impl(S&& s, R&& r)
     {
         return submit(std::forward<S>(s), std::forward<R>(r));
     }
 
-    // clang-format on
+    template <typename S, typename R>
+    constexpr auto submit_t::operator()(S&& s, R&& r) const
+    {
+        return submit_impl(std::forward<S>(s), std::forward<R>(r));
+    }
 
 }}} // namespace p0443r12::execution::detail

@@ -36,55 +36,54 @@ namespace p0443r12 { namespace execution { namespace detail {
 
     // clang-format off
 
-    //template <class S>
-    //requires(!same_as<S, remove_cvref_t<S>>)
-    //struct sender_traits_base : sender_traits<remove_cvref_t<S>>
-    //{
-    //};
+    template <class S>
+    concept has_sender_traits = true; // TODO
 
-    //template<class S>
-    //  requires same_as<S, remove_cvref_t<S>> &&
-    //  sender<S> && has-sender-traits<S>
-    //struct sender_traits_base<S> {
-    //  template<template<class...> class Tuple, template<class...> class Variant>
-    //  using value_types = typename S::template value_types<Tuple, Variant>;
+    template <class S>
+    requires(!std::same_as<S, std::remove_cvref_t<S>>)
+    struct sender_traits_base /*TYPO*/ <S> : sender_traits<std::remove_cvref_t<S>>
+    {
+    };
 
-    //  template<template<class...> class Variant>
-    //  using error_types = typename S::template error_types<Variant>;
+    template<class S>
+    requires(std::same_as<S, std::remove_cvref_t<S>> && sender<S> && has_sender_traits<S>)
+    struct sender_traits_base<S> {
+        template <template <class...> class Tuple, template <class...> class Variant>
+        using value_types = typename S::template value_types<Tuple, Variant>;
 
-    //  static constexpr bool sends_done = S::sends_done;
-    //};
+        template <template <class...> class Variant>
+        using error_types = typename S::template error_types<Variant>;
 
-    //template<class S>
-    //struct sender_traits : sender_traits_base<S> {};
+        static constexpr bool sends_done = S::sends_done;
+    };
+
+    template<class S>
+    struct sender_traits : sender_traits_base<S> {};
 
     template <class T, class E = std::exception_ptr>
     concept receiver =
         std::move_constructible<std::remove_cvref_t<T>> &&
         (std::is_nothrow_move_constructible_v<std::remove_cvref_t<T>> || std::copy_constructible<std::remove_cvref_t<T>>) &&
         requires(T&& t, E&& e)
-    {
         {
-            detail_niebloids::set_done(static_cast<T&&>(t))
-        }
-        noexcept;
-        {
-            detail_niebloids::set_error(static_cast<T&&>(t), static_cast<E&&>(e))
-        }
-        noexcept;
-    };
+            { detail_niebloids::set_done(static_cast<T&&>(t)) } noexcept;
+            { detail_niebloids::set_error(static_cast<T&&>(t), static_cast<E&&>(e)) } noexcept;
+        };
 
     template <class T, class... An>
-    concept receiver_of = receiver<T>&& requires(T&& t, An&&... an)
-    {
-        detail_niebloids::set_value(static_cast<T&&>(t), static_cast<An&&>(an)...);
-    };
+    concept receiver_of =
+        receiver<T> &&
+        requires(T&& t, An&&... an)
+        {
+            detail_niebloids::set_value(static_cast<T&&>(t), static_cast<An&&>(an)...);
+        };
 
     template <class S, class R>
-    concept sender_to_impl = requires(S&& s, R&& r)
-    {
-        detail_niebloids::submit(static_cast<S&&>(s), static_cast<R&&>(r));
-    };
+    concept sender_to_impl =
+        requires(S&& s, R&& r)
+        {
+            detail_niebloids::submit(static_cast<S&&>(s), static_cast<R&&>(r));
+        };
 
     template <class S>
     concept sender =
@@ -92,7 +91,10 @@ namespace p0443r12 { namespace execution { namespace detail {
         sender_to_impl<S, sink_receiver>;
 
     template <class S, class R>
-    concept sender_to = sender<S>&& receiver<R>&& sender_to_impl<S, R>;
+    concept sender_to =
+        sender<S> &&
+        receiver<R> &&
+        sender_to_impl<S, R>;
 
     template <template <template <class...> class Tuple, template <class...> class Variant> class>
     struct has_value_types; // exposition only
