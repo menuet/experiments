@@ -95,6 +95,7 @@ namespace conc { namespace ut {
         }
     }
 
+#if 0
     TEST_CASE("Executors", "[executors]")
     {
         namespace cex = conc::execution;
@@ -149,5 +150,6 @@ namespace conc { namespace ut {
 #endif
         }
     }
+#endif
 
 }} // namespace conc::ut
