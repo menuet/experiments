@@ -180,13 +180,7 @@ namespace p0443r12 { namespace execution { namespace detail {
 
     template <class E>
     concept pseudo_executor =
-//        std::is_nothrow_copy_constructible_v<E> &&
-//        std::is_nothrow_destructible_v<E> &&
-//        std::equality_comparable<E>
-////        &&
-////        true;
         pseudo_executor_of_impl<E, invocable_archetype>;
-        ;
 
     template <class E, class F>
     concept executor_of =
