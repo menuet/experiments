@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace p0443r12 { namespace execution_detail {
+namespace p0443r12 { namespace execution { namespace detail {
 
     template <typename R, typename... Vs>
     constexpr auto set_value(R&& r, Vs&&... vs) -> decltype(std::forward<R>(r).set_value(std::forward<Vs>(vs)...))
@@ -51,34 +51,16 @@ namespace p0443r12 { namespace execution_detail {
         }
     };
 
-    template <typename E, typename F>
-    constexpr auto execute(E&& e, F&& f) -> decltype(std::forward<E>(e).execute(std::forward<F>(f)))
-    {
-        return std::forward<E>(e).execute(std::forward<F>(f));
-    }
-
     struct execute_t
     {
         template <typename E, typename F>
-        constexpr auto operator()(E&& e, F&& f) const
-        {
-            return execute(std::forward<E>(e), std::forward<F>(f));
-        }
+        constexpr auto operator()(const E& e, F&& f) const;
     };
-
-    template <typename S, typename R>
-    constexpr auto submit(S&& s, R&& r) -> decltype(std::forward<S>(s).submit(std::forward<R>(r)))
-    {
-        return std::forward<S>(s).submit(std::forward<R>(r));
-    }
 
     struct submit_t
     {
         template <typename S, typename R>
-        constexpr auto operator()(S&& s, R&& r) const
-        {
-            return submit(std::forward<S>(s), std::forward<R>(r));
-        }
+        constexpr auto operator()(S&& s, R&& r) const;
     };
 
     struct schedule_t
@@ -97,9 +79,34 @@ namespace p0443r12 { namespace execution_detail {
 
     // Invocable archetype
 
-    struct unspecified_invocable_archetype
+    struct invocable_archetype
     {
         // TODO
     };
 
-}} // namespace p0443r12::execution_detail
+    struct receiver_invocation_error : std::runtime_error, std::nested_exception
+    {
+        receiver_invocation_error() noexcept : std::runtime_error(invocation_error), std::nested_exception()
+        {
+        }
+    };
+
+}}} // namespace p0443r12::execution::detail
+
+namespace p0443r12 { namespace execution { namespace detail_niebloids {
+
+    inline constexpr detail::set_value_t set_value{};
+
+    inline constexpr detail::set_done_t set_done{};
+
+    inline constexpr detail::set_error_t set_error{};
+
+    inline constexpr detail::execute_t execute{};
+
+    inline constexpr detail::submit_t submit{};
+
+    inline constexpr detail::schedule_t schedule{};
+
+    inline constexpr detail::bulk_execute_t bulk_execute{};
+
+}}} // namespace p0443r12::execution::detail_niebloids

@@ -6,7 +6,13 @@ if(
     ("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL "19.24")
     )
     message(STATUS "adding p0443r12 execution to concurrency")
-    target_sources(concurrency PRIVATE execution.hpp execution.test.cpp)
+    target_sources(concurrency PRIVATE
+        execution.hpp
+        execution_detail_decl.hpp
+        execution_detail_concepts.hpp
+        execution_detail_impl.hpp
+        execution_models.hpp
+        execution.test.cpp)
 endif()
 exp_setup_common_options(concurrency)
 if(
