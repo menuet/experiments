@@ -1,11 +1,41 @@
 
 #include "execution.hpp"
+#include "execution-niebler.hpp"
 #include "execution_models.hpp"
 #include <catch2/catch.hpp>
 
-TEST_CASE("p0443r12", "")
+namespace util {
+
+    struct Mine
+    {
+        static constexpr auto set_value = p0443r12::execution::set_value;
+
+        static constexpr auto set_done = p0443r12::execution::set_done;
+
+        static constexpr auto set_error = p0443r12::execution::set_error;
+
+        static constexpr auto execute = p0443r12::execution::execute;
+
+        static constexpr auto submit = p0443r12::execution::submit;
+    };
+#if 0
+    struct Niebler
+    {
+        static constexpr auto set_value = std::execution::set_value;
+
+        static constexpr auto set_done = std::execution::set_done;
+
+        static constexpr auto set_error = std::execution::set_error;
+
+        static constexpr auto execute = std::execution::execute;
+
+        static constexpr auto submit = std::execution::submit;
+    };
+#endif
+} // namespace util
+
+TEMPLATE_TEST_CASE("p0443r12", "", util::Mine)
 {
-    namespace pex = p0443r12::execution;
     namespace pmo = p0443r12::models;
 
     SECTION("receiver")
@@ -16,14 +46,14 @@ TEST_CASE("p0443r12", "")
 
             SECTION("set_done")
             {
-                pex::set_done(r);
+                TestType::set_done(r);
                 REQUIRE(r.done);
             }
 
             SECTION("set_error")
             {
                 const auto ep = std::make_exception_ptr(std::runtime_error("error"));
-                pex::set_error(r, ep);
+                TestType::set_error(r, ep);
                 REQUIRE(r.ep == ep);
             }
         }
@@ -34,14 +64,14 @@ TEST_CASE("p0443r12", "")
 
             SECTION("set_done")
             {
-                pex::set_done(r);
+                TestType::set_done(r);
                 REQUIRE(r.done);
             }
 
             SECTION("set_error")
             {
                 const auto ep = std::make_exception_ptr(std::runtime_error("error"));
-                pex::set_error(r, ep);
+                TestType::set_error(r, ep);
                 REQUIRE(r.ep == ep);
             }
         }
@@ -55,20 +85,20 @@ TEST_CASE("p0443r12", "")
 
             SECTION("set_done")
             {
-                pex::set_done(r);
+                TestType::set_done(r);
                 REQUIRE(r.done);
             }
 
             SECTION("set_error")
             {
                 const auto ep = std::make_exception_ptr(std::runtime_error("error"));
-                pex::set_error(r, ep);
+                TestType::set_error(r, ep);
                 REQUIRE(r.ep == ep);
             }
 
             SECTION("set_value")
             {
-                pex::set_value(r, 42);
+                TestType::set_value(r, 42);
                 REQUIRE(r.i == 42);
             }
         }
@@ -79,20 +109,20 @@ TEST_CASE("p0443r12", "")
 
             SECTION("set_done")
             {
-                pex::set_done(r);
+                TestType::set_done(r);
                 REQUIRE(r.done);
             }
 
             SECTION("set_error")
             {
                 const auto ep = std::make_exception_ptr(std::runtime_error("error"));
-                pex::set_error(r, ep);
+                TestType::set_error(r, ep);
                 REQUIRE(r.ep == ep);
             }
 
             SECTION("set_value")
             {
-                pex::set_value(r, 42);
+                TestType::set_value(r, 42);
                 REQUIRE(r.i == 42);
             }
         }
@@ -105,7 +135,7 @@ TEST_CASE("p0443r12", "")
             pmo::ExecutorWithMember e{};
             bool executed = false;
 
-            pex::execute(e, [&] { executed = true; });
+            TestType::execute(e, [&] { executed = true; });
 
             REQUIRE(executed);
         }
@@ -115,7 +145,7 @@ TEST_CASE("p0443r12", "")
             pmo::ExecutorWithoutMember e{};
             bool executed = false;
 
-            pex::execute(e, [&] { executed = true; });
+            TestType::execute(e, [&] { executed = true; });
 
             REQUIRE(executed);
         }
@@ -128,7 +158,7 @@ TEST_CASE("p0443r12", "")
             pmo::SenderWithMember s{};
             pmo::ReceiverWithMembers r{};
 
-            pex::submit(s, r);
+            TestType::submit(s, r);
 
             REQUIRE(s.submitted);
         }
@@ -139,12 +169,12 @@ TEST_CASE("p0443r12", "")
             pmo::SenderWithoutMember s{&sw};
             pmo::ReceiverWithMembers r{};
 
-            pex::submit(s, r);
+            TestType::submit(s, r);
 
             REQUIRE(sw.submitted);
         }
 
-        //SECTION("as if executor")
+        // SECTION("as if executor")
         //{
         //    pmo::SenderWithMember s{};
         //    bool executed = false;

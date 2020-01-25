@@ -138,7 +138,7 @@ namespace p0443r12 { namespace execution { namespace detail {
     }
 
     template <typename S, typename R>
-    requires((pseudo_sender<S> || pseudo_executor_with_member_execute<S, R>) && receiver<R>)
+    requires((pseudo_sender<S> || pseudo_executor_of<S, R>) && receiver<R>)
     constexpr auto submit_impl(S&& s, R&& r)
     {
         return submit(std::forward<S>(s), std::forward<R>(r));
