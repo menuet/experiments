@@ -104,6 +104,70 @@ namespace p0443r12 { namespace execution { namespace detail {
 
     // clang-format off
 
+    template <typename R>
+    concept has_set_done_member_function = requires(R&& r) { { static_cast<R&&>(r).set_done() } noexcept; };
+
+    template <typename R>
+    concept has_set_done_free_function = requires(R&& r) { { set_done(static_cast<R&&>(r)) } noexcept; };
+
+    template <typename R, typename E>
+    concept has_set_error_member_function = requires(R&& r, E&& e) { { static_cast<R&&>(r).set_error(static_cast<E&&>(e)) } noexcept; };
+
+    template <typename R, typename E>
+    concept has_set_error_free_function = requires(R&& r, E&& e) { { set_error(static_cast<R&&>(r), static_cast<E&&>(e)) } noexcept; };
+
+    template <typename R, typename... Args>
+    concept has_set_value_member_function = requires(R&& r, Args&&... args) { static_cast<R&&>(r).set_value(static_cast<Args&&>(args)); };
+
+    template <typename R, typename... Args>
+    concept has_set_value_fre_function = requires(R&& r, Args&&... args) { set_value(static_cast<R&&>(r), static_cast<Args&&>(args)); };
+
+    template <typename E, typename F>
+    concept has_execute_member_function = requires(E&& e, F&& f) { static_cast<E&&>(e).execute(static_cast<F&&>(f)); };
+
+    template <typename E, typename F>
+    concept has_execute_free_function = requires(E&& e, F&& f) { execute(static_cast<E&&>(e), static_cast<F&&>(f)); };
+
+    template <typename S, typename R>
+    concept has_submit_member_function = requires(S&& s, R&& r) { static_cast<S&&>(s).submit(static_cast<R&&>(r)); };
+
+    template <typename S, typename R>
+    concept has_submit_free_function = requires(S&& s, R&& r) { submit(static_cast<S&&>(s), static_cast<R&&>(r)); };
+
+    template <class R, class E = std::exception_ptr>
+    concept pseudo_receiver =
+        general_receiver<R> &&
+        (has_set_done_member_function<R> || has_set_done_free_function<R>) &&
+        (has_set_error_member_function<R, E> || has_set_error_free_function<R, E>);
+
+    template <class S, class R>
+    concept pseudo_sender_to_impl =
+        has_submit_member_function<S, R> || has_submit_free_function<S, R>;
+
+    template <class S>
+    concept pseudo_sender =
+        std::move_constructible<no_cvr<S>> &&
+        pseudo_sender_to_impl<S, sink_receiver>;
+
+    template <typename S, typename R>
+    concept pseudo_sender_to =
+        pseudo_sender<S> &&
+        pseudo_receiver<R> &&
+        pseudo_sender_to_impl<S, R>;
+
+    template <class E, class F>
+    concept pseudo_executor_of_impl =
+        general_executor_of_impl<E, F> &&
+        (has_execute_member_function<E, F> || has_execute_free_function<E, F>);
+
+    template <class E>
+    concept pseudo_executor =
+        pseudo_executor_of_impl<E, invocable_archetype>;
+
+    template <typename E, typename F>
+    concept pseudo_executor_of =
+        pseudo_executor_of_impl<E, F>;
+
     template <typename E, typename F>
     constexpr auto execute(const E& e, F&& f) -> decltype(e.execute(std::forward<F>(f)))
     {
