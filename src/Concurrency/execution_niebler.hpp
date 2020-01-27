@@ -136,11 +136,11 @@ namespace std::execution {
   // Customization points:
   template<bool Valid, bool Noexcept>
     struct __result {
-      static constexpr bool __valid_niebler = Valid;
+      static constexpr bool __valid = Valid;
       static constexpr bool __noexcept = Noexcept;
     };
   template<class F, class...As>
-    concept __valid_niebler = invoke_result_t<F, As...>::__valid_niebler;
+    concept __valid = invoke_result_t<F, As...>::__valid;
   template<class F, class...As>
     inline constexpr bool __noexcept = invoke_result_t<F, As...>::__noexcept;
 
@@ -163,7 +163,7 @@ namespace std::execution {
         }
       };
       template<class R, class... As>
-        requires __valid_niebler<__impl, R, As...>
+        requires __valid<__impl, R, As...>
       void operator()(R&& r, As&&... as) const noexcept(__noexcept<__impl, R, As...>) {
         (void) __impl{}((R&&) r, (As&&) as...);
       }
@@ -189,7 +189,7 @@ namespace std::execution {
         }
       };
       template<class R, class E>
-        requires __valid_niebler<__impl, R, E>
+        requires __valid<__impl, R, E>
       void operator()(R&& r, E&& e) const noexcept(__noexcept<__impl, R, E>) {
         (void) __impl{}((R&&) r, (E&&) e);
       }
@@ -215,7 +215,7 @@ namespace std::execution {
         }
       };
       template<class R>
-        requires __valid_niebler<__impl, R>
+        requires __valid<__impl, R>
       void operator()(R&& r) const noexcept(__noexcept<__impl, R>) {
         (void) __impl{}((R&&) r);
       }
@@ -289,7 +289,7 @@ namespace std::execution {
         }
       };
       template<class O>
-        requires __valid_niebler<__impl, O&>
+        requires __valid<__impl, O&>
       void operator()(O& o) const noexcept(__noexcept<__impl, O&>) {
         (void) __impl{}(o);
       }
@@ -317,7 +317,7 @@ namespace std::execution {
         requires invocable<remove_cvref_t<F>&> &&
             constructible_from<remove_cvref_t<F>, F> &&
             move_constructible<remove_cvref_t<F>> &&
-            __valid_niebler<Impl, E, F>
+            __valid<Impl, E, F>
       void operator()(E&& e, F&& f) const noexcept(__noexcept<Impl, E, F>) {
         (void) Impl{}((E&&) e, (F&&) f);
       }

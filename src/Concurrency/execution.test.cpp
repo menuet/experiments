@@ -1,6 +1,6 @@
 
+#include "execution-niebler-msvc.hpp"
 #include "execution.hpp"
-#include "execution-niebler.hpp"
 #include "execution_models.hpp"
 #include <catch2/catch.hpp>
 
@@ -18,7 +18,7 @@ namespace util {
 
         static constexpr auto submit = p0443r12::execution::submit;
     };
-#if 0
+
     struct Niebler
     {
         static constexpr auto set_value = std::execution::set_value;
@@ -31,7 +31,7 @@ namespace util {
 
         static constexpr auto submit = std::execution::submit;
     };
-#endif
+
 } // namespace util
 
 TEMPLATE_TEST_CASE("p0443r12", "", util::Mine)
@@ -149,6 +149,7 @@ TEMPLATE_TEST_CASE("p0443r12", "", util::Mine)
 
             REQUIRE(executed);
         }
+#if 0
     }
 
     SECTION("sender")
@@ -183,5 +184,6 @@ TEMPLATE_TEST_CASE("p0443r12", "", util::Mine)
 
         //    REQUIRE(executed);
         //}
+#endif
     }
 }
