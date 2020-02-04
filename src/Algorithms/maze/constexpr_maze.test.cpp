@@ -1,9 +1,8 @@
 
 #include <platform/platform.h>
 #if EXP_PLATFORM_CPL_IS_MSVC
-#pragma warning(                                                               \
-    disable : 4146) // Disable warning C4146: unary minus operator applied to
-                    // unsigned type, result still unsigned
+#pragma warning(disable : 4146) // Disable warning C4146: unary minus operator applied to
+                                // unsigned type, result still unsigned
 #endif
 #include "constexpr_maze.hpp"
 #include <catch2/catch.hpp>
@@ -19,15 +18,13 @@ TEST_CASE("constexpr maze")
 
         constexpr auto rendered_maze = maze::v1::render_maze(maze);
 
-        [[maybe_unused]] constexpr auto drawn_rendered_maze =
-            maze::v1::draw_maze(rendered_maze);
+        [[maybe_unused]] constexpr auto drawn_rendered_maze = maze::v1::draw_maze(rendered_maze);
 
         //        std::cout << drawn_rendered_maze.data() << '\n';
 
         constexpr auto solved_maze = maze::v1::solve_maze(rendered_maze);
 
-        [[maybe_unused]] constexpr auto drawn_solved_maze =
-            maze::v1::draw_maze(solved_maze);
+        [[maybe_unused]] constexpr auto drawn_solved_maze = maze::v1::draw_maze(solved_maze);
 
         //        std::cout << drawn_solved_maze.data();
     }
@@ -88,12 +85,10 @@ TEST_CASE("constexpr maze")
 
             // std::cout << dumped_maze.data();
 
-            REQUIRE(std::equal(dumped_maze.begin(), dumped_maze.end(),
-                               std::begin(expected_dumped_maze),
+            REQUIRE(std::equal(dumped_maze.begin(), dumped_maze.end(), std::begin(expected_dumped_maze),
                                std::end(expected_dumped_maze)));
 
-            constexpr auto path =
-                maze.find_path_between_blocks({1, 1}, {15, 11});
+            constexpr auto path = maze.find_path_between_blocks({1, 1}, {15, 11});
 
             constexpr auto dumped_maze_and_path = maze.dump(path);
 
@@ -115,10 +110,8 @@ TEST_CASE("constexpr maze")
                 "#################\n"
                 "\n";
 
-            REQUIRE(std::equal(dumped_maze_and_path.begin(),
-                               dumped_maze_and_path.end(),
-                               std::begin(expected_dumped_maze_and_path),
-                               std::end(expected_dumped_maze_and_path)));
+            REQUIRE(std::equal(dumped_maze_and_path.begin(), dumped_maze_and_path.end(),
+                               std::begin(expected_dumped_maze_and_path), std::end(expected_dumped_maze_and_path)));
         }
 
         SECTION("random")
@@ -131,8 +124,7 @@ TEST_CASE("constexpr maze")
 
             std::cout << dumped_maze.data();
 
-            constexpr auto path =
-                maze.find_path_between_blocks({1, 1}, {39, 11});
+            constexpr auto path = maze.find_path_between_blocks({1, 1}, {39, 11});
 
             constexpr auto dumped_maze_and_path = maze.dump(path);
 

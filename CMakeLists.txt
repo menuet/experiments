@@ -87,7 +87,7 @@ function(exp_setup_common_options target_name)
         "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" OR
         ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows"))
         target_compile_definitions("${target_name}" PRIVATE _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS _WIN32_WINNT=0x0A00 BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
-        target_compile_options("${target_name}" PRIVATE /permissive-)
+        target_compile_options("${target_name}" PRIVATE /permissive- /utf-8)
     else()
         target_link_libraries("${target_name}" PRIVATE pthread)
     endif()
@@ -133,6 +133,6 @@ if(("${EXP_PKG_MGR}" STREQUAL "vcpkg") AND ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL
     add_subdirectory("src/sdlxx")
     add_subdirectory("src/Circuit")
     add_subdirectory("src/Asterix")
-    add_subdirectory("src/rabbits_and_foxes")
+    # add_subdirectory("src/rabbits_and_foxes") FIXME !!!
     add_subdirectory("src/ocv")
 endif()
