@@ -1,0 +1,4 @@
+
+add_executable(gitcloner main.cpp)
+exp_setup_common_options(gitcloner)
+target_link_libraries(gitcloner PRIVATE platform EXP_THIRDPARTY_STD_FILESYSTEM)
