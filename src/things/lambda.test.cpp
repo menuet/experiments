@@ -1,22 +1,18 @@
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("lambda expressions", "[]")
 {
     int somedata = 1234;
 
     // THIS
-    auto myClosure = [somedata]()
-    {
-        return somedata * somedata;
-    };
+    auto myClosure = [somedata]() { return somedata * somedata; };
 
     // IS EQUIVALENT TO THIS
     class HiddenCompilerGeneratedFunctorClass
     {
     public:
-        HiddenCompilerGeneratedFunctorClass(int somedata)
-            : somedata{ somedata }
+        HiddenCompilerGeneratedFunctorClass(int somedata) : somedata{somedata}
         {
         }
 
@@ -24,6 +20,7 @@ TEST_CASE("lambda expressions", "[]")
         {
             return somedata * somedata;
         }
+
     private:
         int somedata{};
     };

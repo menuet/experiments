@@ -1,11 +1,10 @@
 
 #pragma once
 
-
 #include "unique_ptr98.h"
 #include <cassert>
 #include <cctype>
-
+#include <string>
 
 enum FieldType
 {
@@ -17,10 +16,7 @@ enum FieldType
 class ParseContext
 {
 public:
-
-    ParseContext(const char* a_data, size_t a_length)
-        : m_end(a_data + a_length)
-        , m_current(a_data)
+    ParseContext(const char* a_data, size_t a_length) : m_end(a_data + a_length), m_current(a_data)
     {
     }
 
@@ -51,11 +47,9 @@ public:
     }
 
 private:
-
     const char* m_end;
     const char* m_current;
 };
-
 
 inline void parse_ignoreSpaces(ParseContext& a_context)
 {
@@ -89,8 +83,8 @@ inline bool parse_expectString(ParseContext& a_context, const char* a_expectedBe
     return true;
 }
 
-template< size_t ArraySizeV >
-inline bool parse_expectString(ParseContext& a_context, const char(&a_expected)[ArraySizeV])
+template <size_t ArraySizeV>
+inline bool parse_expectString(ParseContext& a_context, const char (&a_expected)[ArraySizeV])
 {
     return parse_expectString(a_context, a_expected, a_expected + ArraySizeV - 1);
 }
@@ -144,14 +138,12 @@ inline bool parse_expectFieldValue(ParseContext& a_context, std::string& a_field
 class Comparison
 {
 public:
-
-    Comparison()
-        : m_opType(OpType_Equal)
-        , m_fieldType(FieldType_Channel)
+    Comparison() : m_opType(OpType_Equal), m_fieldType(FieldType_Channel)
     {
     }
 
-    // Comparison ::= FieldName "=" FieldValue | FieldName "!=" FieldValue | FieldName "like" FieldValueRegex | FieldName "in" "(" FieldValueList ")"
+    // Comparison ::= FieldName "=" FieldValue | FieldName "!=" FieldValue | FieldName "like" FieldValueRegex |
+    // FieldName "in" "(" FieldValueList ")"
     bool parse(ParseContext& a_context)
     {
         if (!parse_expectFieldName(a_context, m_fieldType))
@@ -188,18 +180,16 @@ public:
         return false;
     }
 
-    template< typename EvalContextT >
+    template <typename EvalContextT>
     bool eval(const EvalContextT& a_context) const
     {
         switch (m_opType)
         {
-        case OpType_Equal:
-        {
+        case OpType_Equal: {
             const std::string& l_fieldValue = a_context.getFieldValue(m_fieldType);
             return m_fieldValue == l_fieldValue;
         }
-        case OpType_NotEqual:
-        {
+        case OpType_NotEqual: {
             const std::string& l_fieldValue = a_context.getFieldValue(m_fieldType);
             return m_fieldValue != l_fieldValue;
         }
@@ -215,7 +205,6 @@ public:
     }
 
 private:
-
     enum OpType
     {
         OpType_Equal = 0,
@@ -234,20 +223,17 @@ class Expression;
 class Term
 {
 public:
-
-    Term()
-        : m_opType(OpType_Unknown)
+    Term() : m_opType(OpType_Unknown)
     {
     }
 
     // Term ::= Comparison | "(" Expression ")" | "not" "(" Expression ")"
     bool parse(ParseContext& a_context);
 
-    template< typename EvalContextT >
+    template <typename EvalContextT>
     bool eval(const EvalContextT& a_context) const;
 
 private:
-
     enum OpType
     {
         OpType_Unknown = 0,
@@ -264,9 +250,7 @@ private:
 class Expression
 {
 public:
-
-    Expression()
-        : m_opType(OpType_Unknown)
+    Expression() : m_opType(OpType_Unknown)
     {
     }
 
@@ -298,7 +282,7 @@ public:
         return true;
     }
 
-    template< typename EvalContextT >
+    template <typename EvalContextT>
     bool eval(const EvalContextT& a_context) const
     {
         switch (m_opType)
@@ -329,7 +313,6 @@ public:
     }
 
 private:
-
     enum OpType
     {
         OpType_Unknown = 0,
@@ -378,7 +361,7 @@ inline bool Term::parse(ParseContext& a_context)
     return false;
 }
 
-template< typename EvalContextT >
+template <typename EvalContextT>
 inline bool Term::eval(const EvalContextT& a_context) const
 {
     switch (m_opType)
@@ -407,7 +390,6 @@ inline bool Term::eval(const EvalContextT& a_context) const
 class Parser
 {
 public:
-
     bool parse(const char* a_expr, size_t a_length)
     {
         ParseContext l_context(a_expr, a_length);
@@ -427,13 +409,13 @@ public:
         return parse(a_expr.c_str(), a_expr.length());
     }
 
-    template< size_t ArraySizeV >
-    bool parse(const char(&a_expr)[ArraySizeV])
+    template <size_t ArraySizeV>
+    bool parse(const char (&a_expr)[ArraySizeV])
     {
         return parse(a_expr, ArraySizeV - 1);
     }
 
-    template< typename EvalContextT >
+    template <typename EvalContextT>
     bool eval(const EvalContextT& a_context) const
     {
         assert(m_expression);
@@ -441,6 +423,5 @@ public:
     }
 
 private:
-
     std_ex::unique_ptr98<Expression> m_expression;
 };

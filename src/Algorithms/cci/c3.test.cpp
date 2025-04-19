@@ -1,6 +1,6 @@
 
 #include "c3.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <sstream>
 
 TEST_CASE("cci c3")

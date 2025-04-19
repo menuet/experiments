@@ -1,6 +1,6 @@
 
 #include "string.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #if 0
 template <typename T>
@@ -161,11 +161,11 @@ TEST_CASE("String", "[]")
     {
         SECTION("Default")
         {
-            #if 0
+#if 0
             String s;
             REQUIRE(std::strcmp(s.c_str(), "") == 0);
             REQUIRE(s.length() == 0);
-            #endif
+#endif
         }
 
         SECTION("const char*")
@@ -195,23 +195,23 @@ TEST_CASE("String", "[]")
     {
         SECTION("copy")
         {
-            #if 0
+#if 0
             String s0("hello");
             String s;
             s = s0;
             REQUIRE(std::strcmp(s.c_str(), "hello") == 0);
             REQUIRE(s.length() == std::strlen("hello"));
-            #endif
+#endif
         }
 
         SECTION("from function")
         {
-            #if 0
+#if 0
             String s;
             s = create_string("hello");
             REQUIRE(std::strcmp(s.c_str(), "hello") == 0);
             REQUIRE(s.length() == std::strlen("hello"));
-            #endif
+#endif
         }
     }
 }

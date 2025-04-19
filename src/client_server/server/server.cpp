@@ -1,7 +1,7 @@
 
 #include "server.hpp"
-#include "connection.hpp"
 #include "../common/messages.hpp"
+#include "connection.hpp"
 #include <vector>
 
 namespace c_s {
@@ -9,13 +9,8 @@ namespace c_s {
     class Server::Impl : public std::enable_shared_from_this<Server::Impl>
     {
     public:
-
-        Impl(
-            Config config,
-            boost::asio::io_context& io_context)
-            : m_config(std::move(config))
-            , m_acceptor(io_context)
-            , m_next_connection_id(0)
+        Impl(Config config, boost::asio::io_context& io_context)
+            : m_config(std::move(config)), m_acceptor(io_context), m_next_connection_id(0)
         {
         }
 
@@ -34,7 +29,8 @@ namespace c_s {
             }
 
             CS_LOG(INFO, SERV, "Binding " << m_config.address << ":" << m_config.port);
-            const auto endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(m_config.address), m_config.port);
+            const auto endpoint =
+                boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(m_config.address), m_config.port);
             m_acceptor.bind(endpoint, ec);
             if (ec)
             {
@@ -55,20 +51,17 @@ namespace c_s {
         }
 
     private:
-
         void do_accept()
         {
             CS_LOG(INFO, SERV, "Waiting for connections");
 
-            m_acceptor.async_accept([this, shared_this = shared_from_this()](const boost::system::error_code& ec, boost::asio::ip::tcp::socket socket)
-            {
+            m_acceptor.async_accept([this, shared_this = shared_from_this()](const boost::system::error_code& ec,
+                                                                             boost::asio::ip::tcp::socket socket) {
                 return handle_accept(ec, std::move(socket));
             });
         }
 
-        void handle_accept(
-            const boost::system::error_code& ec,
-            boost::asio::ip::tcp::socket socket)
+        void handle_accept(const boost::system::error_code& ec, boost::asio::ip::tcp::socket socket)
         {
             if (ec)
             {
@@ -91,9 +84,7 @@ namespace c_s {
         std::int64_t m_next_connection_id;
     };
 
-    Server::Server(
-        Config config,
-        boost::asio::io_context& io_context)
+    Server::Server(Config config, boost::asio::io_context& io_context)
         : m_impl(std::make_shared<Impl>(std::move(config), io_context))
     {
     }
@@ -105,4 +96,4 @@ namespace c_s {
         return m_impl->start(std::move(connection_event_handler));
     }
 
-}
+} // namespace c_s

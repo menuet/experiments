@@ -1,6 +1,6 @@
 
 #include "c4.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <sstream>
 
 TEST_CASE("cci c4")
@@ -18,37 +18,25 @@ TEST_CASE("cci c4")
         SECTION("in order")
         {
             std::vector<std::pair<unsigned, int>> vec;
-            tree.visit<cci::c4::Order::In>([&](auto depth, bool, int value) {
-                vec.push_back({depth, value});
-            });
+            tree.visit<cci::c4::Order::In>([&](auto depth, bool, int value) { vec.push_back({depth, value}); });
             CAPTURE(vec);
-            REQUIRE(
-                (vec == std::vector<std::pair<unsigned, int>>{
-                            {2, 1}, {1, 3}, {2, 3}, {0, 5}, {2, 9}, {1, 10}}));
+            REQUIRE((vec == std::vector<std::pair<unsigned, int>>{{2, 1}, {1, 3}, {2, 3}, {0, 5}, {2, 9}, {1, 10}}));
         }
 
         SECTION("pre order")
         {
             std::vector<std::pair<unsigned, int>> vec;
-            tree.visit<cci::c4::Order::Pre>([&](auto depth, bool, int value) {
-                vec.push_back({depth, value});
-            });
+            tree.visit<cci::c4::Order::Pre>([&](auto depth, bool, int value) { vec.push_back({depth, value}); });
             CAPTURE(vec);
-            REQUIRE(
-                (vec == std::vector<std::pair<unsigned, int>>{
-                            {0, 5}, {1, 3}, {2, 1}, {2, 3}, {1, 10}, {2, 9}}));
+            REQUIRE((vec == std::vector<std::pair<unsigned, int>>{{0, 5}, {1, 3}, {2, 1}, {2, 3}, {1, 10}, {2, 9}}));
         }
 
         SECTION("post order")
         {
             std::vector<std::pair<unsigned, int>> vec;
-            tree.visit<cci::c4::Order::Post>([&](auto depth, bool, int value) {
-                vec.push_back({depth, value});
-            });
+            tree.visit<cci::c4::Order::Post>([&](auto depth, bool, int value) { vec.push_back({depth, value}); });
             CAPTURE(vec);
-            REQUIRE(
-                (vec == std::vector<std::pair<unsigned, int>>{
-                            {2, 1}, {2, 3}, {1, 3}, {2, 9}, {1, 10}, {0, 5}}));
+            REQUIRE((vec == std::vector<std::pair<unsigned, int>>{{2, 1}, {2, 3}, {1, 3}, {2, 9}, {1, 10}, {0, 5}}));
         }
 
         SECTION("is balanced")
@@ -66,8 +54,7 @@ TEST_CASE("cci c4")
 
         SECTION("minimal height")
         {
-            const std::vector<int> sorted_vec{1, 2,  3,  4,  5,  6,  7, 8,
-                                              9, 10, 11, 12, 13, 14, 15};
+            const std::vector<int> sorted_vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
             /*
             8
       4             12
@@ -78,50 +65,41 @@ TEST_CASE("cci c4")
             cci::c4::fill_balanced(sorted_vec.begin(), sorted_vec.end(), tree);
 
             std::vector<std::pair<unsigned, int>> result_vec;
-            tree.visit<cci::c4::Order::In>([&](auto depth, bool, int value) {
-                result_vec.push_back({depth, value});
-            });
+            tree.visit<cci::c4::Order::In>([&](auto depth, bool, int value) { result_vec.push_back({depth, value}); });
             CAPTURE(result_vec);
 
             REQUIRE(cci::c4::max_depth(tree) == 3U);
-            REQUIRE(
-                (result_vec == std::vector<std::pair<unsigned, int>>{{3, 1},
-                                                                     {2, 2},
-                                                                     {3, 3},
-                                                                     {1, 4},
-                                                                     {3, 5},
-                                                                     {2, 6},
-                                                                     {3, 7},
-                                                                     {0, 8},
-                                                                     {3, 9},
-                                                                     {2, 10},
-                                                                     {3, 11},
-                                                                     {1, 12},
-                                                                     {3, 13},
-                                                                     {2, 14},
-                                                                     {3, 15}}));
+            REQUIRE((result_vec == std::vector<std::pair<unsigned, int>>{{3, 1},
+                                                                         {2, 2},
+                                                                         {3, 3},
+                                                                         {1, 4},
+                                                                         {3, 5},
+                                                                         {2, 6},
+                                                                         {3, 7},
+                                                                         {0, 8},
+                                                                         {3, 9},
+                                                                         {2, 10},
+                                                                         {3, 11},
+                                                                         {1, 12},
+                                                                         {3, 13},
+                                                                         {2, 14},
+                                                                         {3, 15}}));
         }
 
         SECTION("lists by depth")
         {
-            const std::vector<int> sorted_vec{1, 2,  3,  4,  5,  6,  7, 8,
-                                              9, 10, 11, 12, 13, 14, 15};
+            const std::vector<int> sorted_vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
             cci::c4::Tree<int> tree;
             cci::c4::fill_balanced(sorted_vec.begin(), sorted_vec.end(), tree);
 
             const auto vec = cci::c4::by_depths(tree);
             CAPTURE(vec);
-            REQUIRE((vec == std::vector<std::vector<int>>{
-                                {8},
-                                {4, 12},
-                                {2, 6, 10, 14},
-                                {1, 3, 5, 7, 9, 11, 13, 15}}));
+            REQUIRE((vec == std::vector<std::vector<int>>{{8}, {4, 12}, {2, 6, 10, 14}, {1, 3, 5, 7, 9, 11, 13, 15}}));
         }
 
         SECTION("find and next")
         {
-            const std::vector<int> sorted_vec{1, 2,  3,  4,  5,  6,  7, 8,
-                                              9, 10, 11, 12, 13, 14, 15};
+            const std::vector<int> sorted_vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
             cci::c4::Tree<int> tree;
             cci::c4::fill_balanced(sorted_vec.begin(), sorted_vec.end(), tree);
 
@@ -152,8 +130,7 @@ TEST_CASE("cci c4")
 
         SECTION("first common ancestor")
         {
-            const std::vector<int> sorted_vec{1, 2,  3,  4,  5,  6,  7, 8,
-                                              9, 10, 11, 12, 13, 14, 15};
+            const std::vector<int> sorted_vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
             cci::c4::Tree<int> tree;
             cci::c4::fill_balanced(sorted_vec.begin(), sorted_vec.end(), tree);
             /*
@@ -163,26 +140,18 @@ TEST_CASE("cci c4")
 1   3  5   7   9  11  13  15
             */
 
-            REQUIRE(tree.root_id() ==
-                    tree.first_common_ancestor(tree.root_id(), tree.find(3)));
-            REQUIRE(tree.root_id() ==
-                    tree.first_common_ancestor(tree.find(12), tree.root_id()));
-            REQUIRE(tree.root_id() ==
-                    tree.first_common_ancestor(tree.find(5), tree.find(9)));
-            REQUIRE(tree.find(4) ==
-                    tree.first_common_ancestor(tree.find(2), tree.find(7)));
-            REQUIRE(tree.find(12) ==
-                    tree.first_common_ancestor(tree.find(12), tree.find(15)));
-            REQUIRE(tree.find(12) ==
-                    tree.first_common_ancestor(tree.find(10), tree.find(13)));
-            REQUIRE(tree.find(6) ==
-                    tree.first_common_ancestor(tree.find(5), tree.find(7)));
+            REQUIRE(tree.root_id() == tree.first_common_ancestor(tree.root_id(), tree.find(3)));
+            REQUIRE(tree.root_id() == tree.first_common_ancestor(tree.find(12), tree.root_id()));
+            REQUIRE(tree.root_id() == tree.first_common_ancestor(tree.find(5), tree.find(9)));
+            REQUIRE(tree.find(4) == tree.first_common_ancestor(tree.find(2), tree.find(7)));
+            REQUIRE(tree.find(12) == tree.first_common_ancestor(tree.find(12), tree.find(15)));
+            REQUIRE(tree.find(12) == tree.first_common_ancestor(tree.find(10), tree.find(13)));
+            REQUIRE(tree.find(6) == tree.first_common_ancestor(tree.find(5), tree.find(7)));
         }
 
         SECTION("contains")
         {
-            const std::vector<int> sorted_vec{1, 2,  3,  4,  5,  6,  7, 8,
-                                              9, 10, 11, 12, 13, 14, 15};
+            const std::vector<int> sorted_vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
             cci::c4::Tree<int> tree;
             cci::c4::fill_balanced(sorted_vec.begin(), sorted_vec.end(), tree);
             /*
@@ -210,8 +179,7 @@ TEST_CASE("cci c4")
 
         SECTION("paths that sum up")
         {
-            const std::vector<int> sorted_vec{1, 2,  3,  4,  5,  6,  7, 8,
-                                              9, 10, 11, 12, 13, 14, 15};
+            const std::vector<int> sorted_vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
             cci::c4::Tree<int> tree;
             cci::c4::fill_balanced(sorted_vec.begin(), sorted_vec.end(), tree);
             /*
@@ -238,21 +206,13 @@ TEST_CASE("cci c4")
             const auto id3 = graph.insert_vertex(3);
             graph.insert_edge(id2, id3);
             std::vector<cci::c4::Graph<int>::VertexId> depth_first_vec;
-            graph.depth_first_visit(id1, [&](const auto& vertex) {
-                depth_first_vec.push_back(vertex.id);
-            });
+            graph.depth_first_visit(id1, [&](const auto& vertex) { depth_first_vec.push_back(vertex.id); });
             CAPTURE(depth_first_vec);
-            REQUIRE(
-                (depth_first_vec ==
-                 std::vector<cci::c4::Graph<int>::VertexId>{{1}, {2}, {3}}));
+            REQUIRE((depth_first_vec == std::vector<cci::c4::Graph<int>::VertexId>{{1}, {2}, {3}}));
             std::vector<cci::c4::Graph<int>::VertexId> breadth_first_vec;
-            graph.breadth_first_visit(id1, [&](const auto& vertex) {
-                breadth_first_vec.push_back(vertex.id);
-            });
+            graph.breadth_first_visit(id1, [&](const auto& vertex) { breadth_first_vec.push_back(vertex.id); });
             CAPTURE(breadth_first_vec);
-            REQUIRE(
-                (breadth_first_vec ==
-                 std::vector<cci::c4::Graph<int>::VertexId>{{1}, {2}, {3}}));
+            REQUIRE((breadth_first_vec == std::vector<cci::c4::Graph<int>::VertexId>{{1}, {2}, {3}}));
         }
 
         SECTION("route")

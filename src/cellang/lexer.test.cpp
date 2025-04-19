@@ -1,8 +1,8 @@
 
 
 #include "lexer.hpp"
-#include <catch2/catch.hpp>
 #include <string_view>
+#include <catch2/catch_test_macros.hpp>
 #include <iostream>
 #include <vector>
 
@@ -14,9 +14,8 @@ TEST_CASE("lexer", "[lexer]")
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
-        const std::vector<cellang::lexer::Token<char>> expected_tokens =
-        {
-            { cellang::lexer::Number{ "3" } },
+        const std::vector<cellang::lexer::Token<char>> expected_tokens = {
+            {cellang::lexer::Number{"3"}},
         };
 
         const std::vector<cellang::lexer::Token<char>> scanned_tokens(lexer.begin(), lexer.end());
@@ -43,9 +42,8 @@ TEST_CASE("lexer", "[lexer]")
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
-        const std::vector<cellang::lexer::Token<char>> expected_tokens =
-        {
-            { cellang::lexer::Number{ "123" } },
+        const std::vector<cellang::lexer::Token<char>> expected_tokens = {
+            {cellang::lexer::Number{"123"}},
         };
 
         const std::vector<cellang::lexer::Token<char>> scanned_tokens(lexer.begin(), lexer.end());
@@ -59,10 +57,9 @@ TEST_CASE("lexer", "[lexer]")
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
-        const std::vector<cellang::lexer::Token<char>> expected_tokens =
-        {
-            { cellang::lexer::Punctuation{ ")" } },
-            { cellang::lexer::Punctuation{ ";" } },
+        const std::vector<cellang::lexer::Token<char>> expected_tokens = {
+            {cellang::lexer::Punctuation{")"}},
+            {cellang::lexer::Punctuation{";"}},
         };
 
         const std::vector<cellang::lexer::Token<char>> scanned_tokens(lexer.begin(), lexer.end());
@@ -76,11 +73,10 @@ TEST_CASE("lexer", "[lexer]")
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
-        const std::vector<cellang::lexer::Token<char>> expected_tokens =
-        {
-            { cellang::lexer::Symbol{ "ABC" } },
-            { cellang::lexer::Error{ "Unexpected character: $" } },
-            { cellang::lexer::Operator{ "+" } },
+        const std::vector<cellang::lexer::Token<char>> expected_tokens = {
+            {cellang::lexer::Symbol{"ABC"}},
+            {cellang::lexer::Error{"Unexpected character: $"}},
+            {cellang::lexer::Operator{"+"}},
         };
 
         const std::vector<cellang::lexer::Token<char>> scanned_tokens(lexer.begin(), lexer.end());
@@ -98,23 +94,12 @@ print(y);
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
-        const std::vector<cellang::lexer::Token<char>> expected_tokens =
-        {
-            { cellang::lexer::Symbol{ "x" } },
-            { cellang::lexer::Punctuation{ "=" } },
-            { cellang::lexer::Number{ "3" } },
-            { cellang::lexer::Punctuation{ ";" } },
-            { cellang::lexer::Symbol{ "y" } },
-            { cellang::lexer::Punctuation{ "=" } },
-            { cellang::lexer::Symbol{ "x" } },
-            { cellang::lexer::Operator{ "+" } },
-            { cellang::lexer::Number{ "2" } },
-            { cellang::lexer::Punctuation{ ";" } },
-            { cellang::lexer::Symbol{ "print" } },
-            { cellang::lexer::Punctuation{ "(" } },
-            { cellang::lexer::Symbol{ "y" } },
-            { cellang::lexer::Punctuation{ ")" } },
-            { cellang::lexer::Punctuation{ ";" } },
+        const std::vector<cellang::lexer::Token<char>> expected_tokens = {
+            {cellang::lexer::Symbol{"x"}},      {cellang::lexer::Punctuation{"="}}, {cellang::lexer::Number{"3"}},
+            {cellang::lexer::Punctuation{";"}}, {cellang::lexer::Symbol{"y"}},      {cellang::lexer::Punctuation{"="}},
+            {cellang::lexer::Symbol{"x"}},      {cellang::lexer::Operator{"+"}},    {cellang::lexer::Number{"2"}},
+            {cellang::lexer::Punctuation{";"}}, {cellang::lexer::Symbol{"print"}},  {cellang::lexer::Punctuation{"("}},
+            {cellang::lexer::Symbol{"y"}},      {cellang::lexer::Punctuation{")"}}, {cellang::lexer::Punctuation{";"}},
         };
 
         const std::vector<cellang::lexer::Token<char>> scanned_tokens(lexer.begin(), lexer.end());
@@ -128,23 +113,12 @@ print(y);
 
         cellang::lexer::Lexer lexer(begin(CELLANG_SAMPLE), end(CELLANG_SAMPLE));
 
-        const std::vector<cellang::lexer::Token<char>> expected_tokens =
-        {
-            { cellang::lexer::Symbol{ "x" } },
-            { cellang::lexer::Punctuation{ "=" } },
-            { cellang::lexer::Number{ "3" } },
-            { cellang::lexer::Punctuation{ ";" } },
-            { cellang::lexer::Symbol{ "y" } },
-            { cellang::lexer::Punctuation{ "=" } },
-            { cellang::lexer::Symbol{ "x" } },
-            { cellang::lexer::Operator{ "+" } },
-            { cellang::lexer::Number{ "2" } },
-            { cellang::lexer::Punctuation{ ";" } },
-            { cellang::lexer::Symbol{ "print" } },
-            { cellang::lexer::Punctuation{ "(" } },
-            { cellang::lexer::Symbol{ "y" } },
-            { cellang::lexer::Punctuation{ ")" } },
-            { cellang::lexer::Punctuation{ ";" } },
+        const std::vector<cellang::lexer::Token<char>> expected_tokens = {
+            {cellang::lexer::Symbol{"x"}},      {cellang::lexer::Punctuation{"="}}, {cellang::lexer::Number{"3"}},
+            {cellang::lexer::Punctuation{";"}}, {cellang::lexer::Symbol{"y"}},      {cellang::lexer::Punctuation{"="}},
+            {cellang::lexer::Symbol{"x"}},      {cellang::lexer::Operator{"+"}},    {cellang::lexer::Number{"2"}},
+            {cellang::lexer::Punctuation{";"}}, {cellang::lexer::Symbol{"print"}},  {cellang::lexer::Punctuation{"("}},
+            {cellang::lexer::Symbol{"y"}},      {cellang::lexer::Punctuation{")"}}, {cellang::lexer::Punctuation{";"}},
         };
 
         const std::vector<cellang::lexer::Token<char>> scanned_tokens(lexer.begin(), lexer.end());

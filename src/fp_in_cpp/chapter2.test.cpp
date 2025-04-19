@@ -1,6 +1,6 @@
 
 #include "chapter2.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <algorithm>
 #include <iterator>
 
@@ -11,12 +11,7 @@ TEST_CASE("chapter 2", "")
     SECTION("names_for")
     {
         const std::vector<person_t> people{
-            {false, "Peter"},
-            {true, "Jane"},
-            {false, "Tom"},
-            {false, "David"},
-            {true, "Martha"},
-            {true, "Rose"},
+            {false, "Peter"}, {true, "Jane"}, {false, "Tom"}, {false, "David"}, {true, "Martha"}, {true, "Rose"},
         };
         const auto expected_females = [&] {
             std::vector<person_t> females;

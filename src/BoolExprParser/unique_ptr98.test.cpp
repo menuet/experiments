@@ -1,7 +1,6 @@
 
-#include <catch2/catch.hpp>
 #include "unique_ptr98.h"
-
+#include <catch2/catch_test_macros.hpp>
 
 namespace ut {
 
@@ -9,7 +8,7 @@ namespace ut {
 
         struct NoopDeleter
         {
-            template< typename ResourceT >
+            template <typename ResourceT>
             void operator()(ResourceT* a_pResource) const
             {
             }
@@ -19,12 +18,11 @@ namespace ut {
 
         struct Deleter
         {
-            Deleter(bool& a_isOperatorCalled = gs_isOperatorCalled)
-                : m_isOperatorCalled(a_isOperatorCalled)
+            Deleter(bool& a_isOperatorCalled = gs_isOperatorCalled) : m_isOperatorCalled(a_isOperatorCalled)
             {
             }
 
-            template< typename ResourceT >
+            template <typename ResourceT>
             void operator()(ResourceT* a_pResource) const
             {
                 delete a_pResource;
@@ -37,15 +35,12 @@ namespace ut {
             }
 
         private:
-
             bool& m_isOperatorCalled;
         };
 
         struct Object
         {
-            Object(bool& a_isDestructorCalled)
-                : m_isFooCalled(false)
-                , m_isDestructorCalled(a_isDestructorCalled)
+            Object(bool& a_isDestructorCalled) : m_isFooCalled(false), m_isDestructorCalled(a_isDestructorCalled)
             {
             }
 
@@ -62,8 +57,7 @@ namespace ut {
             bool m_isFooCalled;
 
         private:
-
-            Object(const Object&); // = delete
+            Object(const Object&);            // = delete
             Object& operator=(const Object&); // = delete
 
             bool& m_isDestructorCalled;
@@ -74,7 +68,7 @@ namespace ut {
             std_ex::unique_ptr98<Object, Deleter> l_uniquePtr(new Object(a_isDestructorCalled));
             return std_ex::move98(l_uniquePtr);
         }
-    }
+    } // namespace
 
     SCENARIO("The default deleter deletes", "[unique_ptr98]")
     {
@@ -226,7 +220,8 @@ namespace ut {
                     bool l_isDestructorCalled2 = false;
                     Object* l_pObject2 = new Object(l_isDestructorCalled2);
                     gs_isOperatorCalled = false;
-                    std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 = new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
+                    std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 =
+                        new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
                     REQUIRE(!gs_isOperatorCalled);
 
                     l_pUniquePtr2->swap(*l_pUniquePtr);
@@ -375,7 +370,8 @@ namespace ut {
                     bool l_isDestructorCalled2 = false;
                     Object* l_pObject2 = new Object(l_isDestructorCalled2);
                     gs_isOperatorCalled = false;
-                    std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 = new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
+                    std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 =
+                        new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
                     REQUIRE(!gs_isOperatorCalled);
 
                     l_pUniquePtr2->swap(*l_pUniquePtr);
@@ -460,7 +456,8 @@ namespace ut {
             {
                 bool l_isDestructorCalled2 = false;
                 Object* l_pObject2 = new Object(l_isDestructorCalled2);
-                std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 = new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
+                std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 =
+                    new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
 
                 gs_isOperatorCalled = false;
                 *l_pUniquePtr1 = std_ex::move98(*l_pUniquePtr2);
@@ -500,7 +497,8 @@ namespace ut {
             WHEN("We assign from a function-created unique pointer")
             {
                 bool l_isDestructorCalled2 = false;
-                std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 = new std_ex::unique_ptr98<Object, Deleter>(makeObject(l_isDestructorCalled2));
+                std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 =
+                    new std_ex::unique_ptr98<Object, Deleter>(makeObject(l_isDestructorCalled2));
                 Object* l_pObject2 = l_pUniquePtr2->get();
 
                 gs_isOperatorCalled = false;
@@ -543,7 +541,8 @@ namespace ut {
         {
             bool l_isDestructorCalled1 = false;
             Object* l_pObject1 = new Object(l_isDestructorCalled1);
-            std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr1 = new std_ex::unique_ptr98<Object, Deleter>(l_pObject1);
+            std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr1 =
+                new std_ex::unique_ptr98<Object, Deleter>(l_pObject1);
 
             WHEN("We move from another default-constructed unique pointer")
             {
@@ -586,7 +585,8 @@ namespace ut {
             {
                 bool l_isDestructorCalled2 = false;
                 Object* l_pObject2 = new Object(l_isDestructorCalled2);
-                std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 = new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
+                std_ex::unique_ptr98<Object, Deleter>* l_pUniquePtr2 =
+                    new std_ex::unique_ptr98<Object, Deleter>(l_pObject2);
 
                 gs_isOperatorCalled = false;
                 *l_pUniquePtr1 = std_ex::move98(*l_pUniquePtr2);
@@ -714,4 +714,4 @@ namespace ut {
         }
     }
 
-}
+} // namespace ut

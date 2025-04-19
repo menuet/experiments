@@ -1,37 +1,51 @@
 
 #include "photos.hpp"
+
+#if EXP_PLATFORM_OS_IS_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #if EXP_PLATFORM_CPL_IS_CLANG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable" // warning : unused variable 'cnt' [-Wunused-variable]
 #endif
+
 #if EXP_PLATFORM_CPL_IS_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4244)
-#pragma warning(disable : 4267) // warning C4267: 'argument': conversion from 'size_t' to 'boost::winapi::ULONG_', possible loss of data
+#pragma warning(disable : 4267) // warning C4267: 'argument': conversion from 'size_t' to 'boost::winapi::ULONG_',
+                                // possible loss of data
 #endif
-#include <boost/process.hpp>
+
+#include <boost/process/v1/child.hpp>
+
 #if EXP_PLATFORM_CPL_IS_MSVC
 #pragma warning(pop)
 #endif
+
 #if EXP_PLATFORM_CPL_IS_CLANG
 #pragma clang diagnostic pop
 #endif
+
+#include <condition_variable>
 #include <system_error>
 #include <platform/system_error.hpp>
+#include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <thread>
 #include <mutex>
-#include <condition_variable>
-#include <random>
-#include <algorithm>
 #include <numeric>
+#include <random>
+#include <thread>
+
 #if EXP_PLATFORM_OS_IS_WINDOWS
 #include <Windows.h>
+#undef min
 #endif
 
 namespace fs = stdnext::filesystem;
-namespace bproc = boost::process;
+namespace bproc = boost::process::v1;
 
 static FileDescription load_file_description(const std::string& file_description_line)
 {
@@ -70,7 +84,8 @@ static FileDescription load_file_description(const std::string& file_description
 
 static std::ofstream& operator<<(std::ofstream& ofs, const FileDescription& file_description)
 {
-    ofs << file_description.name.string() << ',' << file_description.is_damaged << ',' << file_description.size << ',' << file_description.is_copied << "\n";
+    ofs << file_description.name.string() << ',' << file_description.is_damaged << ',' << file_description.size << ','
+        << file_description.is_copied << "\n";
     return ofs;
 }
 
@@ -102,7 +117,7 @@ static FilesDescriptions collect_files_descriptions(const fs::path& source_dir)
     for (const auto& entry : fs::directory_iterator(source_dir))
     {
         const auto& path = entry.path();
-        files_descriptions.push_back(FileDescription{ path.filename().string(), false, fs::file_size(path) });
+        files_descriptions.push_back(FileDescription{path.filename().string(), false, fs::file_size(path)});
     }
     return files_descriptions;
 }
@@ -112,19 +127,20 @@ static std::chrono::milliseconds infer_timeout_from_file_size(const FileDescript
     return std::min(std::chrono::milliseconds(file_description.size / 1000), std::chrono::milliseconds(60000));
 }
 
-static bool copy_file_in_this_thread_adapted(const fs::path& process_file, std::chrono::milliseconds timeout, const fs::path& source_file, const fs::path& target_dir)
+static bool copy_file_in_this_thread_adapted(const fs::path& process_file, std::chrono::milliseconds timeout,
+                                             const fs::path& source_file, const fs::path& target_dir)
 {
     copy_file_in_this_thread(source_file, target_dir);
     return true;
 }
 
-static bool copy_file_in_separate_thread(const fs::path& process_file, std::chrono::milliseconds timeout, const fs::path& source_file, const fs::path& target_dir)
+static bool copy_file_in_separate_thread(const fs::path& process_file, std::chrono::milliseconds timeout,
+                                         const fs::path& source_file, const fs::path& target_dir)
 {
     std::mutex mut;
     std::condition_variable cv;
 
-    std::thread copier_thread([&]
-    {
+    std::thread copier_thread([&] {
         copy_file_in_this_thread(source_file, target_dir);
         cv.notify_one();
     });
@@ -146,10 +162,12 @@ static bool copy_file_in_separate_thread(const fs::path& process_file, std::chro
     return true;
 }
 
-static bool copy_file_in_separate_process(const fs::path& process_file, std::chrono::milliseconds timeout, const fs::path& source_file, const fs::path& target_dir)
+static bool copy_file_in_separate_process(const fs::path& process_file, std::chrono::milliseconds timeout,
+                                          const fs::path& source_file, const fs::path& target_dir)
 {
     std::error_code ec;
-    bproc::child c(ec, process_file.string(), "--mode", "slave", "--source_file", source_file.string(), "--target_dir", target_dir.string());
+    bproc::child c(ec, process_file.string(), "--mode", "slave", "--source_file", source_file.string(), "--target_dir",
+                   target_dir.string());
     if (ec)
         std::cout << "Error " << ec.message() << " when spawning: " << process_file << "\n";
 
@@ -170,8 +188,7 @@ static void setup_sorting(Sorting sorting, FilesDescriptions& files_descriptions
     switch (sorting)
     {
     case Sorting::NameDesc:
-        std::sort(begin(files_descriptions), end(files_descriptions), [&](const auto& desc1, const auto& desc2)
-        {
+        std::sort(begin(files_descriptions), end(files_descriptions), [&](const auto& desc1, const auto& desc2) {
             if (desc1.is_copied < desc2.is_copied)
                 return true;
             if (desc1.is_copied > desc2.is_copied)
@@ -185,8 +202,7 @@ static void setup_sorting(Sorting sorting, FilesDescriptions& files_descriptions
         break;
     case Sorting::NameAsc:
     case Sorting::Default:
-        std::sort(begin(files_descriptions), end(files_descriptions), [&](const auto& desc1, const auto& desc2)
-        {
+        std::sort(begin(files_descriptions), end(files_descriptions), [&](const auto& desc1, const auto& desc2) {
             if (desc1.is_copied < desc2.is_copied)
                 return true;
             if (desc1.is_copied > desc2.is_copied)
@@ -198,8 +214,7 @@ static void setup_sorting(Sorting sorting, FilesDescriptions& files_descriptions
             return desc1.name.string() < desc2.name.string();
         });
         break;
-    case Sorting::Random:
-    {
+    case Sorting::Random: {
         static std::random_device rd;
         static std::mt19937 gen(rd());
         std::shuffle(begin(files_descriptions), end(files_descriptions), gen);
@@ -208,10 +223,8 @@ static void setup_sorting(Sorting sorting, FilesDescriptions& files_descriptions
     }
 }
 
-FilesDescriptions load_or_collect_files_descriptions(
-    Sorting sorting,
-    const fs::path& files_descriptions_file,
-    const fs::path& source_dir)
+FilesDescriptions load_or_collect_files_descriptions(Sorting sorting, const fs::path& files_descriptions_file,
+                                                     const fs::path& source_dir)
 {
     auto files_descriptions = load_files_descriptions(files_descriptions_file);
     if (files_descriptions.empty())
@@ -223,9 +236,7 @@ FilesDescriptions load_or_collect_files_descriptions(
     return files_descriptions;
 }
 
-void save_files_descriptions(
-    const fs::path& files_descriptions_file,
-    const FilesDescriptions& files_descriptions)
+void save_files_descriptions(const fs::path& files_descriptions_file, const FilesDescriptions& files_descriptions)
 {
     std::cout << "Saving files descriptions\n";
 
@@ -239,9 +250,7 @@ void save_files_descriptions(
     }
 }
 
-void copy_file_in_this_thread(
-    const fs::path& source_file,
-    const fs::path& target_dir)
+void copy_file_in_this_thread(const fs::path& source_file, const fs::path& target_dir)
 {
     stdnext::error_code ec;
     if (!fs::exists(target_dir))
@@ -254,21 +263,15 @@ void copy_file_in_this_thread(
     fs::copy_file(source_file, target_file, fs::copy_options_skip_existing, ec);
 }
 
-void copy_files(
-    Mode mode,
-    unsigned int max_errors_count,
-    const fs::path& process_file,
-    const fs::path& source_dir,
-    const fs::path& target_dir,
-    FilesDescriptions& files_descriptions)
+void copy_files(Mode mode, unsigned int max_errors_count, const fs::path& process_file, const fs::path& source_dir,
+                const fs::path& target_dir, FilesDescriptions& files_descriptions)
 {
     std::cout << "Copying files based on collected files descriptions\n";
 
     if (files_descriptions.empty())
         return;
 
-    const auto copy_file_mode = [&]
-    {
+    const auto copy_file_mode = [&] {
         switch (mode)
         {
         case Mode::Direct:

@@ -1,13 +1,12 @@
 
-#include <catch2/catch.hpp>
 #include "algorithms.v2.hpp"
+#include <catch2/catch_test_macros.hpp>
 #include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <list>
 #include <random>
 #include <vector>
-#include <cmath>
-#include <list>
-#include <iterator>
-
 
 namespace ut {
 
@@ -18,7 +17,7 @@ namespace ut {
         return gs_randomGenerator;
     }
 
-    static std::vector<int> generateRandomVector(size_t size, int minVal=-10, int maxVal=10)
+    static std::vector<int> generateRandomVector(size_t size, int minVal = -10, int maxVal = 10)
     {
         std::uniform_int_distribution<int> valDistrib(minVal, maxVal);
         std::vector<int> vec(size);
@@ -209,8 +208,10 @@ namespace ut {
                     }
                     for (const auto& vec2 : vecOfVecs2)
                     {
-                        const auto myResult = my::mismatch(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
-                        const auto stdResult = std::mismatch(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
+                        const auto myResult = my::mismatch(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(),
+                                                           [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
+                        const auto stdResult = std::mismatch(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(),
+                                                             [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
                         REQUIRE(myResult == stdResult);
                     }
                 }
@@ -228,8 +229,10 @@ namespace ut {
                     }
                     for (const auto& vec2 : vecOfVecs2)
                     {
-                        const auto myResult = my::equal(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
-                        const auto stdResult = std::equal(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
+                        const auto myResult = my::equal(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(),
+                                                        [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
+                        const auto stdResult = std::equal(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(),
+                                                          [](int i1, int i2) { return std::abs(i1 - i2) < 5; });
                         REQUIRE(myResult == stdResult);
                     }
                 }
@@ -305,7 +308,7 @@ namespace ut {
     {
         GIVEN("a vector with 2 sorted parts")
         {
-            std::vector<int> vec{ 4, 8, 12, 18, 5, 8, 13, 17, 20 };
+            std::vector<int> vec{4, 8, 12, 18, 5, 8, 13, 17, 20};
 
             THEN("my::inplace_merge <=> std::inplace_merge")
             {
@@ -372,7 +375,7 @@ namespace ut {
                     }
                     else
                     {
-                        const auto sub = { 1, 2, 3, 4 };
+                        const auto sub = {1, 2, 3, 4};
                         const auto myResult = my::search(vec.begin(), vec.end(), begin(sub), end(sub));
                         const auto stdResult = std::search(vec.begin(), vec.end(), begin(sub), end(sub));
                         REQUIRE(myResult == stdResult);
@@ -399,7 +402,7 @@ namespace ut {
                     }
                     else
                     {
-                        const auto sub = { 1, 2, 3, 4 };
+                        const auto sub = {1, 2, 3, 4};
                         const auto myResult = my::find_end(vec.begin(), vec.end(), begin(sub), end(sub));
                         const auto stdResult = std::find_end(vec.begin(), vec.end(), begin(sub), end(sub));
                         REQUIRE(myResult == stdResult);
@@ -496,10 +499,12 @@ namespace ut {
                 for (const auto& vec : vecOfVecs)
                 {
                     std::list<int> myOut;
-                    const auto myResult = my::copy_if(vec.begin(), vec.end(), std::back_inserter(myOut), [](int i) { return i % 2 == 0; });
+                    const auto myResult = my::copy_if(vec.begin(), vec.end(), std::back_inserter(myOut),
+                                                      [](int i) { return i % 2 == 0; });
                     (void)myResult;
                     std::list<int> stdOut;
-                    const auto stdResult = std::copy_if(vec.begin(), vec.end(), std::back_inserter(stdOut), [](int i) { return i % 2 == 0; });
+                    const auto stdResult = std::copy_if(vec.begin(), vec.end(), std::back_inserter(stdOut),
+                                                        [](int i) { return i % 2 == 0; });
                     (void)stdResult;
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
@@ -526,9 +531,9 @@ namespace ut {
                 for (const auto& vec : vecOfVecs)
                 {
                     std::vector<int> myOut(vec.size());
-                    /*const auto myResult =*/ my::copy_backward(vec.begin(), vec.end(), myOut.end());
+                    /*const auto myResult =*/my::copy_backward(vec.begin(), vec.end(), myOut.end());
                     std::vector<int> stdOut(vec.size());
-                    /*const auto stdResult =*/ std::copy_backward(vec.begin(), vec.end(), stdOut.end());
+                    /*const auto stdResult =*/std::copy_backward(vec.begin(), vec.end(), stdOut.end());
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -543,7 +548,8 @@ namespace ut {
                     (void)myResult;
                     auto stdMovedFrom(vec);
                     std::list<int> stdOut;
-                    const auto stdResult = std::move(stdMovedFrom.begin(), stdMovedFrom.end(), std::back_inserter(stdOut));
+                    const auto stdResult =
+                        std::move(stdMovedFrom.begin(), stdMovedFrom.end(), std::back_inserter(stdOut));
                     (void)stdResult;
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
@@ -555,10 +561,11 @@ namespace ut {
                 {
                     auto myMovedFrom(vec);
                     std::vector<int> myOut(vec.size());
-                    /*const auto myResult =*/ my::move_backward(myMovedFrom.begin(), myMovedFrom.end(), myOut.end());
+                    /*const auto myResult =*/my::move_backward(myMovedFrom.begin(), myMovedFrom.end(), myOut.end());
                     auto stdMovedFrom(vec);
                     std::vector<int> stdOut(vec.size());
-                    /*const auto stdResult =*/ std::move_backward(stdMovedFrom.begin(), stdMovedFrom.end(), stdOut.end());
+                    /*const auto stdResult =*/std::move_backward(stdMovedFrom.begin(), stdMovedFrom.end(),
+                                                                 stdOut.end());
                     REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                 }
             }
@@ -621,21 +628,27 @@ namespace ut {
                 {
                     {
                         std::vector<int> myOut;
-                        const auto myResult = my::transform(vec.begin(), vec.end(), std::back_inserter(myOut), [](int i) { return i*i; });
+                        const auto myResult = my::transform(vec.begin(), vec.end(), std::back_inserter(myOut),
+                                                            [](int i) { return i * i; });
                         (void)myResult;
                         std::list<int> stdOut;
-                        const auto stdResult = std::transform(vec.begin(), vec.end(), std::back_inserter(stdOut), [](int i) { return i*i; });
+                        const auto stdResult = std::transform(vec.begin(), vec.end(), std::back_inserter(stdOut),
+                                                              [](int i) { return i * i; });
                         (void)stdResult;
                         REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                     }
                     {
                         std::vector<int> vec2(vec.size());
-                        std::transform(vec.begin(), vec.end(), std::back_inserter(vec2), [](int i) {return i * 2; });
+                        std::transform(vec.begin(), vec.end(), std::back_inserter(vec2), [](int i) { return i * 2; });
                         std::vector<int> myOut;
-                        const auto myResult = my::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(myOut), [](int i, int j) { return i + j; });
+                        const auto myResult =
+                            my::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(myOut),
+                                          [](int i, int j) { return i + j; });
                         (void)myResult;
                         std::list<int> stdOut;
-                        const auto stdResult = std::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(stdOut), [](int i, int j) { return i + j; });
+                        const auto stdResult =
+                            std::transform(vec.begin(), vec.end(), vec2.begin(), std::back_inserter(stdOut),
+                                           [](int i, int j) { return i + j; });
                         (void)stdResult;
                         REQUIRE(std::equal(myOut.begin(), myOut.end(), stdOut.begin(), stdOut.end()));
                     }
@@ -644,7 +657,8 @@ namespace ut {
         }
     }
 
-    SCENARIO("v2: remove, remove_if, remove_copy, remove_copy_if, replace, replace_if, replace_copy, replace_copy_if", "[algorithms]")
+    SCENARIO("v2: remove, remove_if, remove_copy, remove_copy_if, replace, replace_if, replace_copy, replace_copy_if",
+             "[algorithms]")
     {
         GIVEN("several vectors of random size and random data")
         {
@@ -676,7 +690,8 @@ namespace ut {
                     const auto myResult = my::remove_if(myVec.begin(), myVec.end(), [&](int i) { return i == value; });
                     myVec.erase(myResult, myVec.end());
                     auto stdVec = vec;
-                    const auto stdResult = std::remove_if(stdVec.begin(), stdVec.end(), [&](int i) { return i == value; });
+                    const auto stdResult =
+                        std::remove_if(stdVec.begin(), stdVec.end(), [&](int i) { return i == value; });
                     stdVec.erase(stdResult, stdVec.end());
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
@@ -705,10 +720,12 @@ namespace ut {
                     std::uniform_int_distribution<int> valueDistrib(-10, 10);
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
-                    const auto myResult = my::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; });
+                    const auto myResult = my::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec),
+                                                             [&](int i) { return i != value; });
                     (void)myResult;
                     std::vector<int> stdVec;
-                    const auto stdResult = std::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; });
+                    const auto stdResult = std::remove_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec),
+                                                               [&](int i) { return i != value; });
                     (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
@@ -749,10 +766,12 @@ namespace ut {
                     std::uniform_int_distribution<int> valueDistrib(-10, 10);
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
-                    const auto myResult = my::replace_copy(vec.begin(), vec.end(), std::back_inserter(myVec), value, value + 1);
+                    const auto myResult =
+                        my::replace_copy(vec.begin(), vec.end(), std::back_inserter(myVec), value, value + 1);
                     (void)myResult;
                     std::vector<int> stdVec;
-                    const auto stdResult = std::replace_copy(vec.begin(), vec.end(), std::back_inserter(stdVec), value, value + 1);
+                    const auto stdResult =
+                        std::replace_copy(vec.begin(), vec.end(), std::back_inserter(stdVec), value, value + 1);
                     (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
@@ -765,10 +784,14 @@ namespace ut {
                     std::uniform_int_distribution<int> valueDistrib(-10, 10);
                     const auto value = valueDistrib(randGen());
                     std::vector<int> myVec;
-                    const auto myResult = my::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; }, value + 1);
+                    const auto myResult = my::replace_copy_if(
+                        vec.begin(), vec.end(), std::back_inserter(myVec), [&](int i) { return i != value; },
+                        value + 1);
                     (void)myResult;
                     std::vector<int> stdVec;
-                    const auto stdResult = std::replace_copy_if(vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; }, value + 1);
+                    const auto stdResult = std::replace_copy_if(
+                        vec.begin(), vec.end(), std::back_inserter(stdVec), [&](int i) { return i != value; },
+                        value + 1);
                     (void)stdResult;
                     REQUIRE(std::equal(myVec.begin(), myVec.end(), stdVec.begin(), stdVec.end()));
                 }
@@ -796,7 +819,8 @@ namespace ut {
                     REQUIRE(myValue2 == stdValue2);
                 }
                 {
-                    using std::begin; using std::end;
+                    using std::begin;
+                    using std::end;
                     int values1[100] = {};
                     std::generate(begin(values1), end(values1), [&] { return valueDistrib(randGen()); });
                     int values2[100] = {};
@@ -925,11 +949,13 @@ namespace ut {
                     for (decltype(vec.size()) index = 0; index <= vecSize; ++index)
                     {
                         std::vector<int> myVec;
-                        const auto myResult = my::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(myVec));
+                        const auto myResult =
+                            my::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(myVec));
                         (void)myResult;
 
                         std::vector<int> stdVec;
-                        const auto stdResult = std::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(stdVec));
+                        const auto stdResult =
+                            std::rotate_copy(vec.begin(), vec.begin() + index, vec.end(), std::back_inserter(stdVec));
                         (void)stdResult;
 
                         REQUIRE(myVec == stdVec);
@@ -1046,7 +1072,8 @@ namespace ut {
                     const auto stdPartitionPoint = std::partition(stdVec.begin(), stdVec.end(), partitioner);
                     const auto stdResult = std::is_partitioned(stdVec.begin(), stdVec.end(), partitioner);
 
-                    REQUIRE(std::distance(myVec.begin(), myPartitionPoint) == std::distance(stdVec.begin(), stdPartitionPoint));
+                    REQUIRE(std::distance(myVec.begin(), myPartitionPoint) ==
+                            std::distance(stdVec.begin(), stdPartitionPoint));
                     REQUIRE(myResult);
                     REQUIRE(myResult == stdResult);
                 }
@@ -1059,10 +1086,12 @@ namespace ut {
                 for (const auto& vec : vecOfVecs)
                 {
                     std::vector<int> myVecTrue, myVecFalse;
-                    my::partition_copy(vec.begin(), vec.end(), std::back_inserter(myVecTrue), std::back_inserter(myVecFalse), partitioner);
+                    my::partition_copy(vec.begin(), vec.end(), std::back_inserter(myVecTrue),
+                                       std::back_inserter(myVecFalse), partitioner);
 
                     std::vector<int> stdVecTrue, stdVecFalse;
-                    std::partition_copy(vec.begin(), vec.end(), std::back_inserter(stdVecTrue), std::back_inserter(stdVecFalse), partitioner);
+                    std::partition_copy(vec.begin(), vec.end(), std::back_inserter(stdVecTrue),
+                                        std::back_inserter(stdVecFalse), partitioner);
 
                     REQUIRE(myVecTrue == stdVecTrue);
                     REQUIRE(myVecFalse == stdVecFalse);
@@ -1083,7 +1112,8 @@ namespace ut {
                     const auto stdPartitionPoint = std::stable_partition(stdVec.begin(), stdVec.end(), partitioner);
                     const auto stdResult = std::is_partitioned(stdVec.begin(), stdVec.end(), partitioner);
 
-                    REQUIRE(std::distance(myVec.begin(), myPartitionPoint) == std::distance(stdVec.begin(), stdPartitionPoint));
+                    REQUIRE(std::distance(myVec.begin(), myPartitionPoint) ==
+                            std::distance(stdVec.begin(), stdPartitionPoint));
                     REQUIRE(myResult);
                     REQUIRE(myResult == stdResult);
                 }
@@ -1246,12 +1276,13 @@ namespace ut {
                     std::make_heap(myVec.begin(), myVec.begin() + heapSize);
                     std::make_heap(stdVec.begin(), stdVec.begin() + heapSize);
 
-                    /*const auto myResult =*/ my::is_heap_until(myVec.begin(), myVec.end());
+                    /*const auto myResult =*/my::is_heap_until(myVec.begin(), myVec.end());
                     const auto stdResult = std::is_heap_until(stdVec.begin(), stdVec.end());
                     (void)stdResult;
 
                     // TODO: debug
-//                    REQUIRE(std::distance(myVec.begin(), myResult) == std::distance(stdVec.begin(), stdResult));
+                    //                    REQUIRE(std::distance(myVec.begin(), myResult) ==
+                    //                    std::distance(stdVec.begin(), stdResult));
                 }
             }
 
@@ -1473,7 +1504,8 @@ namespace ut {
                         {
                             const auto greaterThanMax = sortedVec.back() + 1;
                             const auto myResult = my::binary_search(sortedVec.begin(), sortedVec.end(), greaterThanMax);
-                            const auto stdResult = std::binary_search(sortedVec.begin(), sortedVec.end(), greaterThanMax);
+                            const auto stdResult =
+                                std::binary_search(sortedVec.begin(), sortedVec.end(), greaterThanMax);
 
                             if (myResult != stdResult)
                             {
@@ -1553,7 +1585,8 @@ namespace ut {
             {
                 REQUIRE(vecOfVecs1.size() == vecOfVecs2.size());
 
-                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end(); ++iter1, ++iter2)
+                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end();
+                     ++iter1, ++iter2)
                 {
                     auto vec1 = *iter1;
                     std::sort(vec1.begin(), vec1.end());
@@ -1580,7 +1613,8 @@ namespace ut {
             {
                 REQUIRE(vecOfVecs1.size() == vecOfVecs2.size());
 
-                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end(); ++iter1, ++iter2)
+                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end();
+                     ++iter1, ++iter2)
                 {
                     auto vec1 = *iter1;
                     std::sort(vec1.begin(), vec1.end());
@@ -1629,7 +1663,8 @@ namespace ut {
             {
                 REQUIRE(vecOfVecs1.size() == vecOfVecs2.size());
 
-                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end(); ++iter1, ++iter2)
+                for (auto iter1 = vecOfVecs1.begin(), iter2 = vecOfVecs2.begin(); iter1 != vecOfVecs1.end();
+                     ++iter1, ++iter2)
                 {
                     auto vec1 = *iter1;
                     std::sort(vec1.begin(), vec1.end());

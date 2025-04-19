@@ -1,14 +1,13 @@
 
 #include "c5.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <sstream>
 
 TEST_CASE("cci c5")
 {
     SECTION("set_substring")
     {
-        const auto result =
-            cci::c5::set_substring(0b10000000000, 0b10101, 2, 6);
+        const auto result = cci::c5::set_substring(0b10000000000, 0b10101, 2, 6);
         REQUIRE(result == 0b10001010100);
     }
 
@@ -23,8 +22,7 @@ TEST_CASE("cci c5")
 
     SECTION("prev_and_next_with_same_bits_counts")
     {
-        const auto result =
-            cci::c5::prev_and_next_with_same_bits_counts(0b111001010U);
+        const auto result = cci::c5::prev_and_next_with_same_bits_counts(0b111001010U);
         REQUIRE(result.first == 0b111001001U);
         REQUIRE(result.second == 0b111001100U);
     }

@@ -3,8 +3,8 @@
 
 #include "graphics.hpp"
 #include "sdl_disabled_warnings.h"
-#include <map>
 #include <platform/filesystem.hpp>
+#include <map>
 #include <string>
 
 namespace sdlxx {
@@ -69,47 +69,37 @@ namespace sdlxx {
         template <typename... Ts>
         struct AssetLoader<Texture, Ts...>
         {
-            static auto load(const Renderer& renderer,
-                             const stdnext::filesystem::path& asset_path,
-                             Ts&&... ts) noexcept
+            static auto load(const Renderer& renderer, const stdnext::filesystem::path& asset_path, Ts&&... ts) noexcept
             {
-                return load_texture(renderer, asset_path,
-                                    std::forward<Ts>(ts)...);
+                return load_texture(renderer, asset_path, std::forward<Ts>(ts)...);
             }
         };
 
     } // namespace detail
 
     template <typename AssetT, typename... Ts>
-    inline result<AssetT>
-    load_asset(const Renderer& renderer,
-               const stdnext::filesystem::path& asset_path, Ts&&... ts) noexcept
+    inline result<AssetT> load_asset(const Renderer& renderer, const stdnext::filesystem::path& asset_path,
+                                     Ts&&... ts) noexcept
     {
-        return detail::AssetLoader<AssetT, std::remove_cv_t<Ts>...>::load(
-            renderer, asset_path, std::forward<Ts>(ts)...);
+        return detail::AssetLoader<AssetT, std::remove_cv_t<Ts>...>::load(renderer, asset_path,
+                                                                          std::forward<Ts>(ts)...);
     }
 
     template <typename AssetT, typename... Ts>
-    inline result<Repository<AssetT>> load_assets(
-        const stdnext::filesystem::path& assets_path, const char* assets_extension,
-                                                  const Renderer& renderer,
+    inline result<Repository<AssetT>> load_assets(const stdnext::filesystem::path& assets_path,
+                                                  const char* assets_extension, const Renderer& renderer,
                                                   Ts&&... ts) noexcept
     {
         try
         {
             Repository<AssetT> assets;
-            for (const auto& entry :
-                 stdnext::filesystem::directory_iterator(assets_path))
+            for (const auto& entry : stdnext::filesystem::directory_iterator(assets_path))
             {
                 const auto& entry_path = entry.path();
-                if (stdnext::filesystem::is_regular_file(entry_path) &&
-                    entry_path.extension() == assets_extension)
+                if (stdnext::filesystem::is_regular_file(entry_path) && entry_path.extension() == assets_extension)
                 {
-                    BOOST_OUTCOME_TRY(
-                        asset, load_asset<AssetT>(renderer, entry_path,
-                                                  std::forward<Ts>(ts)...));
-                    assets.insert_asset(entry_path.stem().string(),
-                                        std::move(asset));
+                    EXP_BOOST_OUTCOME_TRY(asset, load_asset<AssetT>(renderer, entry_path, std::forward<Ts>(ts)...));
+                    assets.insert_asset(entry_path.stem().string(), std::move(asset));
                 }
             }
             return assets;

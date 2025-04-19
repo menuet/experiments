@@ -1,8 +1,7 @@
 
-#include <catch2/catch.hpp>
 #include "parser.manual.h"
+#include <catch2/catch_test_macros.hpp>
 #include <map>
-
 
 namespace ut {
 
@@ -11,7 +10,6 @@ namespace ut {
         class EvalContext
         {
         public:
-
             const std::string& getFieldValue(FieldType a_fieldType) const
             {
                 static std::string l_empty;
@@ -28,11 +26,10 @@ namespace ut {
             }
 
         private:
-
             std::map<FieldType, std::string> m_fields;
         };
 
-    }
+    } // namespace
 
     SCENARIO("the parser can parse valid simple comparisons", "[parser]")
     {
@@ -91,7 +88,6 @@ namespace ut {
                 }
             }
         }
-
     }
 
     SCENARIO("the parser can parse valid complex expressions", "[parser]")
@@ -121,7 +117,6 @@ namespace ut {
                 }
             }
         }
-
     }
 
     SCENARIO("the parser can evaluate valid simple comparisons", "[parser]")
@@ -148,7 +143,8 @@ namespace ut {
 
                 AND_WHEN("We evaluate with context: CHANNEL=BOO, UUID=HELLO")
                 {
-                    const auto l_evalResult = l_parser.eval(EvalContext()(FieldType_Channel, "BOO")(FieldType_Guid, "HELLO"));
+                    const auto l_evalResult =
+                        l_parser.eval(EvalContext()(FieldType_Channel, "BOO")(FieldType_Guid, "HELLO"));
 
                     THEN("It fails")
                     {
@@ -164,7 +160,8 @@ namespace ut {
 
                 AND_WHEN("We evaluate with context: UUID=PLOUF, GUID=123ljk")
                 {
-                    const auto l_evalResult = l_parser.eval(EvalContext()(FieldType_Guid, "123ljk")(FieldType_Uuid, "PLOUF"));
+                    const auto l_evalResult =
+                        l_parser.eval(EvalContext()(FieldType_Guid, "123ljk")(FieldType_Uuid, "PLOUF"));
 
                     THEN("It succeeds")
                     {
@@ -174,7 +171,8 @@ namespace ut {
 
                 AND_WHEN("We evaluate with context: CHANNEL=BOO, UUID=123ljk")
                 {
-                    const auto l_evalResult = l_parser.eval(EvalContext()(FieldType_Channel, "BOO")(FieldType_Uuid, "123ljk"));
+                    const auto l_evalResult =
+                        l_parser.eval(EvalContext()(FieldType_Channel, "BOO")(FieldType_Uuid, "123ljk"));
 
                     THEN("It succeeds")
                     {
@@ -200,7 +198,8 @@ namespace ut {
 
                 AND_WHEN("We evaluate with context: CHANNEL=HELLO, UUID=PLOUF")
                 {
-                    const auto l_evalResult = l_parser.eval(EvalContext()(FieldType_Channel, "HELLO")(FieldType_Uuid, "PLOUF"));
+                    const auto l_evalResult =
+                        l_parser.eval(EvalContext()(FieldType_Channel, "HELLO")(FieldType_Uuid, "PLOUF"));
 
                     THEN("It succeeds")
                     {
@@ -210,7 +209,8 @@ namespace ut {
 
                 AND_WHEN("We evaluate with context: CHANNEL=BOO, UUID=")
                 {
-                    const auto l_evalResult = l_parser.eval(EvalContext()(FieldType_Channel, "BOO")(FieldType_Uuid, ""));
+                    const auto l_evalResult =
+                        l_parser.eval(EvalContext()(FieldType_Channel, "BOO")(FieldType_Uuid, ""));
 
                     THEN("It fails")
                     {
@@ -226,7 +226,8 @@ namespace ut {
 
                 AND_WHEN("We evaluate with context: GUID=4, UUID=PLOUF")
                 {
-                    const auto l_evalResult = l_parser.eval(EvalContext()(FieldType_Guid, "4")(FieldType_Uuid, "PLOUF"));
+                    const auto l_evalResult =
+                        l_parser.eval(EvalContext()(FieldType_Guid, "4")(FieldType_Uuid, "PLOUF"));
 
                     THEN("It succeeds")
                     {
@@ -291,7 +292,6 @@ namespace ut {
                 }
             }
         }
-
     }
 
     SCENARIO("the parser can detect invalid expressions", "[parser]")
@@ -421,7 +421,6 @@ namespace ut {
                 }
             }
         }
-
     }
 
-}
+} // namespace ut

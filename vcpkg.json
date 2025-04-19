@@ -1,0 +1,27 @@
+{
+  "dependencies": [
+    "boost-asio",
+    "boost-outcome",
+    "boost-process",
+    "boost-program-options",
+    "catch2",
+    "fmt",
+    "nlohmann-json",
+    "opencv",
+    "sdl2",
+    "sdl2-image",
+    "sdl2-mixer",
+    "sdl2-ttf",
+    {
+      "name": "sfml",
+      "version>=": "2.6.2"
+    },
+    "spdlog"
+  ],
+  "overrides": [
+    {
+      "name": "sfml",
+      "version": "2.6.2"
+    }
+  ]
+}

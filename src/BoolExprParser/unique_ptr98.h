@@ -1,15 +1,14 @@
 
 #pragma once
 
-
 #include <cassert>
-
+#include <utility> // std::swap
 
 namespace std_ex {
 
     namespace detail {
 
-        template< typename ResourceT >
+        template <typename ResourceT>
         struct Proxy
         {
             ResourceT* m_pResource;
@@ -17,19 +16,18 @@ namespace std_ex {
 
         struct DefaultResourceDeleter
         {
-            template< typename ResourceT >
+            template <typename ResourceT>
             void operator()(ResourceT* a_pResource) const
             {
                 delete a_pResource;
             }
         };
 
-        template< typename DeleterT >
+        template <typename DeleterT>
         class UniquePtr98Base
         {
         protected:
-
-            template< typename ResourceT >
+            template <typename ResourceT>
             void deleteResource(ResourceT* a_pResource) const
             {
                 m_deleter(a_pResource);
@@ -42,16 +40,14 @@ namespace std_ex {
             }
 
         private:
-
             DeleterT m_deleter;
         };
 
-        template<>
-        class UniquePtr98Base < DefaultResourceDeleter >
+        template <>
+        class UniquePtr98Base<DefaultResourceDeleter>
         {
         protected:
-
-            template< typename ResourceT >
+            template <typename ResourceT>
             void deleteResource(ResourceT* a_pResource) const
             {
                 DefaultResourceDeleter()(a_pResource);
@@ -62,26 +58,25 @@ namespace std_ex {
             }
         };
 
-    } // detail
+    } // namespace detail
 
-    template< typename ResourceT, typename DeleterT = detail::DefaultResourceDeleter >
+    template <typename ResourceT, typename DeleterT = detail::DefaultResourceDeleter>
     class unique_ptr98 : private detail::UniquePtr98Base<DeleterT>
     {
         typedef detail::UniquePtr98Base<DeleterT> Base;
 
-        typedef void (unique_ptr98::* bool_type)() const;
+        typedef void (unique_ptr98::*bool_type)() const;
 
-        void this_type_does_not_support_comparisons() const {}
-
-    public:
-
-        explicit unique_ptr98(ResourceT* a_pResource = 0)
-            : m_pResource(a_pResource)
+        void this_type_does_not_support_comparisons() const
         {
         }
 
-        unique_ptr98(detail::Proxy<ResourceT> a_proxy) throw()
-            : m_pResource(a_proxy.m_pResource)
+    public:
+        explicit unique_ptr98(ResourceT* a_pResource = 0) : m_pResource(a_pResource)
+        {
+        }
+
+        unique_ptr98(detail::Proxy<ResourceT> a_proxy) throw() : m_pResource(a_proxy.m_pResource)
         {
         }
 
@@ -142,34 +137,33 @@ namespace std_ex {
         }
 
     private:
-
-        unique_ptr98(unique_ptr98& a_unique) throw(); // = delete
+        unique_ptr98(unique_ptr98& a_unique) throw();            // = delete
         unique_ptr98& operator=(unique_ptr98& a_unique) throw(); // = delete
 
         ResourceT* m_pResource;
     };
 
-    template< typename ResourceT, typename DeleterT >
+    template <typename ResourceT, typename DeleterT>
     inline unique_ptr98<ResourceT, DeleterT> move98(unique_ptr98<ResourceT, DeleterT>& a_unique) throw()
     {
         return unique_ptr98<ResourceT, DeleterT>(detail::Proxy<ResourceT>(a_unique));
     }
 
-    template< typename ResourceT>
+    template <typename ResourceT>
     inline unique_ptr98<ResourceT> make_unique98()
     {
         unique_ptr98<ResourceT> l_uniquePtr(new ResourceT);
         return move98(l_uniquePtr);
     }
 
-    template< typename ResourceT, typename ArgT>
+    template <typename ResourceT, typename ArgT>
     inline unique_ptr98<ResourceT> make_unique98(const ArgT& a_arg)
     {
         unique_ptr98<ResourceT> l_uniquePtr(new ResourceT(a_arg));
         return move98(l_uniquePtr);
     }
 
-    template< typename ResourceT, typename ArgT>
+    template <typename ResourceT, typename ArgT>
     inline unique_ptr98<ResourceT> make_unique98(ArgT& a_arg)
     {
         unique_ptr98<ResourceT> l_uniquePtr(new ResourceT(a_arg));

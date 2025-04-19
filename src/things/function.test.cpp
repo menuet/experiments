@@ -1,8 +1,11 @@
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <functional>
 
-static int globalFunction(int i) { return i * i; }
+static int globalFunction(int i)
+{
+    return i * i;
+}
 
 TEST_CASE("std::function", "[]")
 {
@@ -19,7 +22,10 @@ TEST_CASE("std::function", "[]")
     {
         struct SomeClass
         {
-            int someFunc(int i) const { return i * i; }
+            int someFunc(int i) const
+            {
+                return i * i;
+            }
         };
         SomeClass someObject;
         f = std::bind(&SomeClass::someFunc, &someObject, std::placeholders::_1);
@@ -38,7 +44,10 @@ TEST_CASE("std::function", "[]")
     {
         struct CallableClass
         {
-            int operator()(int i) const { return i * i; }
+            int operator()(int i) const
+            {
+                return i * i;
+            }
         };
         CallableClass callableObject;
         f = callableObject;

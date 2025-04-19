@@ -5,7 +5,7 @@
                                 // unsigned type, result still unsigned
 #endif
 #include "constexpr_maze.hpp"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <iostream>
 
 TEST_CASE("constexpr maze")

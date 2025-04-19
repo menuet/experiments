@@ -1,13 +1,13 @@
 
 #include "brainrefresh.hpp"
 #include <algorithm>
-std::ostream& operator<<(std::ostream& os,
-                         std::pair<unsigned, int> const& value)
+#include <ostream>
+std::ostream& operator<<(std::ostream& os, std::pair<unsigned, int> const& value)
 {
     os << '{' << value.first << ',' << value.second << '}';
     return os;
 }
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <random>
 #include <sstream>
 #include <vector>
@@ -190,8 +190,7 @@ TEST_CASE("trees")
 
         const auto br_vec = tree.visit_by_level();
 
-        const std::vector<std::pair<unsigned, int>> expected = {
-            {0, -9}, {1, -1}, {2, -3}, {2, 7}, {3, -4}};
+        const std::vector<std::pair<unsigned, int>> expected = {{0, -9}, {1, -1}, {2, -3}, {2, 7}, {3, -4}};
 
         REQUIRE(expected == br_vec);
     }
@@ -204,8 +203,7 @@ TEST_CASE("partition")
         const std::vector<int> vec = {6, -2, -1, 4, -2, 7, -5, -5, 1};
         const auto pred = [](const auto& value) { return value < 1; };
         const auto br_vec = br::partition(vec, pred);
-        const auto is_partitioned =
-            std::is_partitioned(br_vec.begin(), br_vec.end(), pred);
+        const auto is_partitioned = std::is_partitioned(br_vec.begin(), br_vec.end(), pred);
         REQUIRE(is_partitioned);
     }
 
@@ -214,8 +212,7 @@ TEST_CASE("partition")
         const std::vector<int> vec = {-7, 1, 5};
         const auto pred = [](const auto& value) { return value < 1; };
         const auto br_vec = br::partition(vec, pred);
-        const auto is_partitioned =
-            std::is_partitioned(br_vec.begin(), br_vec.end(), pred);
+        const auto is_partitioned = std::is_partitioned(br_vec.begin(), br_vec.end(), pred);
         REQUIRE(is_partitioned);
     }
 }
@@ -245,12 +242,10 @@ TEST_CASE("inplace_merge")
             std::sort(split_sorted_vec.begin() + i, split_sorted_vec.end());
 
             auto std_vec = split_sorted_vec;
-            std::inplace_merge(std_vec.begin(), std_vec.begin() + i,
-                               std_vec.end(), std::less<>{});
+            std::inplace_merge(std_vec.begin(), std_vec.begin() + i, std_vec.end(), std::less<>{});
 
             auto br_vec = split_sorted_vec;
-            br::inplace_merge(br_vec.begin(), br_vec.begin() + i, br_vec.end(),
-                              std::less<>{});
+            br::inplace_merge(br_vec.begin(), br_vec.begin() + i, br_vec.end(), std::less<>{});
 
             REQUIRE(std_vec == br_vec);
         }
@@ -304,10 +299,8 @@ TEST_CASE("is_rotation_of")
 
 TEST_CASE("sieve of eratosthene")
 {
-    const auto prime_numbers_until_120 =
-        br::sieve_of_eratosthene_prime_numbers(120);
-    const auto expected = std::vector<unsigned>{
-        2,  3,  5,  7,  11, 13, 17, 19, 23, 29, 31,  37,  41,  43,  47,
-        53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113};
+    const auto prime_numbers_until_120 = br::sieve_of_eratosthene_prime_numbers(120);
+    const auto expected = std::vector<unsigned>{2,  3,  5,  7,  11, 13, 17, 19, 23, 29, 31,  37,  41,  43,  47,
+                                                53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113};
     REQUIRE(prime_numbers_until_120 == expected);
 }

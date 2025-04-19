@@ -30,40 +30,62 @@ endif()
 if("${EXP_PKG_MGR}" STREQUAL "vcpkg")
     find_package(Catch2 CONFIG REQUIRED)
     find_package(fmt CONFIG REQUIRED)
-    find_package(Boost REQUIRED COMPONENTS chrono date_time filesystem program_options system thread)
+    find_package(Boost REQUIRED COMPONENTS
+      asio
+      outcome
+      process
+      program_options
+      # chrono
+      # date_time
+      # filesystem
+      # system
+      # thread
+      )
     find_package(SFML CONFIG REQUIRED COMPONENTS system window graphics audio)
     find_package(nlohmann_json CONFIG REQUIRED)
     find_package(SDL2 CONFIG REQUIRED)
-    find_package(sdl2-image CONFIG REQUIRED)
-    find_package(sdl2-mixer CONFIG REQUIRED)
-    find_package(sdl2-ttf CONFIG REQUIRED)
-    find_package(range-v3 CONFIG REQUIRED)
+    find_package(sdl2_image CONFIG REQUIRED)
+    find_package(sdl2_mixer CONFIG REQUIRED)
+    find_package(sdl2_ttf CONFIG REQUIRED)
+    # find_package(range-v3 CONFIG REQUIRED)
     find_package(OpenCV REQUIRED)
-    find_package(restinio CONFIG REQUIRED)
-    find_package(unofficial-http-parser CONFIG REQUIRED)
+    # find_package(restinio CONFIG REQUIRED)
+    # find_package(unofficial-http-parser CONFIG REQUIRED)
     find_package(spdlog CONFIG REQUIRED)
     if(EXP_USE_LLVM_PACKAGE)
         find_package(llvm CONFIG REQUIRED)
     endif()
-    target_link_libraries(EXP_THIRDPARTY_CATCH2 INTERFACE Catch2::Catch2)
+    target_link_libraries(EXP_THIRDPARTY_CATCH2 INTERFACE Catch2::Catch2 Catch2::Catch2WithMain)
     target_link_libraries(EXP_THIRDPARTY_FMT INTERFACE fmt::fmt)
     target_link_libraries(EXP_THIRDPARTY_BOOST_HEADERS INTERFACE Boost::boost)
-    target_link_libraries(EXP_THIRDPARTY_BOOST_LIBS INTERFACE EXP_THIRDPARTY_BOOST_HEADERS Boost::chrono Boost::date_time Boost::filesystem Boost::program_options Boost::system Boost::thread)
-    target_link_libraries(EXP_THIRDPARTY_SFML INTERFACE sfml-system sfml-window sfml-graphics sfml-audio)
+    target_link_libraries(EXP_THIRDPARTY_BOOST_LIBS INTERFACE EXP_THIRDPARTY_BOOST_HEADERS
+      Boost::asio
+      Boost::outcome
+      Boost::process
+      Boost::program_options
+      # Boost::chrono
+      # Boost::date_time
+      # Boost::filesystem
+      # Boost::system
+      # Boost::thread
+      )
+    target_link_libraries(EXP_THIRDPARTY_SFML INTERFACE sfml-system sfml-window sfml-graphics sfml-audio $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<PLATFORM_ID:Windows>>:avrt>)
     target_link_libraries(EXP_THIRDPARTY_JSON INTERFACE nlohmann_json::nlohmann_json)
-    target_link_libraries(EXP_THIRDPARTY_SDL INTERFACE SDL2::SDL2 SDL2::SDL2main)
-    target_link_libraries(EXP_THIRDPARTY_SDL_IMAGE INTERFACE SDL2::SDL2_image)
-    target_link_libraries(EXP_THIRDPARTY_SDL_MIXER INTERFACE SDL2::SDL2_mixer)
-    target_link_libraries(EXP_THIRDPARTY_SDL_TTF INTERFACE SDL2::SDL2_ttf)
-    target_link_libraries(EXP_THIRDPARTY_RANGES_V3 INTERFACE meta concepts range-v3)
+    target_link_libraries(EXP_THIRDPARTY_SDL INTERFACE 
+      $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+      $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+    target_link_libraries(EXP_THIRDPARTY_SDL_IMAGE INTERFACE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
+    target_link_libraries(EXP_THIRDPARTY_SDL_MIXER INTERFACE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
+    target_link_libraries(EXP_THIRDPARTY_SDL_TTF INTERFACE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+    # target_link_libraries(EXP_THIRDPARTY_RANGES_V3 INTERFACE meta concepts range-v3)
     target_include_directories(EXP_THIRDPARTY_OPENCV INTERFACE ${OpenCV_INCLUDE_DIRS})
     target_link_libraries(EXP_THIRDPARTY_OPENCV INTERFACE ${OpenCV_LIBS})
-    target_link_libraries(EXP_THIRDPARTY_RESTINIO INTERFACE restinio::restinio unofficial::http_parser::http_parser)
+    # target_link_libraries(EXP_THIRDPARTY_RESTINIO INTERFACE restinio::restinio unofficial::http_parser::http_parser)
     target_link_libraries(EXP_THIRDPARTY_SPDLOG INTERFACE spdlog::spdlog)
     if(EXP_USE_LLVM_PACKAGE)
         target_link_libraries(EXP_THIRDPARTY_LLVM INTERFACE llvm::llvm)
     endif()
-elseif("${EXP_PKG_MGR}" STREQUAL "conan")
+elseif("${EXP_PKG_MGR}" STREQUAL "conan") # TODO: FIXME !!!
     set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
     message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
     set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
@@ -80,7 +102,7 @@ elseif("${EXP_PKG_MGR}" STREQUAL "conan")
 endif()
 
 function(exp_setup_common_options target_name)
-    set_property(TARGET "${target_name}" PROPERTY CXX_STANDARD 17)
+    set_property(TARGET "${target_name}" PROPERTY CXX_STANDARD 20)
     set_property(TARGET "${target_name}" PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<1:bin>")
     set_property(TARGET "${target_name}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_PROPERTY:${target_name},RUNTIME_OUTPUT_DIRECTORY>")
     if(

@@ -5,25 +5,28 @@
 #pragma warning(push)
 #pragma warning(disable : 4834) // Disable warning C4834: discarding return value of function with 'nodiscard' attribute
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/write.hpp>
 #include <boost/asio/read.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/system/error_code.hpp>
 #pragma warning(pop)
 #include <string_view>
-#include <vector>
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <deque>
-#include <algorithm>
+#include <vector>
 
 namespace c_s {
 
     class StrExt
     {
     public:
-
-        StrExt(const std::string& s) : m_s(s) {}
-        StrExt(std::string_view s) : m_s(s) {}
+        StrExt(const std::string& s) : m_s(s)
+        {
+        }
+        StrExt(std::string_view s) : m_s(s)
+        {
+        }
 
         bool starts_with(std::string_view start) const
         {
@@ -56,14 +59,12 @@ namespace c_s {
         }
 
     private:
-
         std::string_view m_s;
     };
 
     class Message
     {
     public:
-
         enum
         {
             MESSAGE_MAX_LENGTH = 9999999,
@@ -77,7 +78,8 @@ namespace c_s {
 
         Message(std::string_view message)
         {
-            const auto message_length = static_cast<std::int32_t>(message.length() > MESSAGE_MAX_LENGTH ? MESSAGE_MAX_LENGTH : message.length());
+            const auto message_length = static_cast<std::int32_t>(
+                message.length() > MESSAGE_MAX_LENGTH ? MESSAGE_MAX_LENGTH : message.length());
             m_message.resize(MESSAGE_HEADER_SIZE + 1);
             std::sprintf(m_message.data(), "%0*d:", MESSAGE_MAX_LENGTH_DIGITS_COUNT, message_length);
             m_message.resize(MESSAGE_HEADER_SIZE);
@@ -85,7 +87,7 @@ namespace c_s {
             CS_LOG(INFO, WRITE, "Creating message header+body: '" << data() << "'");
         }
 
-        boost::asio::const_buffers_1 const_buffer() const
+        auto const_buffer() const
         {
             return boost::asio::buffer(m_message.data(), m_message.size());
         }
@@ -127,31 +129,25 @@ namespace c_s {
             m_message.resize(message_length);
         }
 
-        boost::asio::mutable_buffers_1 mutable_buffer()
+        auto mutable_buffer()
         {
             return boost::asio::buffer(m_message.data(), m_message.size());
         }
 
     private:
-
         std::vector<char> m_message;
     };
 
     class MessageWriter
     {
     public:
-
-        MessageWriter(boost::asio::ip::tcp::socket& socket)
-            : m_socket(socket)
+        MessageWriter(boost::asio::ip::tcp::socket& socket) : m_socket(socket)
         {
         }
 
         void write(std::string_view message)
         {
-            boost::asio::post(
-                m_socket.get_executor(),
-                [this, message = Message(message)]() mutable
-            {
+            boost::asio::post(m_socket.get_executor(), [this, message = Message(message)]() mutable {
                 const auto write_in_progress = !m_pending_messages.empty();
                 m_pending_messages.push_back(std::move(message));
                 if (!write_in_progress)
@@ -160,29 +156,25 @@ namespace c_s {
         }
 
     private:
-
         void do_write()
         {
             const auto& message = m_pending_messages.front();
             CS_LOG(INFO, WRITE, "Writing message: '" << message.data() << "'");
-            boost::asio::async_write(
-                m_socket,
-                message.const_buffer(),
-                [this](boost::system::error_code ec, std::size_t bytes_transferred)
-            {
-                if (ec)
-                {
-                    CS_LOG(INFO, WRITE, "Error when writing message");
-                    m_socket.close();
-                    return;
-                }
+            boost::asio::async_write(m_socket, message.const_buffer(),
+                                     [this](boost::system::error_code ec, std::size_t bytes_transferred) {
+                                         if (ec)
+                                         {
+                                             CS_LOG(INFO, WRITE, "Error when writing message");
+                                             m_socket.close();
+                                             return;
+                                         }
 
-                CS_LOG(INFO, WRITE, "Success when writing message");
+                                         CS_LOG(INFO, WRITE, "Success when writing message");
 
-                m_pending_messages.pop_front();
-                if (!m_pending_messages.empty())
-                    do_write();
-            });
+                                         m_pending_messages.pop_front();
+                                         if (!m_pending_messages.empty())
+                                             do_write();
+                                     });
         }
 
         boost::asio::ip::tcp::socket& m_socket;
@@ -192,12 +184,9 @@ namespace c_s {
     class MessageReader
     {
     public:
-
         typedef std::function<void(const boost::system::error_code&, std::string_view)> MessageHandler;
 
-        MessageReader(boost::asio::ip::tcp::socket& socket)
-            : m_socket(socket)
-            , m_message()
+        MessageReader(boost::asio::ip::tcp::socket& socket) : m_socket(socket), m_message()
         {
         }
 
@@ -208,55 +197,50 @@ namespace c_s {
         }
 
     private:
-
         void do_read_header()
         {
             m_message.adapt_buffer_for_header();
             CS_LOG(INFO, WRITE, "Reading message header (size adapted to: " << m_message.data().size() << ")");
             boost::asio::async_read(
-                m_socket,
-                m_message.mutable_buffer(),
-                [this](boost::system::error_code ec, std::size_t bytes_transferred)
-            {
-                if (!ec)
-                {
-                    CS_LOG(INFO, READ, "Success when reading message header: '" << m_message.data() << "'");
-                    m_message.adapt_buffer_for_body(ec);
-                }
+                m_socket, m_message.mutable_buffer(),
+                [this](boost::system::error_code ec, std::size_t bytes_transferred) {
+                    if (!ec)
+                    {
+                        CS_LOG(INFO, READ, "Success when reading message header: '" << m_message.data() << "'");
+                        m_message.adapt_buffer_for_body(ec);
+                    }
 
-                if (ec)
-                {
-                    CS_LOG(INFO, READ, "Error when reading message header or adapting message size for body");
-                    m_socket.close();
-                    m_message_handler(ec, std::string());
-                    return;
-                }
+                    if (ec)
+                    {
+                        CS_LOG(INFO, READ, "Error when reading message header or adapting message size for body");
+                        m_socket.close();
+                        m_message_handler(ec, std::string());
+                        return;
+                    }
 
-                CS_LOG(INFO, READ, "Reading message body (size adapted to: " << m_message.data().size() << ")");
-                do_read_body();
-            });
+                    CS_LOG(INFO, READ, "Reading message body (size adapted to: " << m_message.data().size() << ")");
+                    do_read_body();
+                });
         }
 
         void do_read_body()
         {
-            boost::asio::async_read(
-                m_socket,
-                m_message.mutable_buffer(),
-                [this](boost::system::error_code ec, std::size_t bytes_transferred)
-            {
-                if (ec)
-                {
-                    CS_LOG(INFO, READ, "Error when reading message body");
-                    m_socket.close();
-                    m_message_handler(ec, std::string());
-                    return;
-                }
+            boost::asio::async_read(m_socket, m_message.mutable_buffer(),
+                                    [this](boost::system::error_code ec, std::size_t bytes_transferred) {
+                                        if (ec)
+                                        {
+                                            CS_LOG(INFO, READ, "Error when reading message body");
+                                            m_socket.close();
+                                            m_message_handler(ec, std::string());
+                                            return;
+                                        }
 
-                CS_LOG(INFO, READ, "Success when reading message body: '" << m_message.data() << "'");
-                m_message_handler(ec, m_message.data());
+                                        CS_LOG(INFO, READ,
+                                               "Success when reading message body: '" << m_message.data() << "'");
+                                        m_message_handler(ec, m_message.data());
 
-                do_read_header();
-            });
+                                        do_read_header();
+                                    });
         }
 
         boost::asio::ip::tcp::socket& m_socket;
@@ -264,4 +248,4 @@ namespace c_s {
         MessageHandler m_message_handler;
     };
 
-}
+} // namespace c_s

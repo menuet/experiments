@@ -1,75 +1,70 @@
 
-#include <catch2/catch.hpp>
 #include "exprtemp.hpp"
+#include <catch2/catch_test_macros.hpp>
 
+namespace exprtemp { namespace ut {
 
-namespace exprtemp {
+    SCENARIO("Construct an expression", "[exprtemp]")
+    {
+        GIVEN("a simple value")
+        {
+            const auto l_expr = val(50);
 
-	namespace ut {
-
-		SCENARIO("Construct an expression", "[exprtemp]")
-		{
-            GIVEN("a simple value")
+            WHEN("evaluate it")
             {
-                const auto l_expr = val(50);
+                const auto l_val = l_expr();
 
-                WHEN("evaluate it")
+                THEN("we get the proper result")
                 {
-                    const auto l_val = l_expr();
-
-                    THEN("we get the proper result")
-                    {
-                        REQUIRE(l_val == 50);
-                    }
-                }
-            }
-
-            GIVEN("a negation")
-            {
-                const auto l_expr = - val(50);
-
-                WHEN("evaluate it")
-                {
-                    const auto l_val = l_expr();
-
-                    THEN("we get the proper result")
-                    {
-                        REQUIRE(l_val == -50);
-                    }
-                }
-            }
-
-            GIVEN("an addition")
-            {
-                const auto l_expr = val(50) + val(78);
-
-                WHEN("evaluate it")
-                {
-                    const auto l_val = l_expr();
-
-                    THEN("we get the proper result")
-                    {
-                        REQUIRE(l_val == 128);
-                    }
-                }
-            }
-
-            GIVEN("a complicated expression")
-            {
-                const auto l_expr = (val(50) + val(78) - val(3)) * val(3) / val(5);
-
-                WHEN("evaluate it")
-                {
-                    const auto l_val = l_expr();
-
-                    THEN("we get the proper result")
-                    {
-                        REQUIRE(l_val == 75);
-                    }
+                    REQUIRE(l_val == 50);
                 }
             }
         }
 
-	} // namespace ut
+        GIVEN("a negation")
+        {
+            const auto l_expr = -val(50);
 
-} // namespace algo
+            WHEN("evaluate it")
+            {
+                const auto l_val = l_expr();
+
+                THEN("we get the proper result")
+                {
+                    REQUIRE(l_val == -50);
+                }
+            }
+        }
+
+        GIVEN("an addition")
+        {
+            const auto l_expr = val(50) + val(78);
+
+            WHEN("evaluate it")
+            {
+                const auto l_val = l_expr();
+
+                THEN("we get the proper result")
+                {
+                    REQUIRE(l_val == 128);
+                }
+            }
+        }
+
+        GIVEN("a complicated expression")
+        {
+            const auto l_expr = (val(50) + val(78) - val(3)) * val(3) / val(5);
+
+            WHEN("evaluate it")
+            {
+                const auto l_val = l_expr();
+
+                THEN("we get the proper result")
+                {
+                    REQUIRE(l_val == 75);
+                }
+            }
+        }
+    }
+
+}} // namespace exprtemp::ut

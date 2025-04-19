@@ -1,6 +1,9 @@
 
-#include <catch2/catch.hpp>
 #include "mean_time_of_day.hpp"
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+
+using namespace Catch;
 
 TEST_CASE("mean_angle")
 {
@@ -12,6 +15,5 @@ TEST_CASE("mean_angle")
 
 TEST_CASE("mean_time_of_day")
 {
-    REQUIRE(mean_time_of_day(
-                {"23:00:17", "23:40:20", "00:12:45", "00:17:19"}) == "23:47:43");
+    REQUIRE(mean_time_of_day({"23:00:17", "23:40:20", "00:12:45", "00:17:19"}) == "23:47:43");
 }

@@ -5,9 +5,12 @@
 #include <cassert>
 #include <chrono>
 #include <cmath>
+#include <iterator>
 #include <numeric>
 #include <optional>
+#include <string>
 #include <tuple>
+#include <vector>
 
 namespace sc = std::chrono;
 
@@ -34,8 +37,8 @@ static TimeOfDay degrees_to_time(double time_in_degrees) noexcept
     time_in_degrees = std::fmod(time_in_degrees, DegreesInOneCircle);
     if (time_in_degrees < 0.)
         time_in_degrees += DegreesInOneCircle;
-    const auto time_in_seconds = sc::seconds{static_cast<sc::seconds::rep>(
-        time_in_degrees * SecondsInOneDay / DegreesInOneCircle)};
+    const auto time_in_seconds =
+        sc::seconds{static_cast<sc::seconds::rep>(time_in_degrees * SecondsInOneDay / DegreesInOneCircle)};
     const auto h = sc::duration_cast<sc::hours>(time_in_seconds);
     const auto m = sc::duration_cast<sc::minutes>(time_in_seconds - h);
     const auto s = time_in_seconds - h - m;
@@ -83,15 +86,12 @@ static std::string to_string(const TimeOfDay& time_of_day)
 template <typename InputIter>
 static auto mean_angle(InputIter angles_begin, InputIter angles_end)
 {
-    const auto [x, y, length] = std::accumulate(
-        angles_begin, angles_end, std::tuple{0., 0., 0},
-        [](const auto& accu, auto elem) {
+    const auto [x, y, length] =
+        std::accumulate(angles_begin, angles_end, std::tuple{0., 0., 0}, [](const auto& accu, auto elem) {
             const auto angle_in_radians = elem * Pi / DegreesInHalfCircle;
             const auto angle_cos = std::cos(angle_in_radians);
             const auto angle_sin = std::sin(angle_in_radians);
-            return std::tuple{std::get<0>(accu) + angle_cos,
-                              std::get<1>(accu) + angle_sin,
-                              std::get<2>(accu) + 1};
+            return std::tuple{std::get<0>(accu) + angle_cos, std::get<1>(accu) + angle_sin, std::get<2>(accu) + 1};
         });
 
     assert(length > 0);
@@ -112,20 +112,15 @@ template <typename InputIter>
 static auto mean_time_of_day(InputIter strings_begin, InputIter strings_end)
 {
     std::vector<double> times_in_degrees;
-    std::transform(
-        strings_begin, strings_end, std::back_inserter(times_in_degrees),
-        [](const auto& time_as_string) {
-            return time_to_degrees(
-                parse_time_of_day(time_as_string).value_or(TimeOfDay{}));
-        });
+    std::transform(strings_begin, strings_end, std::back_inserter(times_in_degrees), [](const auto& time_as_string) {
+        return time_to_degrees(parse_time_of_day(time_as_string).value_or(TimeOfDay{}));
+    });
 
-    const auto mean =
-        mean_angle(begin(times_in_degrees), end(times_in_degrees));
+    const auto mean = mean_angle(begin(times_in_degrees), end(times_in_degrees));
     return to_string(degrees_to_time(mean));
 }
 
-static auto
-mean_time_of_day(std::initializer_list<std::string> times_as_strings)
+static auto mean_time_of_day(std::initializer_list<std::string> times_as_strings)
 {
     return mean_time_of_day(begin(times_as_strings), end(times_as_strings));
 }

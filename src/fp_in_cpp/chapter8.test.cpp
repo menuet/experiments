@@ -1,7 +1,7 @@
 
 #include "chapter8.hpp"
+#include <catch2/catch_test_macros.hpp>
 #include <array>
-#include <catch2/catch.hpp>
 #include <iostream>
 #include <numeric>
 #include <random>
@@ -137,8 +137,7 @@ namespace test {
         return fpstd;
     }
 
-    fpstdpair random_action(std::default_random_engine& re, fpstdpair fpstdpair,
-                            int value)
+    fpstdpair random_action(std::default_random_engine& re, fpstdpair fpstdpair, int value)
     {
         std::uniform_int_distribution<> uid_action(0, 100);
         const auto action = uid_action(re);
@@ -152,8 +151,7 @@ namespace test {
             debug_println("tail");
             return tail(fpstdpair);
         }
-        std::uniform_int_distribution<std::size_t> uid_index(
-            0, fpstdpair.first.size());
+        std::uniform_int_distribution<std::size_t> uid_index(0, fpstdpair.first.size());
         const auto index = uid_index(re);
         if (action < 80)
         {
@@ -172,29 +170,26 @@ namespace test {
         std::vector<int> values(action_count);
         std::iota(values.begin(), values.end(), 1);
 
-        return std::accumulate(
-            values.begin(), values.end(), std::vector<fpstdpair>{{}},
-            [&re](auto fpstdpairs, auto value) {
-                auto fpstdpair = random_action(re, fpstdpairs.back(), value);
-                debug_println(fpstdpair);
-                fpstdpairs.push_back(std::move(fpstdpair));
-                return fpstdpairs;
-            });
+        return std::accumulate(values.begin(), values.end(), std::vector<fpstdpair>{{}},
+                               [&re](auto fpstdpairs, auto value) {
+                                   auto fpstdpair = random_action(re, fpstdpairs.back(), value);
+                                   debug_println(fpstdpair);
+                                   fpstdpairs.push_back(std::move(fpstdpair));
+                                   return fpstdpairs;
+                               });
     }
 
     bool all_equal(const std::vector<fpstdpair>& fpstdpairs)
     {
-        return std::all_of(
-            begin(fpstdpairs), end(fpstdpairs), [](const auto& fpstdpair) {
-                const auto result = std::equal(
-                    fpstdpair.first.begin(), fpstdpair.first.end(),
-                    fpstdpair.second.begin(), fpstdpair.second.end());
-                if (!result)
-                {
-                    debug_println(fpstdpair);
-                }
-                return result;
-            });
+        return std::all_of(begin(fpstdpairs), end(fpstdpairs), [](const auto& fpstdpair) {
+            const auto result = std::equal(fpstdpair.first.begin(), fpstdpair.first.end(), fpstdpair.second.begin(),
+                                           fpstdpair.second.end());
+            if (!result)
+            {
+                debug_println(fpstdpair);
+            }
+            return result;
+        });
     }
 
     template <typename List, typename ForwardIter>
@@ -267,8 +262,7 @@ TEST_CASE("chapter 8", "")
             SECTION("on non-empty list")
             {
                 // ARRANGE
-                const auto old_list =
-                    test::fplist{}.prepend(1).prepend(2).prepend(3).prepend(4);
+                const auto old_list = test::fplist{}.prepend(1).prepend(2).prepend(3).prepend(4);
 
                 // ACT
                 const auto new_list = old_list.prepend(5);
@@ -297,12 +291,7 @@ TEST_CASE("chapter 8", "")
             SECTION("on non-empty list")
             {
                 // ARRANGE
-                const auto old_list = test::fplist{}
-                                          .prepend(1)
-                                          .prepend(2)
-                                          .prepend(3)
-                                          .prepend(4)
-                                          .prepend(5);
+                const auto old_list = test::fplist{}.prepend(1).prepend(2).prepend(3).prepend(4).prepend(5);
 
                 // ACT
                 const auto new_list = old_list.tail();
@@ -370,8 +359,7 @@ TEST_CASE("chapter 8", "")
             SECTION("on list of size 4")
             {
                 // ARRANGE
-                const auto old_list =
-                    test::fplist{}.prepend(1).prepend(2).prepend(3).prepend(4);
+                const auto old_list = test::fplist{}.prepend(1).prepend(2).prepend(3).prepend(4);
 
                 SECTION("at begin")
                 {
@@ -396,8 +384,7 @@ TEST_CASE("chapter 8", "")
                 SECTION("in the middle")
                 {
                     // ACT
-                    const auto new_list =
-                        old_list.insert(++++old_list.begin(), 5);
+                    const auto new_list = old_list.insert(++ ++old_list.begin(), 5);
 
                     // ASSERT
                     REQUIRE(test::equal(old_list, {4, 3, 2, 1}));
@@ -463,12 +450,7 @@ TEST_CASE("chapter 8", "")
             SECTION("on list of size 5")
             {
                 // ARRANGE
-                const auto old_list = test::fplist{}
-                                          .prepend(1)
-                                          .prepend(2)
-                                          .prepend(3)
-                                          .prepend(4)
-                                          .prepend(5);
+                const auto old_list = test::fplist{}.prepend(1).prepend(2).prepend(3).prepend(4).prepend(5);
 
                 SECTION("at begin")
                 {
@@ -493,7 +475,7 @@ TEST_CASE("chapter 8", "")
                 SECTION("in the middle")
                 {
                     // ACT
-                    const auto new_list = old_list.erase(++++old_list.begin());
+                    const auto new_list = old_list.erase(++ ++old_list.begin());
 
                     // ASSERT
                     REQUIRE(test::equal(old_list, {5, 4, 3, 2, 1}));
@@ -541,8 +523,7 @@ TEST_CASE("chapter 8", "")
             {
                 // ARRANGE
                 const auto data = [] {
-                    auto data =
-                        std::array<int, test::mbvt::bucket_size * 100>{};
+                    auto data = std::array<int, test::mbvt::bucket_size * 100>{};
                     std::iota(data.begin(), data.end(), 1);
                     return data;
                 }();
@@ -551,8 +532,7 @@ TEST_CASE("chapter 8", "")
                 {
                     // ARRANGE
                     auto list = test::mbvt{};
-                    std::copy(data.begin(), data.begin() + size,
-                              std::back_inserter(list));
+                    std::copy(data.begin(), data.begin() + size, std::back_inserter(list));
 
                     // ACT
                     list.push_back(static_cast<int>(size + 1));
@@ -561,20 +541,15 @@ TEST_CASE("chapter 8", "")
                     const auto list_size = list.size();
                     const auto list_depth = list.depth();
                     const auto lower_list_size =
-                        (list_depth == 1 ? 0
-                                         : (1 << ((list_depth - 1) *
-                                                  test::mbvt::bucket_bits))) +
-                        1;
-                    const auto upper_list_size =
-                        (1 << (list_depth * test::mbvt::bucket_bits)) + 1;
+                        (list_depth == 1 ? 0 : (1 << ((list_depth - 1) * test::mbvt::bucket_bits))) + 1;
+                    const auto upper_list_size = (1 << (list_depth * test::mbvt::bucket_bits)) + 1;
                     REQUIRE(list_size >= lower_list_size);
                     REQUIRE(list_size < upper_list_size);
                     for (std::size_t index = 0; index < list_size; ++index)
                     {
                         REQUIRE(list[index] == data[index]);
                     }
-                    REQUIRE(test::equal(list, data.begin(),
-                                        data.begin() + size + 1));
+                    REQUIRE(test::equal(list, data.begin(), data.begin() + size + 1));
                 }
             }
         }
@@ -635,11 +610,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("on non-empty list")
             {
                 // ARRANGE
-                const auto lst4 = IntList{}
-                                      .push_front(1)
-                                      .push_front(2)
-                                      .push_front(3)
-                                      .push_front(4);
+                const auto lst4 = IntList{}.push_front(1).push_front(2).push_front(3).push_front(4);
 
                 // ACT
                 const auto lst5 = lst4.push_front(5);
@@ -676,12 +647,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("on list with size > 1")
             {
                 // ARRANGE
-                const auto lst5 = IntList{}
-                                      .push_front(1)
-                                      .push_front(2)
-                                      .push_front(3)
-                                      .push_front(4)
-                                      .push_front(5);
+                const auto lst5 = IntList{}.push_front(1).push_front(2).push_front(3).push_front(4).push_front(5);
 
                 // ACT
                 const auto lst4 = lst5.pop_front();
@@ -718,12 +684,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("on list with size > 1")
             {
                 // ARRANGE
-                const auto lst5 = IntList{}
-                                      .push_front(1)
-                                      .push_front(2)
-                                      .push_front(3)
-                                      .push_front(4)
-                                      .push_front(5);
+                const auto lst5 = IntList{}.push_front(1).push_front(2).push_front(3).push_front(4).push_front(5);
 
                 SECTION("after first")
                 {
@@ -742,7 +703,7 @@ TEST_CASE("chapter 8 v2", "")
                 SECTION("after third")
                 {
                     // ACT
-                    const auto lst6 = lst5.insert_after(++++lst5.begin(), 6);
+                    const auto lst6 = lst5.insert_after(++ ++lst5.begin(), 6);
 
                     // ASSERT
                     REQUIRE(!lst6.empty());
@@ -756,8 +717,7 @@ TEST_CASE("chapter 8 v2", "")
                 SECTION("after last")
                 {
                     // ACT
-                    const auto lst6 =
-                        lst5.insert_after(++++++++lst5.begin(), 6);
+                    const auto lst6 = lst5.insert_after(++ ++ ++ ++lst5.begin(), 6);
 
                     // ASSERT
                     REQUIRE(!lst6.empty());
@@ -792,12 +752,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("on list with size > 1")
             {
                 // ARRANGE
-                const auto lst5 = IntList{}
-                                      .push_front(1)
-                                      .push_front(2)
-                                      .push_front(3)
-                                      .push_front(4)
-                                      .push_front(5);
+                const auto lst5 = IntList{}.push_front(1).push_front(2).push_front(3).push_front(4).push_front(5);
 
                 SECTION("after first")
                 {
@@ -816,7 +771,7 @@ TEST_CASE("chapter 8 v2", "")
                 SECTION("after third")
                 {
                     // ACT
-                    const auto lst4 = lst5.erase_after(++++lst5.begin());
+                    const auto lst4 = lst5.erase_after(++ ++lst5.begin());
 
                     // ASSERT
                     REQUIRE(!lst4.empty());
@@ -830,8 +785,7 @@ TEST_CASE("chapter 8 v2", "")
                 SECTION("after last")
                 {
                     // ACT
-                    const auto lst5same =
-                        lst5.erase_after(++++++++lst5.begin());
+                    const auto lst5same = lst5.erase_after(++ ++ ++ ++lst5.begin());
 
                     // ASSERT
                     REQUIRE(!lst5same.empty());
@@ -912,8 +866,7 @@ TEST_CASE("chapter 8 v2", "")
 
                     // ASSERT
                     REQUIRE(test::equal(trie, vec));
-                    const auto expected_levels_count =
-                        i == 1 ? 1 : (test::log<4>(i - 1) + 1);
+                    const auto expected_levels_count = i == 1 ? 1 : (test::log<4>(i - 1) + 1);
                     REQUIRE(trie.levels() == expected_levels_count);
                 }
             }
@@ -943,8 +896,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("when smaller than chunk")
             {
                 // ARRANGE
-                const auto trie3 =
-                    IntTrie{}.push_back(1).push_back(2).push_back(3);
+                const auto trie3 = IntTrie{}.push_back(1).push_back(2).push_back(3);
 
                 // ACT
                 const auto trie4 = trie3.push_back(4);
@@ -963,9 +915,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("when greater than chunk")
             {
                 // ARRANGE
-                const auto trie4 =
-                    IntTrie{}.push_back(1).push_back(2).push_back(3).push_back(
-                        4);
+                const auto trie4 = IntTrie{}.push_back(1).push_back(2).push_back(3).push_back(4);
 
                 // ACT
                 const auto trie5 = trie4.push_back(5);
@@ -996,8 +946,7 @@ TEST_CASE("chapter 8 v2", "")
                     REQUIRE(test::equal(trie, vec));
                     vec.push_back(i);
                     REQUIRE(test::equal(new_trie, vec));
-                    const auto expected_levels_count =
-                        i == 1 ? 1 : (test::log<4>(i - 1) + 1);
+                    const auto expected_levels_count = i == 1 ? 1 : (test::log<4>(i - 1) + 1);
                     REQUIRE(new_trie.levels() == expected_levels_count);
                     trie = new_trie;
                 }
@@ -1020,9 +969,7 @@ TEST_CASE("chapter 8 v2", "")
                 std::uniform_int_distribution<> ui_value(-100, 400);
                 const auto update_value = ui_value(re);
                 vec[update_index] = update_value;
-                trie =
-                    trie.update(static_cast<IntTrie::size_type>(update_index),
-                                update_value);
+                trie = trie.update(static_cast<IntTrie::size_type>(update_index), update_value);
                 REQUIRE(test::equal(trie, vec));
             }
         }
@@ -1089,8 +1036,7 @@ TEST_CASE("chapter 8 v2", "")
             SECTION("more than 3 levels")
             {
                 // ARRANGE
-                static constexpr auto InitialCount =
-                    4U * 4U * 4U * 4U * 4U + 1U;
+                static constexpr auto InitialCount = 4U * 4U * 4U * 4U * 4U + 1U;
                 std::vector<int> vec(InitialCount);
                 std::iota(vec.begin(), vec.end(), 1);
                 IntTrie trie(vec.begin(), vec.end());
@@ -1102,8 +1048,7 @@ TEST_CASE("chapter 8 v2", "")
 
                     // ASSERT
                     REQUIRE(test::equal(trie, vec));
-                    const auto expected_levels_count =
-                        i == 1 ? 1 : (test::log<4>(i - 1) + 1);
+                    const auto expected_levels_count = i == 1 ? 1 : (test::log<4>(i - 1) + 1);
                     CAPTURE(i);
                     REQUIRE(trie.levels() == expected_levels_count);
                     vec.pop_back();
