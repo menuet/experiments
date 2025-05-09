@@ -1,12 +1,6 @@
 
 #pragma once
 
-#include <algorithm>
-#include <iostream>
-#include <string>
-#include <vector>
-
-
 struct ProgressBar
 {
     float value{0.f};

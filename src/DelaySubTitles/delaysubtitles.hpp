@@ -1,47 +1,9 @@
 
 #pragma once
 
-
-#include <platform/filesystem.hpp>
-#include <chrono>
-#include <fstream>
-#include <string>
-#include <ctime>
-#include <vector>
-#include <iostream>
-
-
 namespace delaysubtitles {
 
-    namespace fs = stdnext::filesystem;
-
-#if ! EXP_PLATFORM_OS_IS_WINDOWS
-    template< typename... Ts >
-    inline void string_scanf(const std::string& s, const char* format, const Ts&... ts)
-    {
-        sscanf(s.c_str(), format, ts...); // not safe
-    }
-    template< typename... Ts >
-    inline void string_printf(std::string& s, const char* format, const Ts&... ts)
-    {
-        char sz[500] = {0};
-        sprintf(sz, format, ts...);
-        s = sz;
-    }
-#else
-    template< typename... Ts >
-    inline void string_scanf(const std::string& s, const char* format, const Ts&... ts)
-    {
-        sscanf_s(s.c_str(), format, ts...); // not safe
-    }
-    template< typename... Ts >
-    inline void string_printf(std::string& s, const char* format, const Ts&... ts)
-    {
-        char sz[500] = {0};
-        sprintf_s(sz, format, ts...);
-        s = sz;
-    }
-#endif
+    namespace fs = std::filesystem;
 
     struct Time
     {
@@ -49,26 +11,69 @@ namespace delaysubtitles {
         int m_minutes = 0;
         int m_seconds = 0;
         int m_milliseconds = 0;
+
+        auto operator<=>(const Time&) const = default;
     };
 
-    static Time parseTime(const std::string& timeString)
+    static constexpr Time parseTime(const std::string_view& timeString)
     {
-        Time time;
-        string_scanf(timeString, "%d:%d:%d,%d", &time.m_hours, &time.m_minutes, &time.m_seconds, &time.m_milliseconds);
+        const auto toInt = [](const auto& sv) {
+            int value{};
+            auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), value);
+            if (ec != std::errc())
+                return 0;
+            return value;
+        };
+
+        Time time{};
+
+        auto splitSemi = timeString | std::views::split(':');
+
+        auto iterSemi = splitSemi.begin();
+
+        if (iterSemi == splitSemi.end())
+            return time;
+
+        time.m_hours = toInt(*iterSemi++);
+
+        if (iterSemi == splitSemi.end())
+            return time;
+
+        time.m_minutes = toInt(*iterSemi++);
+
+        if (iterSemi == splitSemi.end())
+            return time;
+
+        auto spliComa = (*iterSemi) | std::views::split(',');
+
+        auto iterComa = spliComa.begin();
+
+        if (iterComa == spliComa.end())
+            return time;
+
+        time.m_seconds = toInt(*iterComa++);
+
+        if (iterComa == spliComa.end())
+            return time;
+
+        time.m_milliseconds = toInt(*iterComa++);
+
         return time;
     }
 
+    static_assert(parseTime("10:19:28,123") == Time{10, 19, 28, 123});
+
     static std::string formatTime(const Time& time)
     {
-        std::string timeString;
-        string_printf(timeString, "%02d:%02d:%02d,%03d", time.m_hours, time.m_minutes, time.m_seconds, time.m_milliseconds);
-        timeString.resize(timeString.length() - 1);
+        std::string timeString =
+            std::format("{:02}:{:02}:{:02},{:03}", time.m_hours, time.m_minutes, time.m_seconds, time.m_milliseconds);
         return timeString;
     }
 
     static void delayTime(Time& time, const std::chrono::milliseconds& delay)
     {
-        auto chrono = std::chrono::hours(time.m_hours) + std::chrono::minutes(time.m_minutes) + std::chrono::seconds(time.m_seconds) + std::chrono::milliseconds(time.m_milliseconds);
+        auto chrono = std::chrono::hours(time.m_hours) + std::chrono::minutes(time.m_minutes) +
+                      std::chrono::seconds(time.m_seconds) + std::chrono::milliseconds(time.m_milliseconds);
         chrono += delay;
         if (chrono.count() < 0)
             return;
@@ -102,17 +107,13 @@ namespace delaysubtitles {
         line += stopTimeString;
     }
 
-    static void delaySubTitles(
-        const std::chrono::milliseconds& delay,
-        const fs::path& sourcePath,
-        fs::path targetPath
-        )
+    static void delaySubTitles(const std::chrono::milliseconds& delay, const fs::path& sourcePath, fs::path targetPath)
     {
         if (fs::is_directory(sourcePath))
         {
             std::vector<fs::path> sourceFilesPaths;
             const auto iterEnd = fs::directory_iterator();
-            for (auto iter = fs::directory_iterator(sourcePath) ; iter!=iterEnd; ++iter)
+            for (auto iter = fs::directory_iterator(sourcePath); iter != iterEnd; ++iter)
             {
                 const auto& entry = *iter;
                 const auto path = entry.path();
@@ -147,7 +148,7 @@ namespace delaysubtitles {
             {
                 std::getline(sourceFile, sourceLine);
                 delayLine(sourceLine, delay);
-                targetFile.write(sourceLine.c_str(), sourceLine.length());
+                targetFile.write(sourceLine.c_str(), static_cast<std::streamsize>(sourceLine.length()));
                 targetFile << "\n";
             }
         }

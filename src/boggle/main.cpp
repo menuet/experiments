@@ -1,15 +1,10 @@
 
+import std;
+
 #include "progress_bar.hpp"
 #include <platform/platform.h>
 #include <cassert>
-#include <chrono>
 #include <clocale>
-#include <cstdio>
-#include <ctime>
-#include <cwchar>
-#include <iostream>
-#include <random>
-#include <thread>
 
 #if EXP_PLATFORM_OS_IS_WINDOWS
 #include <conio.h>
@@ -33,11 +28,11 @@ void show_random_additions(int wait_seconds)
         const auto left = random_number(rg);
         const auto right = random_number(rg);
         std::cout << "Combien font : " << left << " + " << right << " ?\n";
-        // for (int i = 0; i < wait_seconds; ++i)
-        //{
-        //    std::cout << "...\n";
-        //    std::this_thread::sleep_for(1s);
-        //}
+        for (int i = 0; i < wait_seconds; ++i)
+        {
+            std::cout << "...\n";
+            std::this_thread::sleep_for(1s);
+        }
         const auto code = [] {
 #if EXP_PLATFORM_OS_IS_WINDOWS
             const auto first = _getch();
@@ -49,7 +44,6 @@ void show_random_additions(int wait_seconds)
 #endif
         }();
         std::cout << "Reponse : " << left + right << "\n\n";
-        //        std::this_thread::sleep_for(1s);
         if (code == 3)
             break;
     }
@@ -87,7 +81,7 @@ void show_random_multiplications(int wait_seconds)
 char random_letter(std::default_random_engine& rg)
 {
     std::uniform_int_distribution<int> uniform_dist('A', 'Z');
-    return uniform_dist(rg);
+    return static_cast<char>(uniform_dist(rg));
 }
 
 void show_boggle()
@@ -189,7 +183,7 @@ void test_progress_bars()
         if (bar.value >= 100.f)
         {
             bar.status = "Done!";
-            pending_bars.erase(pending_bars.begin() + bar_index);
+            pending_bars.erase(pending_bars.begin() + static_cast<std::ptrdiff_t>(bar_index));
         }
 
         write_progress({10, 5}, bars);

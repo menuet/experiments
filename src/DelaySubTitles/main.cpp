@@ -1,7 +1,7 @@
 
-#include "delaysubtitles.hpp"
-#include <string>
+import std;
 
+#include "delaysubtitles.hpp"
 
 int main(int argc, char* argv[])
 {

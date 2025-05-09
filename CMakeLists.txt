@@ -1,5 +1,5 @@
 
-cmake_minimum_required (VERSION 3.12 FATAL_ERROR)
+cmake_minimum_required (VERSION 4.0 FATAL_ERROR)
 
 enable_testing()
 
@@ -102,7 +102,7 @@ elseif("${EXP_PKG_MGR}" STREQUAL "conan") # TODO: FIXME !!!
 endif()
 
 function(exp_setup_common_options target_name)
-    set_property(TARGET "${target_name}" PROPERTY CXX_STANDARD 20)
+    set_property(TARGET "${target_name}" PROPERTY CXX_STANDARD 23)
     set_property(TARGET "${target_name}" PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<1:bin>")
     set_property(TARGET "${target_name}" PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_PROPERTY:${target_name},RUNTIME_OUTPUT_DIRECTORY>")
     if(
